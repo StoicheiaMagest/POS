@@ -14,12 +14,18 @@ Som princip ska vi arbeta i egna branches (grenar)
 
 Vi skapar ny gren i github eller i terminal
 
+
+Generell:
 git checkout -b <namn på grenen>
 
 Exempel:
 // Skapa en ny branch som heter "new branch"
 
 git checkout -b new-branch
+git push --set-upstream origin new-branch
+
+//
+
 
 
 
