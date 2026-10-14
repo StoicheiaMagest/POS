@@ -108,7 +108,13 @@ De facto:
 
 # Shortcuts:  #
 
+<<<<<<< HEAD
     Formatera Java kod - Ctrl + alt + R 
     Om terminal är fast - ctrl + c
     Copy i terminal - Ctrl + shift + c
     Paste i terminal - Ctrl + shift + v
+=======
+Ska använda Java 25, och JUnit 6
+
+Jag heter Adam.
+>>>>>>> 8b2eb034cd5946a9cc60b77449faac48efe2453f
