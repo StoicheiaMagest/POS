@@ -24,4 +24,7 @@ public class Basket {
         return totalPrice;
     }
 
+    public double getTotal() {
+        return 0;
+    }
 }
