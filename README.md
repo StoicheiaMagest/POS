@@ -98,9 +98,17 @@ Gå till
 
 https://github.com/StoicheiaMagest/POS/pulls
 
-Välj på högersida den branch du vill merga med main. Main ska vara till höger
+Välj på högersida den branch du vill merga med main. Main ska vara till höger.
 
+Om det finns skillnad mellan main och din branch kommer du kunna skapa en pull request. Man kan se skillnaden eller "diffs" under. Vi trycker på knappen "Create pull request"
 
+Ge den ett deskriptivt namn i "Add a title". I add a description kan du ge mera detaljer. Det är som att skapa ett forum post. Tryck sedan på knappen "Create pull request" 
+
+Om det finns inga konflikter tryck på "Merge Pull Request". I commit message kan du skriva om merge. Tryck sedan på confirm merge.
+
+Om det finns konflikter kan det behövas att lösas i terminalen. Använd då "git status" för att se vart konflikterna finns.
+
+Vid frågor kontakta i Discord
 
 
 # Programvara version #
