@@ -23,3 +23,4 @@ To check what’s staged before committing, run git status.
 
 Ska använda Java 25, och JUnit 6
 
+Jag heter Adam.
