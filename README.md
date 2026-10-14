@@ -94,6 +94,11 @@ Som princip ska vi arbeta i egna branches (grenar)
 
 # Merge med main branch #
 
+Gå till 
+
+https://github.com/StoicheiaMagest/POS/pulls
+
+Välj på högersida den branch du vill merga med main. Main ska vara till höger
 
 
 
