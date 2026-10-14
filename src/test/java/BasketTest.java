@@ -14,10 +14,10 @@ class BasketTest {
 
 
     // Test som alltid fallerar
-    @Test
-    void testGetTotalPriceFailed() {
-        assertEquals(0, 1, "It returns 1 and expected 0");
-    }
+//    @Test
+//    void testGetTotalPriceFailed() {
+//        assertEquals(0, 1, "It returns 1 and expected 0");
+//    }
 
 }
 
