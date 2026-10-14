@@ -10,6 +10,18 @@ git push
 // Git commit. Skicka ut brickan till eget rum
 // Git push. Skicka ut brickan till alla andra (typ restaurang)
 
+Som princip ska vi arbeta i egna branches (grenar)
+
+Vi skapar ny gren i github eller i terminal
+
+git checkout -b <namn på grenen>
+
+Exempel:
+// Skapa en ny branch som heter "new branch"
+
+git checkout -b new-branch
+
+
 
 For example:
 bash
