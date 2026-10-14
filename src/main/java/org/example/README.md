@@ -20,6 +20,9 @@ git commit -m "Update app behavior"
 
 To check what’s staged before committing, run git status.
 
-
+Versioner:
 Ska använda Java 25, och JUnit 6
 
+Shortcuts:
+
+Formatera Java kod - Ctrl + alt + R 
