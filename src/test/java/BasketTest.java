@@ -7,7 +7,7 @@ class BasketTest {
     private final Basket basket = new Basket();
 
     @Test
-    void Empty_basket_has_zero_price() {
+    void empty_basket_has_zero_price() {
         assertEquals(0, basket.getTotalPrice(), "Total price for the empty basket should be zero");
     }
 
