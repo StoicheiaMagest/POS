@@ -3,7 +3,7 @@ package org.example;
 public enum VatRate {
     STANDARD(0.25),
     FOOD_12(0.12),
-    BOOK_6(0.06),
+    BOOK_6(0.06);
 
     private final double rate;
 
