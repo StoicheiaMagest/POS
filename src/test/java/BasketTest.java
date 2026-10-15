@@ -6,12 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BasketTest {
     private final Basket basket = new Basket();
 
-    // Test som passerar så länge getTotalPrice är 0
     @Test
-    void testGetTotalPricePassed() {
-        assertEquals(0, basket.getTotalPrice(), "It returns 0 and expected 0");
+    void Empty_basket_has_zero_price() {
+        assertEquals(0, basket.getTotalPrice(), "Total price for the empty basket should be zero");
     }
-
 
     // Test som alltid fallerar
 //    @Test
@@ -20,5 +18,7 @@ class BasketTest {
 //    }
 
 }
+
+
 
 
