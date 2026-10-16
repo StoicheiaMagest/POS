@@ -7,7 +7,7 @@ public class Order {
     private Scanner scanner;
     private Account storeBankAccount;
     private Basket customerBasket;
-    private int total;
+    private int totalCost;
 
     public Order(Account account, Scanner scanner, Basket basket){
         this.scanner = scanner;
@@ -16,8 +16,13 @@ public class Order {
 
     }
 
-    public void pay(Card customerCard){
+    public boolean pay(Card customerCard){
 
+        if ( customerCard.pay(totalCost) ){
+            return true;
+        }
+
+        return false;
 
 
     }
@@ -32,7 +37,7 @@ public class Order {
             total += itemPrice;
 
         }
-        this.total = total;
+        this.totalCost = total;
     }
 
 
