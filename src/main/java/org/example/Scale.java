@@ -6,8 +6,9 @@ public class Scale {
 
     }
 
-    public void setPrice(WeightedItem item) {
-        int kgPrice = item.getPricePerKg();
-
+    public int weightPrice(WeightedItem item) {
+        int weight = item.getWeight();
+        int kgPrice = item.getPrice();
+        return weight * kgPrice / 1000;
     }
 }

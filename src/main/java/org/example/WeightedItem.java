@@ -3,24 +3,15 @@ package org.example;
 // All units must be in integers, especially weight and money because
 // according to Become a Java Craftsman in 70 Examples says so
 
-<<<<<<< HEAD:src/main/java/org/example/WeightedItem.java
 public class WeightedItem extends Item {
-    final int weight;
-    final int pricePerKg;
-
-    public WeightedItem(String name, int price, VatRate vatRate, int weight, int articleId, int pricePerKg) {
-        super(name, price, vatRate, articleId);
-        this.weight = weight;
-        this.pricePerKg = pricePerKg;
-=======
-public class WeighedItem extends Item {
 
     private final int weightInGrams;
+    private int pricePerKg;
 
-    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
+    public WeightedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
         super(name, pricePerKg, vat, articleId);
         this.weightInGrams = weightInGrams;
->>>>>>> e38d41672e20865044a61815a488cf4864ffa4a8:src/main/java/org/example/WeighedItem.java
+        this.pricePerKg = pricePerKg;
     }
 
     @Override
@@ -33,7 +24,8 @@ public class WeighedItem extends Item {
         // Calculates the total base price (exclusive of VAT) in cents
         // based on the price per kg and the weight in grams.
         // Cast to long prevents integer overflow during multiplication.
-        return (int) ((long) price * weightInGrams / 1000);
+        //return (int) ((long) price * weightInGrams / 1000);
+        return pricePerKg;
     }
 
     @Override

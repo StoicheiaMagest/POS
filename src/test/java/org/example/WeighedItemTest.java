@@ -7,7 +7,7 @@ public class WeighedItemTest {
 
     @Test
     void constructor_should_set_article_properties() {
-        WeightedItem weighedItem = new WeightedItem(
+        WeightedItem weightedItem = new WeightedItem(
                 "Pink Lady Apple",
                 100, // 100 cents per kg
                 Vat.FOOD,
@@ -15,16 +15,16 @@ public class WeighedItemTest {
                 42   // article id
         );
 
-        assertEquals("Pink Lady Apple", weighedItem.getName(), "Name of the article was not set correctly");
-        assertEquals(50, weighedItem.getPrice(), "Price for the given weight was not calculated correctly");
-        assertEquals(Vat.FOOD, weighedItem.getVatRate(), "FOOD VAT rate was not set correctly");
-        assertEquals(42, weighedItem.getArticleId(), "Article id was not set correctly");
-        assertEquals(500, weighedItem.getWeight(), "Weight was not set correctly");
+        assertEquals("Pink Lady Apple", weightedItem.getName(), "Name of the article was not set correctly");
+        assertEquals(50, weightedItem.getPrice(), "Price for the given weight was not calculated correctly");
+        assertEquals(Vat.FOOD, weightedItem.getVatRate(), "FOOD VAT rate was not set correctly");
+        assertEquals(42, weightedItem.getArticleId(), "Article id was not set correctly");
+        assertEquals(500, weightedItem.getWeight(), "Weight was not set correctly");
     }
 
     @Test
     void should_calculate_inclusive_price_correctly() {
-        WeighedItem weighedItem = new WeighedItem(
+        WeightedItem weightedItem = new WeightedItem(
                 "Pink Lady Apple",
                 100, // 100 cents per kg base price
                 Vat.FOOD,
@@ -34,6 +34,6 @@ public class WeighedItemTest {
 
         // Validates that inclusive price calculation works correctly using integer math
         long expectedInclusivePrice = Vat.FOOD.calculateInclusivePrice(50);
-        assertEquals(expectedInclusivePrice, weighedItem.getInclusivePrice(), "Inclusive price with VAT was calculated incorrectly");
+        assertEquals(expectedInclusivePrice, weightedItem.getInclusivePrice(), "Inclusive price with VAT was calculated incorrectly");
     }
 }

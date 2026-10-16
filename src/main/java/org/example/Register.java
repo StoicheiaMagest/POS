@@ -2,11 +2,11 @@ package org.example;
 
 import java.util.Scanner;
 
-Scanner input = new Scanner(System.in);
-private static final String EXIT_COMMAND = "EXIT";
-private String command;
-
 public class Register {
+    Scanner input = new Scanner(System.in);
+    private static final String NEW_ORDER_COMMAND = "SCAN ITEM";
+    private static final String EXIT_COMMAND = "EXIT";
+    private String command;
 
     public static void main(String[] args) {
         new Register().start();
@@ -30,18 +30,18 @@ public class Register {
 
     private void runCommandLoop() {
         do { 
-            readCommand();
+            command = input.nextLine().toUpperCase();
             executeCommand(command);
             System.out.println();
         } while (!command.equalsIgnoreCase(EXIT_COMMAND));
     }
 
-    private void readCommand() {
-        command = input.nextLine().toUpperCase();
-    }
-
     private void executeCommand(String command) {
         switch (command) {
+            case NEW_ORDER_COMMAND:
+                commandNewOrder();
+                break;
+
             case EXIT_COMMAND:
                 break;
             default:
@@ -49,9 +49,18 @@ public class Register {
         }
     }
 
+    private void commandNewOrder() {//byt void till order när den klassen är skapad
+        //loop
+            //scanna vara eller väg vara
+            //det läggs till i basket
+            
+    }
+
+
+
 
     private void shutDown() {
         System.out.println("Register shutting down");
-        input.closeInput();
+        input.close();
     }
 }
