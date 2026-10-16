@@ -9,9 +9,20 @@ public class Account {
     }
 
     public boolean transfer(int amount, Account account){
+        boolean canTransfer = checkCanTransfer(amount);
 
+        if (canTransfer){
+            this.balance -= amount;
+            account.addToBalance( amount );
+            return true;
+        }
 
+        return false;
 
+    }
+
+    public void addToBalance(int amount){
+        balance += amount;
     }
 
 
@@ -20,12 +31,11 @@ public class Account {
 
     }
 
-    public int removeFromBalance(int amount){
+    public boolean checkCanTransfer(int amount){
         if (amount > balance){
-            throw new RuntimeException("Cannot remove greater amount than balance");
+            return false;
         }
-        this.balance -= amount;
-        return amount;
+        return true;
     }
 
 }
