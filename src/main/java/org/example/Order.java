@@ -16,16 +16,16 @@ public class Order {
 
     }
 
-    public boolean pay(Card customerCard){
-
-        if ( customerCard.pay(totalCost) ){
-            return true;
-        }
-
-        return false;
-
-
-    }
+//    public boolean pay(Card customerCard){
+//
+//        if ( customerCard.pay(totalCost) ){
+//            return true;
+//        }
+//
+//        return false;
+//
+//
+//    }
 
     public void scanItems(Basket basket){
         ArrayList<Item> items = basket.getItems();

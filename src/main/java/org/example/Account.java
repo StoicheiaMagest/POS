@@ -8,11 +8,11 @@ public class Account {
         this.balance = 0;
     }
 
-    public boolean transfer(int amount, Account account){
-
-
-
-    }
+//    public boolean transfer(int amount, Account account){
+//
+//
+//
+//    }
 
 
     public void addToBalance(Money money){
