@@ -10,7 +10,7 @@ public class ReceiptTest {
     void testGetReceiptNumber() {
         int expectedReceiptNumber = 1001;
         LocalDateTime receiptDate = LocalDateTime.now();
-        Receipt receipt = new Receipt(expectedReceiptNumber, receiptDate);
+        Receipt receipt = new Receipt(expectedReceiptNumber, receiptDate, "storeName");
 
         assertEquals(expectedReceiptNumber, receipt.getReceiptNumber());
     }
@@ -18,8 +18,17 @@ public class ReceiptTest {
     @Test
     void testGetDateTime() {
         LocalDateTime expectedDateTime = LocalDateTime.of(2026, 6, 1, 12, 30);
-        Receipt receipt = new Receipt(1001, expectedDateTime);
+        Receipt receipt = new Receipt(1001, expectedDateTime, "storeName");
 
         assertEquals(expectedDateTime, receipt.getReceiptDateAndTime());
+    }
+
+    @Test
+    void testGetStoreName() {
+        String expectedStoreName = "Java Craftsman Store";
+        LocalDateTime receiptDate = LocalDateTime.now();
+        Receipt receipt = new Receipt(1001, receiptDate, expectedStoreName);
+
+        assertEquals(expectedStoreName, receipt.getStoreName());
     }
 }
