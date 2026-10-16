@@ -5,16 +5,9 @@ package org.example;
 
 public class UnitPricedArticle extends Item {
 
-    private final int amount;
-
-    public UnitPricedArticle(String name, int price, VatRate vatRate, int articleId, int amount) {
-        super(name, price, vatRate, articleId);
-        this.amount = 1;
-    }
-
-    @Override
-    public int getPrice(int price) {
-        return price * amount;
+    public UnitPricedArticle(String name, int priceExclCents,
+                             Vat vat, int articleId) {
+        super(name, priceExclCents, vat, articleId);
     }
 
     @Override
@@ -24,16 +17,30 @@ public class UnitPricedArticle extends Item {
 
     @Override
     public int getPrice() {
-        return price;
+        return price; // Returns the base price (exclusive of VAT) in cents
     }
 
     @Override
-    public VatRate getVatRate() {
-        return vatRate;
+    public Vat getVatRate() {
+        return vat;
     }
 
     @Override
     public int getArticleId() {
         return articleId;
+    }
+
+    /**
+     * Calculates the VAT amount for this item in cents using integer math.
+     */
+    public long getVatAmount() {
+        return vat.calculateVatAmount(price);
+    }
+
+    /**
+     * Calculates the total price including VAT for this item in cents.
+     */
+    public long getInclusivePrice() {
+        return vat.calculateInclusivePrice(price);
     }
 }
