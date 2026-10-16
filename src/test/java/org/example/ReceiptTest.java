@@ -12,7 +12,8 @@ public class ReceiptTest {
     void testGetReceiptNumber() {
         int expectedReceiptNumber = 1001;
         LocalDateTime receiptDate = LocalDateTime.now();
-        Receipt receipt = new Receipt(expectedReceiptNumber, receiptDate, "storeName");
+        Basket basket = new Basket();
+        Receipt receipt = new Receipt(expectedReceiptNumber, receiptDate, "storeName", basket);
 
         assertEquals(expectedReceiptNumber, receipt.getReceiptNumber());
     }
@@ -20,7 +21,8 @@ public class ReceiptTest {
     @Test
     void testGetDateTime() {
         LocalDateTime expectedDateTime = LocalDateTime.of(2026, 6, 1, 12, 30);
-        Receipt receipt = new Receipt(1001, expectedDateTime, "storeName");
+        Basket basket = new Basket();
+        Receipt receipt = new Receipt(1001, expectedDateTime, "storeName", basket);
 
         assertEquals(expectedDateTime, receipt.getReceiptDateAndTime());
     }
@@ -29,24 +31,26 @@ public class ReceiptTest {
     void testGetStoreName() {
         String expectedStoreName = "Java Craftsman Store";
         LocalDateTime receiptDate = LocalDateTime.now();
-        Receipt receipt = new Receipt(1001, receiptDate, expectedStoreName);
+        Basket basket = new Basket();
+        Receipt receipt = new Receipt(1001, receiptDate, expectedStoreName, basket);
 
         assertEquals(expectedStoreName, receipt.getStoreName());
     }
 
     @Test
-    void testGetItemsFromBasket() {
+    void testPrintReceiptWithItems() {
         Basket basket = new Basket();
-        Item item = new UnitPricedArticle("Coffee", 5000, Vat.FOOD, 101);
+        Item item = new UnitPricedArticle("Coffee", 2500, Vat.FOOD, 1);
         basket.addItem(item);
 
-        LocalDateTime receiptDate = LocalDateTime.now();
+        LocalDateTime receiptDate = LocalDateTime.of(2026, 6, 1, 12, 30);
         Receipt receipt = new Receipt(1001, receiptDate, "Java Craftsman Store", basket);
 
-        List<Item> items = receipt.getItems();
-        assertNotNull(items);
-        assertEquals(1, items.size());
-        assertEquals("Coffee", items.get(0).getName());
+        String printedReceipt = receipt.print();
+
+        assertNotNull(printedReceipt);
+        assertTrue(printedReceipt.contains("Java Craftsman Store"));
+        assertTrue(printedReceipt.contains("Coffee"));
     }
 
 
