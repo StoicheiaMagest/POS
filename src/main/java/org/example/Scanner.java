@@ -15,7 +15,7 @@ public class Scanner {
     }
 
     public double getTotal(){
-        return basket.getTotal();
+        return basket.getTotalPrice();
     }
 
 }
