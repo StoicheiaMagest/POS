@@ -2,6 +2,8 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReceiptTest {
@@ -31,4 +33,21 @@ public class ReceiptTest {
 
         assertEquals(expectedStoreName, receipt.getStoreName());
     }
+
+    @Test
+    void testGetItemsFromBasket() {
+        Basket basket = new Basket();
+        Item item = new UnitPricedArticle("Coffee", 5000, Vat.FOOD, 101);
+        basket.addItem(item);
+
+        LocalDateTime receiptDate = LocalDateTime.now();
+        Receipt receipt = new Receipt(1001, receiptDate, "Java Craftsman Store", basket);
+
+        List<Item> items = receipt.getItems();
+        assertNotNull(items);
+        assertEquals(1, items.size());
+        assertEquals("Coffee", items.get(0).getName());
+    }
+
+
 }
