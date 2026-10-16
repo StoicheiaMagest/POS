@@ -4,7 +4,7 @@ package org.example;
 import java.util.ArrayList;
 
 public class Basket {
-    private double totalPrice;
+    private int totalPrice;
     private ArrayList<Item> items;
 
     public Basket() {

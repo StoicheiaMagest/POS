@@ -110,6 +110,46 @@ class BasketTest {
         );
     }
 
+    @Test
+    void removing_one_item_keeps_the_other_item_in_total() {
+        // Arrange
+        Item firstItem = mock(Item.class);
+        Item secondItem = mock(Item.class);
+
+        when(firstItem.getPrice()).thenReturn(1000);
+        when(secondItem.getPrice()).thenReturn(500);
+
+        basket.addItem(firstItem);
+        basket.addItem(secondItem);
+
+        // Act
+        basket.removeItem(firstItem);
+
+        // Assert
+        assertEquals(500.0, basket.getTotalPrice(), 0.001,
+                "The total price should include only the remaining item");
+    }
+
+    @Test
+    void basket_can_be_used_again_after_being_emptied() {
+        // Arrange
+        Item firstItem = mock(Item.class);
+        Item secondItem = mock(Item.class);
+
+        when(firstItem.getPrice()).thenReturn(1000);
+        when(secondItem.getPrice()).thenReturn(500);
+
+        basket.addItem(firstItem);
+        basket.removeItem(firstItem);
+
+        // Act
+        basket.addItem(secondItem);
+
+        // Assert
+        assertEquals(500.0, basket.getTotalPrice(), 0.001,
+                "The basket should work correctly after being emptied");
+    }
+
 }
 
 
