@@ -1,36 +1,33 @@
 package org.example;
 
-// ALl units must be in integers, especially weight and money because
+// All units must be in integers, especially weight and money because
 // according to Become a Java Craftsman in 70 Examples says so
 
 public class WeighedItem extends Item {
-    final int weight;
-    final int pricePerKg;
 
-    public WeighedItem(String name, int price, VatRate vatRate, int weight, int articleId, int pricePerKg) {
-        super(name, price, vatRate, articleId);
-        this.weight = weight;
-        this.pricePerKg = pricePerKg;
+    private final int weightInGrams;
+
+    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
+        super(name, pricePerKg, vat, articleId);
+        this.weightInGrams = weightInGrams;
     }
 
     @Override
-    public int getPrice(int price){
-        return price * pricePerKg;
-    }
-
-    @Override
-    public String getName(){
+    public String getName() {
         return name;
     }
 
     @Override
-    public int getPrice(){
-        return price;
+    public int getPrice() {
+        // Calculates the total base price (exclusive of VAT) in cents
+        // based on the price per kg and the weight in grams.
+        // Cast to long prevents integer overflow during multiplication.
+        return (int) ((long) price * weightInGrams / 1000);
     }
 
     @Override
-    public VatRate getVatRate() {
-        return vatRate;
+    public Vat getVatRate() {
+        return vat;
     }
 
     @Override
@@ -38,15 +35,21 @@ public class WeighedItem extends Item {
         return articleId;
     }
 
-
     public int getWeight() {
-        return weight;
+        return weightInGrams;
     }
 
-    public int getPricePerKg() {
-        return pricePerKg;
+    /**
+     * Calculates the VAT amount for this weighed item in cents using integer math.
+     */
+    public long getVatAmount() {
+        return vat.calculateVatAmount(getPrice());
     }
 
-
-
+    /**
+     * Calculates the total price including VAT for this weighed item in cents.
+     */
+    public long getInclusivePrice() {
+        return vat.calculateInclusivePrice(getPrice());
+    }
 }

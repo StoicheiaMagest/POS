@@ -7,22 +7,20 @@ public abstract class Item {
     protected final int articleId;
     protected final String name;
     protected final int price;
-    protected final VatRate vatRate;
+    protected final Vat vat;
 
-    public Item(String name, int price, VatRate vatRate, int articleId) {
+    public Item(String name, int price, Vat vat, int articleId) {
         this.name = name;
         this.price = price;
-        this.vatRate = vatRate;
+        this.vat = vat;
         this.articleId = articleId;
     }
-
-    public abstract int getPrice(int price);
 
     public abstract String getName();
 
     public abstract int getPrice();
 
-    public abstract VatRate getVatRate();
+    public abstract Vat getVatRate();
 
     public abstract int getArticleId();
 }
