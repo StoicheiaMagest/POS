@@ -26,6 +26,10 @@ public class Receipt {
         return storeName;
     }
 
+    public Item getItems(){
+        return null;
+    }
+
 
 
 }
