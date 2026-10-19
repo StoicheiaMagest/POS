@@ -13,7 +13,7 @@ class ScannerTest {
     @Test
     void scanReturnsItemsPrice() {
         // Arrange
-        Scanner scanner = new Scanner();
+        Scanner scanner = new Scanner(new Basket());
         Item item = mock(Item.class);
         when(item.getPrice()).thenReturn(100);
 
@@ -27,7 +27,7 @@ class ScannerTest {
     @Test
     void scanReturnsDifferentPricesForDifferentItems() {
         // Arrange
-        Scanner scanner = new Scanner();
+        Scanner scanner = new Scanner(new Basket());
 
         Item firstItem = mock(Item.class);
         when(firstItem.getPrice()).thenReturn(100);
@@ -47,7 +47,7 @@ class ScannerTest {
     @Test
     void scanThrowsExceptionWhenItemIsNull() {
         // Arrange
-        Scanner scanner = new Scanner();
+        Scanner scanner = new Scanner(new Basket());
 
         // Act & Assert
         assertThrows(

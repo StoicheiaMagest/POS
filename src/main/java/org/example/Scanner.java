@@ -4,23 +4,14 @@ import java.util.ArrayList;
 
 public class Scanner {
 
-//    Basket basket;
+    private final Basket basket;
 
-    public Scanner(){
- //       this.basket = new Basket();
-
+    public Scanner(Basket basket) {
+        this.basket = basket;
     }
 
-    // Kan vara tillämpbart om man kör självscanning
-    //public void add(Item item){
-   //     basket.addItem( item );
-
-   // }
-
-    public int scan(Item item){
+    public int scan(Item item) {
+        basket.addItem(item);
         return item.getPrice();
     }
-
-
-
 }
