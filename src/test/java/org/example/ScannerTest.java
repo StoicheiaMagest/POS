@@ -2,6 +2,8 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class ScannerTest {
     
 
@@ -14,7 +16,7 @@ public class ScannerTest {
                 Vat.BOOK, // 6% VAT
                 1001
         );
-    WeightedItem weightedItem = new WeightedItem(
+    WeighedItem weighedItem = new WeighedItem(
                 "Pink Lady Apple",
                 100, // 100 cents per kg
                 Vat.FOOD,
@@ -22,7 +24,7 @@ public class ScannerTest {
                 42   // article id
         );
     scanner.add(article);
-    scanner.add(weightedItem);
+    scanner.add(weighedItem);
     assertEquals(0.0, scanner.getTotal());
     }
     

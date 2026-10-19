@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 public class ScaleTest {
 
     private Scale scale = new Scale();
-    WeightedItem wi = new WeightedItem(
+    WeighedItem wi = new WeighedItem(
                 "Pink Lady Apple",
                 100, // 100 cents per kg
                 Vat.FOOD,

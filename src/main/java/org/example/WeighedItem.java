@@ -3,12 +3,12 @@ package org.example;
 // All units must be in integers, especially weight and money because
 // according to Become a Java Craftsman in 70 Examples says so
 
-public class WeightedItem extends Item {
+public class WeighedItem extends Item {
 
     private final int weightInGrams;
     private int pricePerKg;
 
-    public WeightedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
+    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
         super(name, pricePerKg, vat, articleId);
         this.weightInGrams = weightInGrams;
         this.pricePerKg = pricePerKg;

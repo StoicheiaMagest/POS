@@ -6,7 +6,7 @@ public class Scale {
 
     }
 
-    public int weightPrice(WeightedItem item) {
+    public int weightPrice(WeighedItem item) {
         int weight = item.getWeight();
         int kgPrice = item.getPrice();
         return weight * kgPrice / 1000;
