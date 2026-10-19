@@ -1,21 +1,26 @@
+
 package org.example;
 
 public class Scanner {
 
-    Basket basket;
+    private final Basket basket;
+    private final ArticleRegistry registry;
 
-    public Scanner(){
-        this.basket = new Basket();
-
+    public Scanner(Basket basket, ArticleRegistry registry) {
+        this.basket = basket;
+        this.registry = registry;
     }
 
-    public void add(Item item){
-        basket.addItem( item );
+    public int scan(String articleNumber) {
+        Item item = registry.findByArticleNumber(articleNumber);
 
+        if (item == null) {
+            throw new IllegalArgumentException(
+                    "Article not found: " + articleNumber
+            );
+        }
+
+        basket.addItem(item);
+        return item.getPrice();
     }
-
-    public double getTotal(){
-        return basket.getTotalPrice();
-    }
-
 }

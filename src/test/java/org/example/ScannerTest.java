@@ -1,31 +1,70 @@
+
 package org.example;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class ScannerTest {
-    
+class ScannerTest {
 
     @Test
-    void scanner_should_return_correct_price() {
-    Scanner scanner = new Scanner();
-    UnitPricedArticle article = new UnitPricedArticle(
-                "The Bible", 
-                10000,  // 10000 cents base price
-                Vat.BOOK, // 6% VAT
-                1001
-        );
-    WeighedItem weighedItem = new WeighedItem(
-                "Pink Lady Apple",
-                100, // 100 cents per kg
-                Vat.FOOD,
-                500, // 500 grams
-                42   // article id
-        );
-    scanner.add(article);
-    scanner.add(weighedItem);
-    assertEquals(0.0, scanner.getTotal());
+    void scanReturnsPriceOfRegisteredItem() {
+        // Arrange
+        Basket basket = new Basket();
+        ArticleRegistry registry = mock(ArticleRegistry.class);
+        Scanner scanner = new Scanner(basket, registry);
+
+        Item item = mock(Item.class);
+        when(item.getPrice()).thenReturn(100);
+        when(registry.findByArticleNumber("1001")).thenReturn(item);
+
+        // Act
+        int result = scanner.scan("1001");
+
+        // Assert
+        assertEquals(100, result);
     }
-    
+
+    @Test
+    void scanReturnsDifferentPricesForDifferentItems() {
+        // Arrange
+        Basket basket = new Basket();
+        ArticleRegistry registry = mock(ArticleRegistry.class);
+        Scanner scanner = new Scanner(basket, registry);
+
+        Item firstItem = mock(Item.class);
+        when(firstItem.getPrice()).thenReturn(100);
+        when(registry.findByArticleNumber("1001")).thenReturn(firstItem);
+
+        Item secondItem = mock(Item.class);
+        when(secondItem.getPrice()).thenReturn(250);
+        when(registry.findByArticleNumber("1002")).thenReturn(secondItem);
+
+        // Act
+        int firstResult = scanner.scan("1001");
+        int secondResult = scanner.scan("1002");
+
+        // Assert
+        assertEquals(100, firstResult);
+        assertEquals(250, secondResult);
+    }
+
+    @Test
+    void scanThrowsExceptionWhenArticleDoesNotExist() {
+        // Arrange
+        Basket basket = new Basket();
+        ArticleRegistry registry = mock(ArticleRegistry.class);
+        Scanner scanner = new Scanner(basket, registry);
+
+        when(registry.findByArticleNumber("9999")).thenReturn(null);
+
+        // Act & Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> scanner.scan("9999")
+        );
+    }
 }
