@@ -6,10 +6,12 @@ package org.example;
 public class WeighedItem extends Item {
 
     private final int weightInGrams;
+    private int pricePerKg;
 
     public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
         super(name, pricePerKg, vat, articleId);
         this.weightInGrams = weightInGrams;
+        this.pricePerKg = pricePerKg;
     }
 
     @Override
@@ -22,7 +24,8 @@ public class WeighedItem extends Item {
         // Calculates the total base price (exclusive of VAT) in cents
         // based on the price per kg and the weight in grams.
         // Cast to long prevents integer overflow during multiplication.
-        return (int) ((long) price * weightInGrams / 1000);
+        //return (int) ((long) price * weightInGrams / 1000);
+        return pricePerKg;
     }
 
     @Override
