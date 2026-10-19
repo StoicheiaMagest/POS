@@ -19,10 +19,10 @@ class ScannerTest {
 
         Item item = mock(Item.class);
         when(item.getPrice()).thenReturn(100);
-        when(registry.findByArticleNumber("1001")).thenReturn(item);
+        when(registry.findByArticleNumber(1001)).thenReturn(item);
 
         // Act
-        int result = scanner.scan("1001");
+        int result = scanner.scan(1001);
 
         // Assert
         assertEquals(100, result);
@@ -37,15 +37,15 @@ class ScannerTest {
 
         Item firstItem = mock(Item.class);
         when(firstItem.getPrice()).thenReturn(100);
-        when(registry.findByArticleNumber("1001")).thenReturn(firstItem);
+        when(registry.findByArticleNumber(1001)).thenReturn(firstItem);
 
         Item secondItem = mock(Item.class);
         when(secondItem.getPrice()).thenReturn(250);
-        when(registry.findByArticleNumber("1002")).thenReturn(secondItem);
+        when(registry.findByArticleNumber(1002)).thenReturn(secondItem);
 
         // Act
-        int firstResult = scanner.scan("1001");
-        int secondResult = scanner.scan("1002");
+        int firstResult = scanner.scan(1001);
+        int secondResult = scanner.scan(1002);
 
         // Assert
         assertEquals(100, firstResult);
@@ -59,12 +59,12 @@ class ScannerTest {
         ArticleRegistry registry = mock(ArticleRegistry.class);
         Scanner scanner = new Scanner(basket, registry);
 
-        when(registry.findByArticleNumber("9999")).thenReturn(null);
+        when(registry.findByArticleNumber(9999)).thenReturn(null);
 
         // Act & Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> scanner.scan("9999")
+                () -> scanner.scan(9999)
         );
     }
 }

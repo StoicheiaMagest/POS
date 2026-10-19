@@ -26,8 +26,8 @@ public class UnitPricedArticle extends Item {
     }
 
     @Override
-    public int getArticleId() {
-        return articleId;
+    public int getArticleNumber() {
+        return articleNumber;
     }
 
     /**

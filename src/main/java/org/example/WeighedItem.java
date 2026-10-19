@@ -6,7 +6,7 @@ package org.example;
 public class WeighedItem extends Item {
 
     private final int weightInGrams;
-    private int pricePerKg;
+    private final int pricePerKg;
 
     public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
         super(name, pricePerKg, vat, articleId);
@@ -25,8 +25,8 @@ public class WeighedItem extends Item {
     }
 
     @Override
-    public int getArticleId() {
-        return articleId;
+    public int getArticleNumber() {
+        return articleNumber;
     }
 
     public int getWeight() {

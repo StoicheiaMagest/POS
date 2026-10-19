@@ -23,12 +23,11 @@ public class Basket {
         }
     }
 
-    public ArrayList<Item> getItems(){
-        return this.items;
+    public ArrayList<Item> getItems() {
+        return new ArrayList<>(items);
     }
 
-    public double getTotalPrice() {
+    public int getTotalPrice() {
         return totalPrice;
     }
-
 }

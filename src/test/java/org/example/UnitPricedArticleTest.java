@@ -18,7 +18,7 @@ class UnitPricedArticleTest {
         assertEquals("The Bible", article.getName(), "Name of the article was not set correctly");
         assertEquals(10000, article.getPrice(), "Price was not set correctly");
         assertEquals(Vat.BOOK, article.getVatRate(), "BOOK VAT rate is set incorrectly");
-        assertEquals(1001, article.getArticleId(), "article id was not set correctly");
+        assertEquals(1001, article.getArticleNumber(), "article id was not set correctly");
     }
 
     @Test
