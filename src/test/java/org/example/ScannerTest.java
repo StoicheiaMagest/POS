@@ -4,21 +4,25 @@ package org.example;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ScannerTest {
 
     @Test
-    void scanReturnsItemsPrice() {
+    void scanReturnsPriceOfRegisteredItem() {
         // Arrange
-        Scanner scanner = new Scanner(new Basket());
+        Basket basket = new Basket();
+        ArticleRegistry registry = mock(ArticleRegistry.class);
+        Scanner scanner = new Scanner(basket, registry);
+
         Item item = mock(Item.class);
         when(item.getPrice()).thenReturn(100);
+        when(registry.findByArticleNumber("1001")).thenReturn(item);
 
         // Act
-        int result = scanner.scan(item);
+        int result = scanner.scan("1001");
 
         // Assert
         assertEquals(100, result);
@@ -27,17 +31,21 @@ class ScannerTest {
     @Test
     void scanReturnsDifferentPricesForDifferentItems() {
         // Arrange
-        Scanner scanner = new Scanner(new Basket());
+        Basket basket = new Basket();
+        ArticleRegistry registry = mock(ArticleRegistry.class);
+        Scanner scanner = new Scanner(basket, registry);
 
         Item firstItem = mock(Item.class);
         when(firstItem.getPrice()).thenReturn(100);
+        when(registry.findByArticleNumber("1001")).thenReturn(firstItem);
 
         Item secondItem = mock(Item.class);
         when(secondItem.getPrice()).thenReturn(250);
+        when(registry.findByArticleNumber("1002")).thenReturn(secondItem);
 
         // Act
-        int firstResult = scanner.scan(firstItem);
-        int secondResult = scanner.scan(secondItem);
+        int firstResult = scanner.scan("1001");
+        int secondResult = scanner.scan("1002");
 
         // Assert
         assertEquals(100, firstResult);
@@ -45,15 +53,18 @@ class ScannerTest {
     }
 
     @Test
-    void scanThrowsExceptionWhenItemIsNull() {
+    void scanThrowsExceptionWhenArticleDoesNotExist() {
         // Arrange
-        Scanner scanner = new Scanner(new Basket());
+        Basket basket = new Basket();
+        ArticleRegistry registry = mock(ArticleRegistry.class);
+        Scanner scanner = new Scanner(basket, registry);
+
+        when(registry.findByArticleNumber("9999")).thenReturn(null);
 
         // Act & Assert
         assertThrows(
-                NullPointerException.class,
-                () -> scanner.scan(null)
+                IllegalArgumentException.class,
+                () -> scanner.scan("9999")
         );
     }
-
 }

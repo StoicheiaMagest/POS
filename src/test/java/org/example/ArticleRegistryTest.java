@@ -2,6 +2,7 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 
@@ -20,4 +21,18 @@ public class ArticleRegistryTest {
         // Assert
         assertSame(item, result);
     }
+
+
+    @Test
+    void findByArticleNumberReturnsNullWhenItemDoesNotExist() {
+        // Arrange
+        ArticleRegistry registry = new ArticleRegistry();
+
+        // Act
+        Item result = registry.findByArticleNumber("9999");
+
+        // Assert
+        assertNull(result);
+    }
+
 }
