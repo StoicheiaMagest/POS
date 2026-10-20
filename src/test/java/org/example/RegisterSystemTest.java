@@ -2,12 +2,17 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 
-public class RegisterTest {
-    private Register register = new Register();
+public class RegisterSystemTest {
+    RegisterSystem register = new RegisterSystem();
 
     @Test
     void test() {
         
+        
+
+        
+
+
     }
     
 }

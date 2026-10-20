@@ -11,8 +11,8 @@ public class Scanner {
         this.registry = registry;
     }
 
-    public int scan(int articleNumber) {
-        Item item = registry.findByArticleNumber(articleNumber);
+    public int scan(String articleNumber) {
+        Item item = registry.findByArticleNumber("articleNumber");
 
         if (item == null) {
             throw new IllegalArgumentException(
