@@ -2,14 +2,14 @@ package org.example;
 
 import java.util.Scanner;
 
-public class Register {
+public class RegisterSystem {
     Scanner input = new Scanner(System.in);
     private static final String NEW_ORDER_COMMAND = "SCAN ITEM";
     private static final String EXIT_COMMAND = "EXIT";
     private String command;
 
     public static void main(String[] args) {
-        new Register().start();
+        new RegisterSystem().start();
     }
 
     private void start() {

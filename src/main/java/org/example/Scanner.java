@@ -12,7 +12,7 @@ public class Scanner {
     }
 
     public int scan(String articleNumber) {
-        Item item = registry.findByArticleNumber(articleNumber);
+        Item item = registry.findByArticleNumber("articleNumber");
 
         if (item == null) {
             throw new IllegalArgumentException(
