@@ -4,7 +4,7 @@ package org.example;
 // according to Become a Java Craftsman in 70 Examples says so
 
 public abstract class Item {
-    protected final int articleId;
+    protected final int articleNumber;
     protected final String name;
     protected final int price;
     protected final Vat vat;
@@ -13,7 +13,7 @@ public abstract class Item {
         this.name = name;
         this.price = price;
         this.vat = vat;
-        this.articleId = articleId;
+        this.articleNumber = articleId;
     }
 
     public abstract String getName();
@@ -22,5 +22,5 @@ public abstract class Item {
 
     public abstract Vat getVatRate();
 
-    public abstract int getArticleId();
+    public abstract int getArticleNumber();
 }

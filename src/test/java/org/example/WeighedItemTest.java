@@ -18,7 +18,7 @@ public class WeighedItemTest {
         assertEquals("Pink Lady Apple", weighedItem.getName(), "Name of the article was not set correctly");
         assertEquals(50, weighedItem.getPrice(), "Price for the given weight was not calculated correctly");
         assertEquals(Vat.FOOD, weighedItem.getVatRate(), "FOOD VAT rate was not set correctly");
-        assertEquals(42, weighedItem.getArticleId(), "Article id was not set correctly");
+        assertEquals(42, weighedItem.getArticleNumber(), "Article id was not set correctly");
         assertEquals(500, weighedItem.getWeight(), "Weight was not set correctly");
     }
 

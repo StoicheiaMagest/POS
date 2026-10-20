@@ -19,10 +19,10 @@ class BasketScannerIntegrationTest {
         Item item = mock(Item.class);
         when(item.getPrice()).thenReturn(100);
 
-        registry.addItem("1001", item);
+        registry.addItem(1001, item);
 
         // Act
-        int result = scanner.scan("1001");
+        int result = scanner.scan(1001);
 
         // Assert
         assertEquals(100, result);
@@ -43,12 +43,12 @@ class BasketScannerIntegrationTest {
         Item secondItem = mock(Item.class);
         when(secondItem.getPrice()).thenReturn(250);
 
-        registry.addItem("1001", firstItem);
-        registry.addItem("1002", secondItem);
+        registry.addItem(1001, firstItem);
+        registry.addItem(1002, secondItem);
 
         // Act
-        scanner.scan("1001");
-        scanner.scan("1002");
+        scanner.scan(1001);
+        scanner.scan(1002);
 
         // Assert
         assertEquals(2, basket.getItems().size());
@@ -65,7 +65,7 @@ class BasketScannerIntegrationTest {
         // Act & Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> scanner.scan("9999")
+                () -> scanner.scan(9999)
         );
 
         // Verify that the basket remains unchanged
