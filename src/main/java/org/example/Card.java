@@ -10,5 +10,9 @@ public class Card {
     }
 
 
+    public boolean pay(int amount, Account recipient) {
+        return account.transfer(amount, recipient);
+    }
+
 
 }

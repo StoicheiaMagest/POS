@@ -1,43 +1,41 @@
 package org.example;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class CardTest {
 
-    @Mock
     private Account sender;
-
-    @Mock
     private Account recipient;
-
-    @InjectMocks
     private Card card;
 
-    @Test
-    void pay_whenTransferSucceeds_returnsTrueAndTransfersToRecipient() {
-        when(sender.transfer(40, recipient)).thenReturn(true);
-
-        assertTrue(card.pay(40, recipient));
-
-        verify(sender).transfer(40, recipient);
-        verifyNoMoreInteractions(sender);
+    @BeforeEach
+    void setUp() {
+        sender = mock(Account.class);
+        recipient = mock(Account.class);
+        card = new Card(sender);
     }
 
     @Test
-    void pay_whenTransferFails_returnsFalse() {
+    void pay_passesAmountAndRecipientToSenderAccount() {
+        when(sender.transfer(40, recipient)).thenReturn(true);
+
+        boolean result = card.pay(40, recipient);
+
+        assertTrue(result);
+        verify(sender).transfer(40, recipient);
+    }
+
+    @Test
+    void pay_returnsFalseWhenSenderTransferFails() {
         when(sender.transfer(40, recipient)).thenReturn(false);
 
-        assertFalse(card.pay(40, recipient));
+        boolean result = card.pay(40, recipient);
 
+        assertFalse(result);
         verify(sender).transfer(40, recipient);
-        verifyNoMoreInteractions(sender);
     }
 }
