@@ -35,6 +35,8 @@ public class OrderTest {
         assertEquals(expectedTotal, order.getTotalCost());
     }
     
+    //logik basket -> order
+    //logiken order -> reciept
 
 
 }
