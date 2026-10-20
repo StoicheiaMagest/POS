@@ -8,9 +8,13 @@ public class Account {
         this.balance = 0;
     }
 
+    public Account(int amount){
+        this.balance = amount;
+    }
+
     public boolean transfer(int amount, Account account){
 
-        if (amount < balance){
+        if (amount <= balance){
             this.balance -= amount;
             account.addToBalance( amount );
             return true;
@@ -31,7 +35,7 @@ public class Account {
     }
 
     public boolean checkCanTransfer(int amount){
-        if (amount > balance){
+        if (amount >= balance){
             return false;
         }
         return true;
