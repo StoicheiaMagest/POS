@@ -324,29 +324,23 @@ public class PosSession {
         if (basket.getItems().isEmpty()) {
             return "Your basket is empty.";
         }
-        String[] parts = argument.split("\\s+");
-        if (parts.length == 0 || parts[0].isEmpty()) {
-            return "Usage: use card <id> [amount]";
-        }
-        int cardId;
-        try {
-            cardId = Integer.parseInt(parts[0]);
-        } catch (NumberFormatException e) {
-            return "Usage: use card <id> [amount]";
-        }
-        PaymentCard card = findCard(cardId);
-        if (card == null) {
-            return "You have no card with that id. Use 'payment' to list "
-                    + "them.";
-        }
         long amountCents = occasion.getAmountDueCents();
-        if (parts.length > 1) {
-            Long parsed = parseAmountCents(parts[1]);
+        if (!argument.isEmpty()) {
+            Long parsed = parseAmountCents(argument);
             if (parsed == null || parsed <= 0) {
-                return "Amount must be a positive sum, e.g. 'use card 1 "
+                return "Amount must be a positive sum, e.g. 'use card "
                         + "29.95'.";
             }
             amountCents = parsed;
+        }
+        if (amountCents > occasion.getAmountDueCents()) {
+            return "That is more than the remaining "
+                    + PriceFormatter.format(occasion.getAmountDueCents())
+                    + " due.";
+        }
+        PaymentCard card = findCardAbleToPay(amountCents);
+        if (card == null) {
+            return "Your card has insufficient balance";
         }
         PaymentResult result = occasion.pay(card, amountCents);
         switch (result) {
@@ -368,18 +362,25 @@ public class PosSession {
         }
     }
 
-    private String renderReceipt() {
-        return new Receipt(store.getName(), occasion.getScanLines(),
-                occasion.getDiscountCents(), occasion.getPaidCents()).print();
-    }
-
-    private PaymentCard findCard(int cardId) {
+    /**
+     * Picks the first card that alone covers the payment (spec &sect;4.13:
+     * one tap charges exactly one card; ids stay a backend detail).
+     *
+     * @param amountCents the sum the tap will charge
+     * @return a card able to pay, or null when none can
+     */
+    private PaymentCard findCardAbleToPay(long amountCents) {
         for (PaymentCard card : customer.getCards()) {
-            if (card.getCardId() == cardId) {
+            if (card.getBalance() >= amountCents) {
                 return card;
             }
         }
         return null;
+    }
+
+    private String renderReceipt() {
+        return new Receipt(store.getName(), occasion.getScanLines(),
+                occasion.getDiscountCents(), occasion.getPaidCents()).print();
     }
 
     private String applyDiscount() {
@@ -587,8 +588,8 @@ public class PosSession {
                 + "scan items          - let the cashier scan your basket\n"
                 + "apply discount      - 20% membership discount\n"
                 + "register membership - join the club at the register\n"
-                + "payment             - show cards and amount due\n"
-                + "use card <id> [amt] - pay by card, fully or partially\n"
+                + "payment             - show your cards and the amount due\n"
+                + "use card [amount]   - tap your card: pay all, or a set sum\n"
                 + "create card [amt]   - issue a new payment card\n"
                 + "help                - show this list\n"
                 + "exit                - leave the program";

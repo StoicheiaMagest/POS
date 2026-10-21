@@ -507,10 +507,10 @@ public class PosSessionTest {
     }
 
     @Test
-    void fullCardPaymentCompletesOccasionAndPrintsReceipt() {
+    void tappingCardPaysTheFullAmountDueFromOneCard() {
         PosSession session = scannedRegisterWithCard("300");
 
-        String out = session.execute("use card 1");
+        String out = session.execute("use card");
 
         assertTrue(out.contains("Your card has enough balance"), out);
         assertTrue(out.contains(
@@ -522,22 +522,69 @@ public class PosSessionTest {
     }
 
     @Test
-    void insufficientCardTransfersNothing() {
-        PosSession session = scannedRegisterWithCard("0.50");
+    void tappingCardWithAnAmountPaysExactlyThatSum() {
+        PosSession session = scannedRegisterWithCard("300");
 
-        String out = session.execute("use card 2");
+        String out = session.execute("use card 10");
+
+        assertEquals("Your card has enough balance", out);
+        assertEquals(1000, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void tapFailsWhenNoSingleCardCoversTheDue() {
+        PosSession session = enteredStoreWithBasket();
+        session.execute("add vegan-cheese 10000"); // 1990.00 SEK due
+        session.execute("to pos");
+        session.execute("scan items");
+
+        String out = session.execute("use card");
 
         assertEquals("Your card has insufficient balance", out);
         assertEquals(0, session.getStore().getBankAccount().getBalance());
     }
 
     @Test
-    void splitPaymentFinishesAndReachesDone() {
-        PosSession session = scannedRegisterWithCard("20");
-        session.execute("create card 99");
+    void tapUsesAnyCardThatCoversTheDue() {
+        PosSession session = enteredStoreWithBasket();
+        session.execute("add vegan-cheese 10000"); // 1990.00 > welcome card
+        session.execute("to pos");
+        session.execute("scan items");
+        session.execute("create card 2000");
 
-        String first = session.execute("use card 1 20");
-        String second = session.execute("use card 2 14.96");
+        String out = session.execute("use card");
+
+        assertTrue(out.contains("Your card has enough balance"), out);
+        // 10 kg vegan cheese incl. VAT, half-up rounding: 1990.02 SEK
+        assertEquals(199002, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void tappingMoreThanTheRemainingDueIsRefused() {
+        PosSession session = scannedRegisterWithCard("300");
+
+        String out = session.execute("use card 999");
+
+        assertTrue(out.toLowerCase().contains("more than"), out);
+        assertEquals(0, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void tappingWithGarbageAmountIsRefused() {
+        PosSession session = scannedRegisterWithCard("300");
+
+        String out = session.execute("use card abc");
+
+        assertTrue(out.toLowerCase().contains("amount"), out);
+        assertEquals(0, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void partialTapsFinishThePurchaseAndReachDone() {
+        PosSession session = scannedRegisterWithCard("300");
+
+        String first = session.execute("use card 20");
+        String second = session.execute("use card 14.96");
 
         assertEquals("Your card has enough balance", first);
         assertTrue(second.contains("Your card has enough balance"), second);
@@ -549,16 +596,6 @@ public class PosSessionTest {
         String late = session.execute("payment");
         assertTrue(late.toLowerCase().contains("already"),
                 "commands after DONE are refused: " + late);
-    }
-
-    @Test
-    void unknownCardIdIsReported() {
-        PosSession session = scannedRegisterWithCard("300");
-
-        String out = session.execute("use card 42");
-
-        assertTrue(out.contains("no card"), out);
-        assertEquals(0, session.getStore().getBankAccount().getBalance());
     }
 
     private PosSession scannedRegisterWithCard(String amount) {
@@ -619,9 +656,8 @@ public class PosSessionTest {
         session.registerMembership("Ann", "19900101", "x");
         assertEquals("Discount has succeeded. Enjoy 20% off your purchase!",
                 session.execute("apply discount"));
-        session.execute("create card 100");
 
-        String out = session.execute("use card 1");
+        String out = session.execute("use card");
 
         // Assert: 4291 - half-up(858) = 34.33 paid to the store
         assertTrue(out.contains("Total paid: 34.33 SEK"), out);
@@ -641,8 +677,7 @@ public class PosSessionTest {
 
         assertEquals("Applying discount failed. You need to be a member",
                 session.execute("apply discount"));
-        session.execute("create card 100");
-        String out = session.execute("use card 1");
+        String out = session.execute("use card");
 
         assertTrue(out.contains("Total paid: 42.91 SEK"), out);
         assertEquals(4291, session.getStore().getBankAccount().getBalance());

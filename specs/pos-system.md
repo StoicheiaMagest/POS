@@ -242,22 +242,31 @@ non-empty basket and no payment started.
 
 Rounding: half-up to the nearest cent (existing `applyDiscount` logic).
 
-### 4.13 `payment` and `use card <card-id> [<amount>]`
+### 4.13 `payment`, `use card [<amount>]` and `split order <n>`
 
-Payment can only be made by card (account-to-account transfer to the store
-account). Requires a scanned, non-empty basket.
+Payment is by card only: a **tap** charges exactly one card, like holding it
+over a reader — the user never types a card id (ids are a backend detail;
+the backend picks the first of the customer's cards whose balance alone
+covers the charge). Requires a scanned, non-empty basket.
 
 - `payment` → prints `Use card` followed by the customer's cards:
   `<issuer> (balance: X.XX SEK)` and the amount due. Every customer carries
   at least the welcome card from `enter store`, so a card-less state no
   longer exists.
-- `use card <card-id>` → pays the full remaining amount due:
-  - Sufficient balance → transfer executes; print
-    `Your card has enough balance`
-  - Insufficient → **no** transfer; print
+- `use card` → taps for the **full remaining amount due** on one card:
+  - some single card covers it → transfer executes; print
+    `Your card has enough balance` (plus completion + receipt when the due
+    reaches zero)
+  - no single card covers it → **no** transfer; print
     `Your card has insufficient balance`
-- `use card <card-id> <amount>` → partial payment of that amount (same two
-  messages). Multiple cards may be combined until the due amount reaches zero.
+- `use card <amount>` → taps for exactly that sum (`30.00`, `30` or `30,50`
+  style kronor; positive, at most the remaining due). Same two messages.
+  A sum above the remaining due is refused with a "more than … due" message;
+  a malformed sum prints the amount-usage error. Nothing transfers then.
+- Cards are never charged automatically in sequence: one command = one tap
+  = at most one card. To pay with several cards, split first (below).
+- `split order <n>` divides the remaining due into `<n>` ≥ 1 parts for a
+  multi-card payment (see §4.13a).
 - When the due amount reaches zero:
 
 ```
@@ -266,6 +275,31 @@ Payment completed. Thank you for shopping at Kwik E-Smart!
 ```
 
 State becomes DONE; no further commands except starting a new flow or `exit`.
+
+### 4.13a `split order <n>`
+
+Divides the **remaining amount due** into `<n>` ≥ 1 equal parts so several
+cards can pay it — the cashier announces "that will be two payments of …"
+before any card is tapped. Requires AT_REGISTER, a scanned non-empty basket,
+no payment started yet and no split already active.
+
+- Parts are whole cents: `base = due / n`; the first `due % n` parts get one
+  extra cent (e.g. 100.00 into 3 → 33.34, 33.33, 33.33).
+- Output lists the parts: `The order is split into <n> payments of <amounts>`
+- While a split is active, a bare `use card` tap charges the **next unpaid
+  part** (still exactly one card; insufficient → failure message). Explicit
+  `use card <amount>` during a split is refused (`The order is split into
+  parts — pay them with 'use card'.`).
+- Once split, `apply discount` is refused: discounts must be decided before
+  the amounts are announced.
+- Invalid `<n>` (non-numeric, zero, negative) → usage error, nothing changes.
+
+### 4.13b `print receipt`
+
+After a completed payment the receipt can be viewed again: prints the same
+receipt (§4.15). Before any purchase has been paid it is refused with a hint
+to complete the purchase first; a new `enter store` starts a fresh visit and
+clears the old receipt.
 
 ### 4.14 `create card [<amount>]`
 
@@ -419,20 +453,22 @@ come from an injectable source so tests are deterministic.
 23. `payment` without a scanned basket is refused (C6); it prints `Use card`,
     the customer's cards (issuer + balance, no ids) and the amount due; the
     welcome card from `enter store` guarantees a card is always listed.
-24. `use card <id>` with sufficient balance transfers the full due amount from
-    the customer account to the store account (both balances verified) and
-    prints `Your card has enough balance`.
-25. `use card <id>` with insufficient balance transfers nothing and prints
-    `Your card has insufficient balance`.
-26. Split payment: partial `use card <id> <amount>` followed by a second card
-    covers the remainder; when due reaches zero the completion message and
-    receipt (§4.15) print, state becomes DONE.
+24. `use card` (tap, no id) with a card that covers the due transfers the
+    full remaining amount to the store account (balances verified) and prints
+    `Your card has enough balance`; when several cards exist, one whose
+    balance alone covers the charge is used even if it is not the first.
+25. `use card` where **no single card** covers the due transfers nothing and
+    prints `Your card has insufficient balance`.
+26. `use card <amount>` charges exactly that sum from one card; a sum above
+    the remaining due or a malformed sum is refused with no transfer. When
+    taps bring the due to zero, the completion message and receipt (§4.15)
+    print and state becomes DONE.
 27. The receipt lists each article with quantity/weight and price, the
     discount line when one was applied, and the total paid.
 
 **End-to-end**
 28. Happy path (fixed seed): `run pos` → `scan items` → `apply discount`
-    (member) → `payment` → `use card <id>` ends with a correct receipt whose
+    (member) → `payment` → `use card` ends with a correct receipt whose
     total equals basket total minus 20 % discount, and the store account grew
     by exactly that amount.
 29. Failure path: non-member runs the same flow; `apply discount` fails; full
@@ -443,10 +479,11 @@ come from an injectable source so tests are deterministic.
 - Every command called in the wrong state or before its prerequisite (§3).
 - Empty basket at `to pos`, `scan items`, `payment`.
 - Zero/negative/non-numeric quantity arguments; non-integer card amounts.
+- Tapping more than the remaining due, or a malformed amount → refusal, no
+  transfer.
 - Paying when already DONE; commands after payment completion.
 - `create basket` twice (reset semantics); same weighed article added twice
   with different weights (two separate lines in the listing).
-- Card id that does not exist → error message, nothing transferred.
 - Discount rounding on odd cent amounts (half-up).
 - Very large quantities: weight per line capped at 10 000 g → friendly error.
 
