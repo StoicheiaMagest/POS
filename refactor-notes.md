@@ -29,3 +29,11 @@ One entry per incident: what changed, which tests were touched, why it is OK.
   new behaviour. `PurchaseOccasionTest.createPurchase` only needed the new
   constructor call (its Swedish receipt tests are scheduled for replacement
   in the receipt-rendering cycle, spec §4.15).
+- 2026-10-21 — `PurchaseOccasion` rebuilt around scanner ownership
+  (owner decision): new constructor `(BarcodeScanner, Basket, Customer,
+  Account)`, `scanAll()`/`isScanned()` per spec §4.10. The old Swedish
+  `printReceipt()` and its three tests were deleted (superseded by the
+  single English receipt renderer of spec §4.15, backlog dedup decision);
+  replacement tests arrive with the receipt cycle. The untested legacy
+  `applyDiscount(int)` is likewise dropped; membership-discount behaviour
+  gets its own tested API in the discount cycle (spec §4.12).
