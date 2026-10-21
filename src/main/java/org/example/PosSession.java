@@ -113,9 +113,14 @@ public class PosSession {
         basket = new Basket();
         state = SessionState.IN_STORE;
         return "Welcome to Kwik E-Smart! You have picked up a basket and a "
-                + "payment card is ready in your pocket. Go ahead and pick "
-                + "your items.";
+                + "payment card is ready in your pocket.\n"
+                + IN_STORE_HINT;
     }
+
+    /** Commands relevant while shopping, printed per C8. */
+    private static final String IN_STORE_HINT =
+            "You can now: list store-items | add <item> [grams] | remove "
+            + "<item> | list basket-items | to pos";
 
     private String createBasket() {
         if (state != SessionState.IN_STORE) {
@@ -203,8 +208,8 @@ public class PosSession {
         occasion = new PurchaseOccasion(new BarcodeScanner(registry), basket,
                 customer, store.getBankAccount());
         state = SessionState.AT_REGISTER;
-        return "At store register. You can now scan the items or "
-                + "register membership";
+        return "At store register. You can now: scan items | apply discount "
+                + "| register membership | payment | use card";
     }
 
     private String scanItems() {
@@ -225,7 +230,8 @@ public class PosSession {
                     "Total: " + PriceFormatter.format(
                             line.getRunningTotalCents())));
         }
-        sb.append("All items scanned. Go to \"payment\" or \"apply discount\"");
+        sb.append("All items scanned. Next: \"apply discount\" | \"payment\" "
+                + "| \"use card\"");
         return sb.toString();
     }
 

@@ -63,9 +63,7 @@ public class PosSessionTest {
         session.execute("add soy-milk");
         String created = session.execute("create basket");
 
-        assertEquals("Welcome to Kwik E-Smart! You have picked up a basket "
-                + "and a payment card is ready in your pocket. Go ahead and "
-                + "pick your items.", entered);
+        assertTrue(entered.startsWith("Welcome to Kwik E-Smart!"), entered);
         assertEquals("Basket has been created", created);
         assertEquals("Your basket is empty.",
                 session.execute("list basket-items"));
@@ -200,6 +198,32 @@ public class PosSessionTest {
     }
 
     @Test
+    void enteringStoreListsTheShoppingCommands() {
+        PosSession session = newSession();
+
+        String out = session.execute("enter store");
+
+        for (String command : new String[]{"list store-items", "add",
+                "remove", "list basket-items", "to pos"}) {
+            assertTrue(out.contains(command),
+                    "entry must advertise '" + command + "': " + out);
+        }
+    }
+
+    @Test
+    void arrivingAtPosListsTheRegisterCommands() {
+        PosSession session = enteredStoreWithBasket();
+
+        String out = session.execute("to pos");
+
+        for (String command : new String[]{"scan items", "apply discount",
+                "register membership", "payment", "use card"}) {
+            assertTrue(out.contains(command),
+                    "at-pos must advertise '" + command + "': " + out);
+        }
+    }
+
+    @Test
     void removeTakesExactlyOneAndReportsAbsence() {
         PosSession session = enteredStoreWithBasket();
         session.execute("add soy-milk");
@@ -255,8 +279,9 @@ public class PosSessionTest {
         String moved = session.execute("to pos");
         String blocked = session.execute("add oat-drink");
 
-        assertEquals("At store register. You can now scan the items or "
-                + "register membership", moved);
+        assertEquals("At store register. You can now: scan items | apply "
+                + "discount | register membership | payment | use card",
+                moved);
         assertTrue(blocked.contains("register"), blocked);
     }
 
@@ -266,8 +291,7 @@ public class PosSessionTest {
 
         String moved = session.execute("TO CASH-REGISTER");
 
-        assertEquals("At store register. You can now scan the items or "
-                + "register membership", moved);
+        assertTrue(moved.startsWith("At store register."), moved);
     }
 
     @Test
@@ -288,7 +312,8 @@ public class PosSessionTest {
         assertTrue(out.contains("300g Apple scanned"), out);
         assertTrue(out.contains("Total: 102.32 SEK"), out);
         assertTrue(out.contains(
-                "All items scanned. Go to \"payment\" or \"apply discount\""),
+                "All items scanned. Next: \"apply discount\" | \"payment\" "
+                        + "| \"use card\""),
                 out);
 
         assertEquals("All items have already been scanned.",
@@ -351,6 +376,18 @@ public class PosSessionTest {
         String refusal = session.membershipRegistrationRefusal();
 
         assertTrue(refusal.contains("to pos"), refusal);
+    }
+
+    @Test
+    void scannedBasketPointsAtThePaymentCommands() {
+        PosSession session = atRegisterWithItems();
+
+        String out = session.execute("scan items");
+
+        assertTrue(out.contains("apply discount"), out);
+        assertTrue(out.contains("payment"), out);
+        assertTrue(out.contains("use card"),
+                "scan must point straight at 'use card': " + out);
     }
 
     private PosSession atRegisterWithItems() {
@@ -541,8 +578,7 @@ public class PosSessionTest {
                 + "\\(member: (yes|no)\\).*"), out);
         assertTrue(out.matches("(?s).*Random basket created with \\d+ "
                 + "articles\\. Total: \\d+\\.\\d{2} SEK.*"), out);
-        assertTrue(out.contains("At store register. You can now scan the "
-                + "items or register membership"), out);
+        assertTrue(out.contains("At store register."), out);
 
         String scan = session.execute("scan items");
         assertTrue(scan.contains("scanned"), scan);

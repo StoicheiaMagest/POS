@@ -110,8 +110,13 @@ shop, pay, leave — works without any setup commands. The customer has: name,
 birthday, person number, one or more payment cards, and is **not** a member
 by default.
 
-Output: `Welcome to Kwik E-Smart! You have picked up a basket and a payment
-card is ready in your pocket. Go ahead and pick your items.`
+Output (C8 — entry lists the shopping commands):
+
+```
+Welcome to Kwik E-Smart! You have picked up a basket and a payment card is
+ready in your pocket.
+You can now: list store-items | add <item> [grams] | remove <item> | list basket-items | to pos
+```
 
 (The experience is natural: entering the store hands you a basket and a card;
 no extra command is needed before `add`.)
@@ -179,7 +184,8 @@ shown with their weight. Empty basket → `Your basket is empty.`
 Moves the customer to the register and creates a **PurchaseOccasion** binding
 customer, basket and store account. Customer status becomes *at the register*.
 
-Output: `At store register. You can now scan the items or register membership`
+Output (C8 — the register lists its commands): `At store register. You can
+now: scan items | apply discount | register membership | payment | use card`
 
 ### 4.10 `scan items`
 
@@ -191,7 +197,7 @@ then a closing line:
 1 Alpro Soymilk scanned           Total: 34.96 SEK
 2 Tropicana Orange Juice scanned  Total: 104.86 SEK
 300g Apple scanned                Total: 112.33 SEK
-All items scanned. Go to "payment" or "apply discount"
+All items scanned. Next: "apply discount" | "payment" | "use card"
 ```
 
 Re-running after a completed scan → `All items have already been scanned.`
