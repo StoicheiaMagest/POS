@@ -65,7 +65,7 @@ BOOT ──enter store──▶ IN_STORE ──to pos / to cash-register──�
 |---|---|
 | BOOT (program start, before a flow) | `help`, `enter store`, `run pos`, `exit` |
 | IN_STORE | `help`, `create basket`, `list store-items`, `add`, `remove`, `list basket-items`, `create card`, `to pos`, `to cash-register`, `exit` |
-| AT_REGISTER | `help`, `scan items`, `apply discount`, `register membership`, `payment`, `use card`, `create card` (per §4.14), `exit` |
+| AT_REGISTER | `help`, `scan items`, `apply discount`, `register membership`, `payment`, `use card`, `split order <n>`, `create card` (per §4.14), `exit` |
 | DONE | `help`, `enter store`, `run pos`, `exit` |
 
 - A basket is picked up automatically on `enter store`, so basket commands
@@ -465,6 +465,12 @@ come from an injectable source so tests are deterministic.
     print and state becomes DONE.
 27. The receipt lists each article with quantity/weight and price, the
     discount line when one was applied, and the total paid.
+30. `split order <n>` (after scan, before any payment) divides the due into
+    `n` whole-cent parts (first `due % n` parts carry one extra cent) and
+    lists them; successive `use card` taps charge the parts in order until
+    the purchase completes. Re-splitting, splitting after payment started,
+    amount-taps during a split, discounts after a split, invalid `n`, and
+    splitting before scan are all refused with no change of state.
 
 **End-to-end**
 28. Happy path (fixed seed): `run pos` → `scan items` → `apply discount`

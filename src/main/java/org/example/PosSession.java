@@ -37,6 +37,8 @@ public class PosSession {
     private PurchaseOccasion occasion;
     private int memberCounter;
     private int cardCounter;
+    private List<Long> splitPartsCents = List.of();
+    private int nextPartIndex;
 
     /** Where the flow currently is (spec §3). */
     private enum SessionState {
@@ -99,6 +101,11 @@ public class PosSession {
                     return useCard(command.substring("use card".length())
                             .trim());
                 }
+                if (command.equals("split order")
+                        || command.startsWith("split order ")) {
+                    return splitOrder(command.substring("split order"
+                            .length()).trim());
+                }
                 return UNKNOWN_COMMAND;
         }
     }
@@ -112,6 +119,8 @@ public class PosSession {
                 new Account((int) DEFAULT_CARD_BALANCE_CENTS)));
         basket = new Basket();
         state = SessionState.IN_STORE;
+        splitPartsCents = List.of();
+        nextPartIndex = 0;
         return "Welcome to Kwik E-Smart! You have picked up a basket and a "
                 + "payment card is ready in your pocket.\n"
                 + IN_STORE_HINT;
@@ -149,6 +158,8 @@ public class PosSession {
     private String runPos() {
         store = new Store("Kwik E-Smart", new Account(0));
         state = SessionState.IN_STORE;
+        splitPartsCents = List.of();
+        nextPartIndex = 0;
         String name = RANDOM_NAMES[random.nextInt(RANDOM_NAMES.length)];
         customer = new Customer(name, "");
         boolean member = random.nextBoolean();
@@ -285,6 +296,61 @@ public class PosSession {
         }
     }
 
+    /**
+     * Splits the remaining due into equal parts for a multi-card payment
+     * (spec &sect;4.13a); the first {@code due % n} parts get one extra cent.
+     *
+     * @param argument the raw part-count argument
+     * @return confirmation listing the parts, or a refusal message
+     */
+    private String splitOrder(String argument) {
+        if (state == SessionState.DONE) {
+            return "This purchase is already paid ('enter store' for a new "
+                    + "visit).";
+        }
+        if (state != SessionState.AT_REGISTER) {
+            return "Go to the cash register first ('to pos').";
+        }
+        if (!occasion.isScanned()) {
+            return "Scan the items first ('scan items').";
+        }
+        if (!splitPartsCents.isEmpty()) {
+            return "The order is already split into parts.";
+        }
+        if (occasion.isPaymentStarted()) {
+            return "The order can no longer be split once payment has "
+                    + "started ('payment' shows the amount due).";
+        }
+        int partCount;
+        try {
+            partCount = Integer.parseInt(argument);
+        } catch (NumberFormatException e) {
+            return "Split must be a whole number of payments, e.g. "
+                    + "'split order 2'.";
+        }
+        if (partCount < 1) {
+            return "Split must be at least one payment, e.g. "
+                    + "'split order 2'.";
+        }
+        long dueCents = occasion.getAmountDueCents();
+        long baseCents = dueCents / partCount;
+        long extraCents = dueCents % partCount;
+        List<Long> parts = new ArrayList<>();
+        StringBuilder amounts = new StringBuilder();
+        for (int i = 0; i < partCount; i++) {
+            long partCents = baseCents + (i < extraCents ? 1 : 0);
+            parts.add(partCents);
+            if (i > 0) {
+                amounts.append(", ");
+            }
+            amounts.append(PriceFormatter.format(partCents));
+        }
+        splitPartsCents = parts;
+        nextPartIndex = 0;
+        return "The order is split into " + partCount + " payments of "
+                + amounts;
+    }
+
     private String payment() {
         if (state == SessionState.DONE) {
             return "This purchase is already paid ('enter store' for a new "
@@ -324,14 +390,23 @@ public class PosSession {
         if (basket.getItems().isEmpty()) {
             return "Your basket is empty.";
         }
-        long amountCents = occasion.getAmountDueCents();
-        if (!argument.isEmpty()) {
-            Long parsed = parseAmountCents(argument);
-            if (parsed == null || parsed <= 0) {
-                return "Amount must be a positive sum, e.g. 'use card "
-                        + "29.95'.";
+        long amountCents;
+        if (!splitPartsCents.isEmpty()) {
+            if (!argument.isEmpty()) {
+                return "The order is split into parts — pay them one by "
+                        + "one with 'use card'.";
             }
-            amountCents = parsed;
+            amountCents = splitPartsCents.get(nextPartIndex);
+        } else {
+            amountCents = occasion.getAmountDueCents();
+            if (!argument.isEmpty()) {
+                Long parsed = parseAmountCents(argument);
+                if (parsed == null || parsed <= 0) {
+                    return "Amount must be a positive sum, e.g. 'use card "
+                            + "29.95'.";
+                }
+                amountCents = parsed;
+            }
         }
         if (amountCents > occasion.getAmountDueCents()) {
             return "That is more than the remaining "
@@ -346,6 +421,9 @@ public class PosSession {
         switch (result) {
             case SUCCESS:
                 if (!occasion.isPaymentComplete()) {
+                    if (!splitPartsCents.isEmpty()) {
+                        nextPartIndex++;
+                    }
                     return "Your card has enough balance";
                 }
                 state = SessionState.DONE;
@@ -389,6 +467,9 @@ public class PosSession {
         }
         if (!occasion.isScanned()) {
             return "Scan the items first ('scan items').";
+        }
+        if (!splitPartsCents.isEmpty()) {
+            return "Discounts must be applied before splitting the order.";
         }
         DiscountResult result = occasion.applyMembershipDiscount();
         switch (result) {
@@ -590,6 +671,8 @@ public class PosSession {
                 + "register membership - join the club at the register\n"
                 + "payment             - show your cards and the amount due\n"
                 + "use card [amount]   - tap your card: pay all, or a set sum\n"
+                + "split order <n>     - divide the due into n parts for "
+                + "several cards\n"
                 + "create card [amt]   - issue a new payment card\n"
                 + "help                - show this list\n"
                 + "exit                - leave the program";

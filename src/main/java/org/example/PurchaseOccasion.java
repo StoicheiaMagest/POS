@@ -175,6 +175,16 @@ public class PurchaseOccasion {
     }
 
     /**
+     * Whether at least one successful card payment has been made on this
+     * occasion (spec &sect;4.13a: splitting stops once payment started).
+     *
+     * @return true once a tap succeeded
+     */
+    public boolean isPaymentStarted() {
+        return paymentStarted;
+    }
+
+    /**
      * Whether the basket of this occasion has been scanned.
      *
      * @return true once scanAll completed

@@ -598,6 +598,101 @@ public class PosSessionTest {
                 "commands after DONE are refused: " + late);
     }
 
+    @Test
+    void splitOrderAnnouncesTheParts() {
+        PosSession session = scannedRegisterWithCard("300");
+
+        String out = session.execute("split order 3");
+
+        // 34.96 into three: 11.66 + 11.65 + 11.65
+        assertTrue(out.contains("split into 3 payments"), out);
+        assertTrue(out.contains("11.66 SEK"), out);
+        assertTrue(out.contains("11.65 SEK"), out);
+    }
+
+    @Test
+    void tapsPaySplitPartsInOrderUntilFinished() {
+        PosSession session = scannedRegisterWithCard("300");
+        session.execute("split order 2"); // two parts of 17.48
+
+        String first = session.execute("use card");
+        assertEquals("Your card has enough balance", first);
+        assertEquals(1748, session.getStore().getBankAccount().getBalance());
+
+        String second = session.execute("use card");
+        assertTrue(second.contains(
+                "Payment completed. Thank you for shopping at Kwik E-Smart!"),
+                second);
+        assertEquals(3496, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void amountTapDuringASplitIsRefused() {
+        PosSession session = scannedRegisterWithCard("300");
+        session.execute("split order 2");
+
+        String out = session.execute("use card 5");
+
+        assertTrue(out.contains("split"), out);
+        assertEquals(0, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void splitOrderRefusedAfterPaymentStarted() {
+        PosSession session = scannedRegisterWithCard("300");
+        session.execute("use card 10");
+
+        String out = session.execute("split order 2");
+
+        assertTrue(out.toLowerCase().contains("payment"), out);
+        assertEquals(1000, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void splitOrderRefusedTwice() {
+        PosSession session = scannedRegisterWithCard("300");
+        session.execute("split order 2");
+
+        String out = session.execute("split order 3");
+
+        assertTrue(out.toLowerCase().contains("already"), out);
+    }
+
+    @Test
+    void discountAfterSplitIsRefused() {
+        PosSession session = scannedRegisterWithCard("300");
+        session.registerMembership("Ann", "19900101", "x");
+        session.execute("split order 2");
+
+        String out = session.execute("apply discount");
+
+        assertTrue(out.toLowerCase().contains("split"), out);
+    }
+
+    @Test
+    void invalidSplitSizeIsRefusedAndTapStillPaysAll() {
+        PosSession session = scannedRegisterWithCard("300");
+
+        assertTrue(session.execute("split order 0").toLowerCase()
+                .contains("split"));
+        assertTrue(session.execute("split order abc").toLowerCase()
+                .contains("split"));
+        String out = session.execute("use card");
+
+        assertTrue(out.contains(
+                "Payment completed. Thank you for shopping at Kwik E-Smart!"),
+                out);
+    }
+
+    @Test
+    void splitOrderBeforeScanningIsRefused() {
+        PosSession session = atRegisterWithItems();
+
+        String out = session.execute("split order 2");
+
+        assertTrue(out.contains("scan items"), out);
+    }
+
     private PosSession scannedRegisterWithCard(String amount) {
         PosSession session = atRegisterWithItems();
         session.execute("scan items");
