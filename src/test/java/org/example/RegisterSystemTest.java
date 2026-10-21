@@ -27,6 +27,30 @@ public class RegisterSystemTest {
     }
 
     @Test
+    void welcomeShowsTheMainWaysIn() {
+        StringWriter out = runScript("exit");
+
+        String text = out.toString();
+        assertTrue(text.contains("enter store"),
+                "welcome must advertise 'enter store': " + text);
+        assertTrue(text.contains("run pos"),
+                "welcome must advertise 'run pos': " + text);
+    }
+
+    @Test
+    void everyOutputBlockIsFollowedByABlankLine() {
+        StringWriter out = runScript("unknown thing", "exit");
+
+        String text = out.toString();
+        assertTrue(text.contains(
+                        "To get started: 'enter store' or 'run pos'.\n\n"),
+                "blank line after the welcome block: " + text);
+        assertTrue(text.contains(
+                        "Unknown command. Type 'help'.\n\n"),
+                "blank line after every command response: " + text);
+    }
+
+    @Test
     void unknownCommandIsReportedAndProgramKeepsRunning() {
         StringWriter out = runScript("do something silly", "exit");
 

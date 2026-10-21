@@ -42,6 +42,11 @@ The whole system (code, output, documentation) is written in **English**.
   never crash the program.
 - **C6 Out-of-state commands** (see §3) print a hint telling the user which
   command to run first, and change nothing.
+- **C7 Output spacing:** every output block (welcome banner, response to a
+  command) is followed by one blank line, so consecutive outputs stay readable.
+- **C8 Guided navigation:** at every state the program prints the commands
+  relevant *there and now* — the user never needs prior knowledge of the
+  command set to find the next step (welcome banner, store entry, register).
 
 ## 3. System states
 
@@ -81,7 +86,11 @@ main program from the project root, in the spirit of `mvn test`:
 $ ./start
 Welcome to Kwik E-Smart, your favorite vegan grocery shop
 Type 'help' to see available commands.
+To get started: 'enter store' or 'run pos'.
 ```
+
+The banner advertises the two main ways in (C8) and is followed by a blank
+line (C7).
 
 No new Maven dependencies: the script may use plain `mvn compile` + `java -cp`.
 

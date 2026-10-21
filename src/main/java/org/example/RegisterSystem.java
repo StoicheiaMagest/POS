@@ -37,6 +37,8 @@ public class RegisterSystem {
     public void run() {
         out.println("Welcome to Kwik E-Smart, your favorite vegan grocery shop");
         out.println("Type 'help' to see available commands.");
+        out.println("To get started: 'enter store' or 'run pos'.");
+        out.println();
         String line;
         try {
             while (session.isRunning() && (line = in.readLine()) != null) {
@@ -48,6 +50,7 @@ public class RegisterSystem {
                     continue;
                 }
                 out.println(session.execute(line));
+                out.println();
             }
         } catch (IOException e) {
             out.println("Input error: " + e.getMessage());
@@ -58,6 +61,7 @@ public class RegisterSystem {
         String refusal = session.membershipRegistrationRefusal();
         if (refusal != null) {
             out.println(refusal);
+            out.println();
             return;
         }
         out.print("Please enter your name: ");
@@ -67,5 +71,6 @@ public class RegisterSystem {
         out.print("Please enter your personnr: ");
         String personnr = in.readLine();
         out.println(session.registerMembership(name, birthday, personnr));
+        out.println();
     }
 }
