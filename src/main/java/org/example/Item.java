@@ -29,6 +29,13 @@ public abstract class Item {
 
     public abstract int getPrice();
 
+    /**
+     * Total price including VAT for this article's current line, in cents.
+     */
+    public long getInclusivePrice() {
+        return vat.calculateInclusivePrice(getPrice());
+    }
+
     public abstract Vat getVatRate();
 
     public int getArticleNumber() {

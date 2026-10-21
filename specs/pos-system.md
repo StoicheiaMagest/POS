@@ -113,7 +113,7 @@ Prints the assortment (§5) as a table with columns
 
 ```
 Name           Full Description            Unit      Price
-soy-milk       Alpro Soymilk               1 pc      34.95 SEK
+soy-milk       Alpro Soymilk               1 pc      34.96 SEK
 apple          Apple                       per kg    24.90 SEK
 ```
 
@@ -168,9 +168,9 @@ Prints one line per scanned article with the running VAT-inclusive total,
 then a closing line:
 
 ```
-1 Alpro Soymilk scanned           Total: 34.95 SEK
-2 Tropicana Orange Juice scanned  Total: 104.85 SEK
-300g Apple scanned                Total: 112.32 SEK
+1 Alpro Soymilk scanned           Total: 34.96 SEK
+2 Tropicana Orange Juice scanned  Total: 104.86 SEK
+300g Apple scanned                Total: 112.33 SEK
 All items scanned. Go to "payment" or "apply discount"
 ```
 
@@ -278,15 +278,17 @@ Prints `Goodbye!` and terminates the program. Valid in every state.
 
 Twelve vegan grocery articles, seeded into the article registry at startup
 (existing `ArticleRegistry` serves as the ItemList data class). Prices shown
-are VAT-inclusive per §C3; food at 12 %, non-food at 25 %.
+are VAT-inclusive per §C3; food at 12 %, non-food at 25 %. Each displayed
+price must be exactly reachable from an integer VAT-exclusive base price
+(half-up rounding), so soy-milk and tofu are 34.96/27.96 rather than .95.
 
 | Name (handle) | Full Description | Unit | Price |
 |---|---|---|---|
-| soy-milk | Alpro Soymilk | 1 pc | 34.95 SEK |
+| soy-milk | Alpro Soymilk | 1 pc | 34.96 SEK |
 | oat-drink | Alpro Oat Drink | 1 pc | 32.95 SEK |
 | orange-juice | Tropicana Orange Juice | 1 pc | 29.95 SEK |
 | hummus | Hummus Original 200g | 1 pc | 24.95 SEK |
-| tofu | Organic Firm Tofu | 1 pc | 27.95 SEK |
+| tofu | Organic Firm Tofu | 1 pc | 27.96 SEK |
 | black-beans | Black Beans 400g | 1 pc | 19.95 SEK |
 | dark-chocolate | Maraboo Dark Chocolate 100g | 1 pc | 22.95 SEK |
 | candle | Scented Candle Vanilla | 1 pc | 49.95 SEK |
