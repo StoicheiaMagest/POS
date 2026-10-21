@@ -130,11 +130,16 @@ Design principles (modularity):
 
 ## 9. Known backlog (pre-existing issues — fix via normal commits when agreed)
 
+Resolved during the v1 implementation (see `refactor-notes.md`):
+- ~~Junk/unused imports (`Customer.java`, `Receipt.java`)~~ (files rewritten)
+- ~~Rename `Scanner` → `BarcodeScanner`~~ (done, scanner now owned by the
+  purchase occasion per owner decision)
+- ~~Consolidate duplicates: `Card` vs `PaymentCard`; `Receipt.print()` vs
+  `PurchaseOccasion.printReceipt()`~~ (done)
+- ~~Wire everything together into the running system once specs arrive~~
+  (`./start`, spec v1 implemented)
+
+Still open:
 - `README.md` lines 124–133: unresolved merge-conflict markers
 - Stray Git-practice files `123.txt`, `asd.txt`; stale `architecture.md`
-- Junk/unused imports (`Customer.java`, `Receipt.java`)
 - `pom.xml`: invalid `<source>/<target>` under surefire plugin
-- Rename `Scanner` (collides with `java.util.Scanner`) → e.g. `BarcodeScanner`
-- Consolidate duplicates: `Card` vs `PaymentCard`; `Receipt.print()` vs
-  `PurchaseOccasion.printReceipt()`
-- Wire everything together into the running system once specs arrive

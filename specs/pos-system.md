@@ -1,6 +1,7 @@
 # SPEC — Kwik E-Smart POS System (v1)
 
-Status: APPROVED (owner sign-off 2026-10-21; assumptions A1–A5 stand as defaults).
+Status: IMPLEMENTED (v1, 2026-10-21 — all 29 ACs covered by tests; see git
+history of `pos-system`). Assumptions A1–A5 stand as defaults.
 Sources: owner's draft brief (see commit history of this file). Money handling
 in `money code (reference)/` is reference material only; its conventions are
 not adopted.
