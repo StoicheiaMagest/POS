@@ -25,6 +25,7 @@ public class PosSession {
     private static final int MIN_RANDOM_GRAMS = 100;
     private static final int MAX_RANDOM_GRAMS = 2000;
     private static final int MAX_RANDOM_PIECES = 3;
+    private static final int MAX_WEIGHT_GRAMS = 10000;
 
     private final ArticleRegistry registry;
     private final Random random;
@@ -439,6 +440,10 @@ public class PosSession {
         }
         if (grams <= 0) {
             return "Weight must be positive grams.";
+        }
+        if (grams > MAX_WEIGHT_GRAMS) {
+            return "Weight per line is capped at " + MAX_WEIGHT_GRAMS
+                    + " g; split it into several lines.";
         }
         basket.addItem(copyOf(template, grams));
         return grams + "g " + template.getFullDescription()

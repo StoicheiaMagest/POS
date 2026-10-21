@@ -160,6 +160,16 @@ public class PosSessionTest {
     }
 
     @Test
+    void weighedLineIsCappedAtTenKilograms() {
+        PosSession session = enteredStoreWithBasket();
+
+        String out = session.execute("add apple 10001");
+
+        assertTrue(!out.contains("added to basket"), out);
+        assertTrue(out.toLowerCase().contains("weight"), out);
+    }
+
+    @Test
     void addBeforeCreateBasketIsRefused() {
         PosSession session = newSession();
         session.execute("enter store");
