@@ -13,11 +13,16 @@ import java.util.Map;
  */
 public class PurchaseOccasion {
 
+    /** Membership discount in percent (spec §4.12). */
+    private static final int MEMBERSHIP_DISCOUNT_PERCENT = 20;
+
     private final BarcodeScanner scanner;
     private final Basket customerBasket;
     private final Customer customer;
     private final Account storeBankAccount;
     private boolean scanned;
+    private long amountDueCents;
+    private boolean discountApplied;
 
     public PurchaseOccasion(
             BarcodeScanner scanner,
@@ -81,7 +86,48 @@ public class PurchaseOccasion {
             }
         }
         scanned = true;
+        amountDueCents = runningTotal;
         return lines;
+    }
+
+    /**
+     * The amount still to be paid for this occasion, in VAT-inclusive cents
+     * after any applied discount.
+     *
+     * @return remaining amount due in cents
+     */
+    public long getAmountDueCents() {
+        return amountDueCents;
+    }
+
+    /**
+     * Applies the one-off membership discount of
+     * {@value #MEMBERSHIP_DISCOUNT_PERCENT} % to the amount due, rounded
+     * half-up (spec &sect;4.12).
+     *
+     * @return the outcome of the attempt
+     */
+    public DiscountResult applyMembershipDiscount() {
+        if (discountApplied) {
+            return DiscountResult.ALREADY_APPLIED;
+        }
+        if (!customer.isMember()) {
+            return DiscountResult.NOT_A_MEMBER;
+        }
+        long discountCents =
+                (amountDueCents * MEMBERSHIP_DISCOUNT_PERCENT + 50) / 100;
+        amountDueCents -= discountCents;
+        discountApplied = true;
+        return DiscountResult.APPLIED;
+    }
+
+    /**
+     * Whether the membership discount has been applied to this occasion.
+     *
+     * @return true once a discount was applied
+     */
+    public boolean isDiscountApplied() {
+        return discountApplied;
     }
 
     /**

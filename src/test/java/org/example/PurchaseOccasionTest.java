@@ -58,4 +58,63 @@ class PurchaseOccasionTest {
         assertTrue(purchase.isScanned());
         assertThrows(IllegalStateException.class, purchase::scanAll);
     }
+
+    @Test
+    void memberDiscountReducesAmountDueByTwentyPercentHalfUp() {
+        // Arrange: soy-milk 34.96 + juice 29.95 = 64.91 due
+        ArticleRegistry registry = ArticleRegistry.withStandardAssortment();
+        Basket basket = new Basket();
+        basket.addItem(registry.findByName("soy-milk"));
+        basket.addItem(registry.findByName("orange-juice"));
+        Customer member = new Customer("Member", "19900101-1234");
+        member.joinMembership(java.time.LocalDate.of(1990, 1, 1), "M000001");
+        PurchaseOccasion purchase = new PurchaseOccasion(
+                new BarcodeScanner(registry), basket, member, new Account(0));
+        purchase.scanAll();
+
+        // Assert pre-state
+        assertEquals(6491, purchase.getAmountDueCents());
+
+        // Act
+        DiscountResult result = purchase.applyMembershipDiscount();
+
+        // Assert: 20% of 6491 = 1298.2 -> half-up 1298 off -> 5193 due
+        assertEquals(DiscountResult.APPLIED, result);
+        assertEquals(5193, purchase.getAmountDueCents());
+    }
+
+    @Test
+    void discountIsRefusedForNonMembers() {
+        ArticleRegistry registry = ArticleRegistry.withStandardAssortment();
+        Basket basket = new Basket();
+        basket.addItem(registry.findByName("soy-milk"));
+        PurchaseOccasion purchase = new PurchaseOccasion(
+                new BarcodeScanner(registry), basket,
+                new Customer("Guest", "19900101-1234"), new Account(0));
+        purchase.scanAll();
+
+        DiscountResult result = purchase.applyMembershipDiscount();
+
+        assertEquals(DiscountResult.NOT_A_MEMBER, result);
+        assertEquals(3496, purchase.getAmountDueCents());
+    }
+
+    @Test
+    void discountCanOnlyBeAppliedOnce() {
+        ArticleRegistry registry = ArticleRegistry.withStandardAssortment();
+        Basket basket = new Basket();
+        basket.addItem(registry.findByName("soy-milk"));
+        Customer member = new Customer("Member", "19900101-1234");
+        member.joinMembership(java.time.LocalDate.of(1990, 1, 1), "M000001");
+        PurchaseOccasion purchase = new PurchaseOccasion(
+                new BarcodeScanner(registry), basket, member, new Account(0));
+        purchase.scanAll();
+        purchase.applyMembershipDiscount();
+
+        DiscountResult second = purchase.applyMembershipDiscount();
+
+        assertEquals(DiscountResult.ALREADY_APPLIED, second);
+        assertEquals(2797, purchase.getAmountDueCents(),
+                "second attempt must not discount again");
+    }
 }
