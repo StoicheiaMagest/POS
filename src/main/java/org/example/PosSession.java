@@ -21,6 +21,7 @@ public class PosSession {
     private Customer customer;
     private Basket basket;
     private PurchaseOccasion occasion;
+    private int memberCounter;
 
     /** Where the flow currently is (spec §3). */
     private enum SessionState {
@@ -241,6 +242,69 @@ public class PosSession {
      */
     public boolean isRunning() {
         return running;
+    }
+
+    /**
+     * The current customer, for the console shell and tests.
+     *
+     * @return the customer of this visit, null before entering the store
+     */
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    /**
+     * Reason why membership registration cannot start right now, checked
+     * before prompting for input (spec &sect;4.11).
+     *
+     * @return refusal text, or null when registration may proceed
+     */
+    public String membershipRegistrationRefusal() {
+        if (state == SessionState.BOOT || state == SessionState.DONE) {
+            return "You must enter the store first ('enter store').";
+        }
+        if (state != SessionState.AT_REGISTER) {
+            return "Membership registration is only available at the cash "
+                    + "register ('to pos').";
+        }
+        if (customer.isMember()) {
+            return "You are already a member.";
+        }
+        return null;
+    }
+
+    /**
+     * Completes a membership registration with the entered data
+     * (spec &sect;4.11).
+     *
+     * @param name         the entered name (recorded on the visit)
+     * @param birthdayInput birthday as yyyymmdd
+     * @param personnr     the person number, any non-empty text
+     * @return confirmation with member number, or an error message
+     */
+    public String registerMembership(String name, String birthdayInput,
+                                     String personnr) {
+        String refusal = membershipRegistrationRefusal();
+        if (refusal != null) {
+            return refusal;
+        }
+        java.time.LocalDate birthday;
+        try {
+            birthday = java.time.LocalDate.parse(birthdayInput.trim(),
+                    java.time.format.DateTimeFormatter.BASIC_ISO_DATE
+                            .withResolverStyle(java.time.format
+                                    .ResolverStyle.STRICT));
+        } catch (java.time.format.DateTimeParseException e) {
+            return "Invalid birthday format. Use yyyymmdd.";
+        }
+        if (personnr == null || personnr.isBlank()) {
+            return "Person number must not be empty.";
+        }
+        memberCounter++;
+        String memberNumber = String.format("M%06d", memberCounter);
+        customer.joinMembership(birthday, memberNumber);
+        return "Congratulations! You can now use discounts. Your member "
+                + "number is " + memberNumber + "!";
     }
 
     private String helpText() {

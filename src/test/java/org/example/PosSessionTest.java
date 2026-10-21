@@ -289,4 +289,52 @@ public class PosSessionTest {
 
         assertTrue(out.contains("to pos"), out);
     }
+
+    @Test
+    void validRegistrationMakesCustomerMemberWithGeneratedNumber() {
+        PosSession session = atRegisterWithItems();
+
+        String out = session.registerMembership("Ann", "19900101",
+                "900101-0000");
+
+        assertTrue(out.matches("(?s).*Congratulations! You can now use "
+                + "discounts\\. Your member number is M\\d{6}!"), out);
+        assertTrue(session.getCustomer().isMember());
+    }
+
+    @Test
+    void malformedBirthdayAbortsRegistration() {
+        PosSession session = atRegisterWithItems();
+
+        String out = session.registerMembership("Ann", "notadate", "x");
+
+        assertEquals("Invalid birthday format. Use yyyymmdd.", out);
+        assertTrue(!session.getCustomer().isMember());
+    }
+
+    @Test
+    void doubleRegistrationIsRefused() {
+        PosSession session = atRegisterWithItems();
+        session.registerMembership("Ann", "19900101", "x");
+
+        String out = session.registerMembership("Ann", "19900101", "x");
+
+        assertEquals("You are already a member.", out);
+    }
+
+    @Test
+    void membershipRegistrationOnlyWorksAtTheRegister() {
+        PosSession session = enteredStoreWithBasket();
+
+        String refusal = session.membershipRegistrationRefusal();
+
+        assertTrue(refusal.contains("to pos"), refusal);
+    }
+
+    private PosSession atRegisterWithItems() {
+        PosSession session = enteredStoreWithBasket();
+        session.execute("add soy-milk");
+        session.execute("to pos");
+        return session;
+    }
 }

@@ -36,6 +36,21 @@ public class RegisterSystemTest {
                 "program must still reach the exit command");
     }
 
+    @Test
+    void membershipRegistrationPromptsAndCongratulates() {
+        StringWriter out = runScript("enter store", "create basket",
+                "add soy-milk", "to pos", "register membership",
+                "Ann Example", "19900101", "900101-0000", "exit");
+
+        String text = out.toString();
+        assertTrue(text.contains("Please enter your name:"), text);
+        assertTrue(text.contains("Please enter your birthday:"), text);
+        assertTrue(text.contains("Please enter your personnr:"), text);
+        assertTrue(text.contains(
+                "Congratulations! You can now use discounts. Your member "
+                        + "number is"), text);
+    }
+
     private StringWriter runScript(String... commands) {
         StringBuilder script = new StringBuilder();
         for (String command : commands) {

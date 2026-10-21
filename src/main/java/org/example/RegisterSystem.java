@@ -43,10 +43,29 @@ public class RegisterSystem {
                 if (line.isBlank()) {
                     continue;
                 }
+                if (line.trim().equalsIgnoreCase("register membership")) {
+                    handleMembershipRegistration();
+                    continue;
+                }
                 out.println(session.execute(line));
             }
         } catch (IOException e) {
             out.println("Input error: " + e.getMessage());
         }
+    }
+
+    private void handleMembershipRegistration() throws IOException {
+        String refusal = session.membershipRegistrationRefusal();
+        if (refusal != null) {
+            out.println(refusal);
+            return;
+        }
+        out.print("Please enter your name: ");
+        String name = in.readLine();
+        out.print("Please enter your birthday: ");
+        String birthday = in.readLine();
+        out.print("Please enter your personnr: ");
+        String personnr = in.readLine();
+        out.println(session.registerMembership(name, birthday, personnr));
     }
 }
