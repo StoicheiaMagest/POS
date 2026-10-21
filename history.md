@@ -6,6 +6,42 @@ with a summary of what was accomplished.
 
 ---
 
+## Session 6 — 2026-10-21 (late evening): Guided TUI — natural shopping, tap-to-pay
+
+The owner asked for a friendlier terminal experience with one guiding
+principle: *no knowledge in the head* — every state must print the commands
+that matter there and now. Follow-ups shaped the details while work was in
+flight: a blank line after each output block; `enter store` should *magically*
+hand over a basket **and** a working payment card; `use card` must feel like
+holding a card over a reader (never type an id — ids became backend-only);
+and splitting must reflect reality, so charging several cards automatically
+was explicitly rejected in favour of an announced `split order <n>` step.
+
+Seven TDD cycles, each spec-anchored and pushed through
+`scripts/commit-push.sh`: blank-line spacing plus a welcome banner that
+advertises `enter store`/`run pos` (new conventions C7/C8); the automatic
+basket on entry (old "create basket first" refusals deleted as unreachable);
+the 500 SEK welcome card (the card-less state disappeared, so its message
+and test went too); contextual command lists at entry, at the register and
+at the end of scanning; tap-style `use card` where one tap charges exactly
+one card — the backend picks the first that covers the charge — with the
+amount form `use card 30.00` for partial taps; `split order <n>` dividing
+the due into whole-cent parts (extra cents to the first parts) paid by
+successive taps, refusing re-splits, late splits, discounts after splitting
+and amount-taps mid-split; and `print receipt` for re-viewing a finished
+purchase's receipt.
+
+Incidents worth recording: the owner had to point out (repeatedly) that
+commits must go through `scripts/commit-push.sh` — that rule is now written
+into AGENTS.md §6 so it cannot be missed again; VAT half-up rounding made a
+10 kg cheese line land on 1990.02 rather than 1990.00, caught by the suite;
+and two early test bugs were caught by watching them fail for the *wrong*
+reason (mutating the basket after `to pos`, asserting between two taps).
+ACs 6 and 23–26 were rewritten to the new behaviour and ACs 30–31 added;
+the suite grew from 108 to 125 tests, all green. A scripted end-to-end run
+of `./start` shows a first-time visitor shopping, tapping once and printing
+the receipt without ever consulting `help`.
+
 ## Session 5 — 2026-10-21 (evening): Barcode rework and scanAll simplification
 
 The owner flagged `PurchaseOccasion.scanAll` as messy and asked for small,
