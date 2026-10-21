@@ -119,6 +119,16 @@ Design principles (modularity):
 - [ ] No unrelated changes in the diff; no dead or speculative code
 - [ ] Spec file updated if agreed behaviour changed
 
+## 7a. Session history (end-of-session duty)
+
+At the end of **every working session**, `history.md` is updated with a
+high-level narrative summary of what was accomplished in that session
+(newest session first). It is a story of the project's evolution, not a
+commit log: decisions taken, direction of work, and notable incidents —
+written so a newcomer understands how the system came to be. Committed like
+any other increment (with the session's last commit or its own `docs`
+commit).
+
 ## 8. Things an agent must never do
 
 - Touch, switch to, or push to `main`/`master`, or any non-current branch
