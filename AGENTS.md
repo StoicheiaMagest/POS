@@ -101,6 +101,11 @@ Design principles (modularity):
 
 ## 6. Commit hygiene
 
+0. **Commits and pushes go through `scripts/commit-push.sh`**, never raw
+   `git commit`/`git push`:
+   `scripts/commit-push.sh "<message>" <file> [file...]`
+   It refuses to run off `pos-system`, requires the full test suite green
+   (AGENTS.md §5), stages only the listed files, commits and pushes.
 1. Stage only the files touched by this increment — never `git add .` or
    `git add -A` (team rule from README: don't sweep up other people's work).
 2. One completed TDD cycle = one commit on the current branch, message format:
