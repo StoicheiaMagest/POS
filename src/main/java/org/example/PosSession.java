@@ -16,6 +16,15 @@ public class PosSession {
     private final ArticleRegistry registry;
     private final Random random;
     private boolean running = true;
+    private SessionState state = SessionState.BOOT;
+    private Store store;
+    private Customer customer;
+    private Basket basket;
+
+    /** Where the flow currently is (spec §3). */
+    private enum SessionState {
+        BOOT, IN_STORE, AT_REGISTER, DONE
+    }
 
     public PosSession(ArticleRegistry registry, Random random) {
         this.registry = registry;
@@ -36,9 +45,29 @@ public class PosSession {
                 return "Goodbye!";
             case "help":
                 return helpText();
+            case "enter store":
+                return enterStore();
+            case "create basket":
+                return createBasket();
             default:
                 return UNKNOWN_COMMAND;
         }
+    }
+
+    private String enterStore() {
+        store = new Store("Kwik E-Smart", new Account(0));
+        customer = new Customer("Customer", "");
+        basket = null;
+        state = SessionState.IN_STORE;
+        return "Welcome to Kwik E-Smart! Go ahead and pick your items.";
+    }
+
+    private String createBasket() {
+        if (state != SessionState.IN_STORE) {
+            return "You must enter the store first ('enter store').";
+        }
+        basket = new Basket();
+        return "Basket has been created";
     }
 
     /**

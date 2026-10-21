@@ -52,4 +52,38 @@ public class PosSessionTest {
         return new PosSession(ArticleRegistry.withStandardAssortment(),
                 new java.util.Random(1));
     }
+
+    @Test
+    void enterStoreGreetsAndCreateBasketWorks() {
+        PosSession session = newSession();
+
+        String entered = session.execute("enter store");
+        String created = session.execute("create basket");
+
+        assertEquals("Welcome to Kwik E-Smart! Go ahead and pick your items.",
+                entered);
+        assertEquals("Basket has been created", created);
+    }
+
+    @Test
+    void createBasketBeforeEnteringStoreIsRefused() {
+        PosSession session = newSession();
+
+        String out = session.execute("create basket");
+
+        assertTrue(out.contains("enter store"),
+                "must hint the command to run first: " + out);
+        assertTrue(!out.equals("Basket has been created"));
+    }
+
+    @Test
+    void enteringStoreTwiceStartsAFreshVisit() {
+        PosSession session = newSession();
+        session.execute("enter store");
+
+        String again = session.execute("enter store");
+
+        assertEquals("Welcome to Kwik E-Smart! Go ahead and pick your items.",
+                again);
+    }
 }
