@@ -26,6 +26,10 @@ public class Account {
         balance += amount;
     }
 
+    public int getBalance() {
+        return balance;
+    }
+
     public void addToBalance(Money money) {
         balance += money.getAmount();
     }

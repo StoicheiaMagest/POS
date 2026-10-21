@@ -17,3 +17,8 @@ One entry per incident: what changed, which tests were touched, why it is OK.
   the pre-existing `ArticleRegistryTest.findByArticleNumberReturnsRegisteredItem`
   needed its `mock(Item.class)` to stub `getName()` (it previously never was
   called). Assertion unchanged.
+- 2026-10-21 — `Card` + `PaymentCard` consolidated into one `PaymentCard`
+  (id, issuer, linked account) per spec §6 backlog decision. Deleted
+  `Card.java`/`CardTest.java`; the pay-success/pay-failure behaviour of
+  `CardTest` is preserved in the rewritten `PaymentCardTest` (now with real
+  `Account`s instead of mocks).
