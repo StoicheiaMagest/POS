@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Launch the Kwik E-Smart POS from the repository root (spec §4.1).
+# Compiles with Maven and runs the CLI — no extra dependencies.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+mvn -q compile
+exec java -cp target/classes org.example.RegisterSystem
