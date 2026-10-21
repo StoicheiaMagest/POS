@@ -130,4 +130,88 @@ public class PosSessionTest {
 
         assertTrue(out.contains("enter store"), out);
     }
+
+    @Test
+    void addUnitArticlePrintsConfirmationAndWeighedNeedsGrams() {
+        PosSession session = enteredStoreWithBasket();
+
+        String added = session.execute("add soy-milk");
+        String weighed = session.execute("add apple 300");
+
+        assertEquals("1 Alpro Soymilk added to basket", added);
+        assertEquals("300g Apple added to basket", weighed);
+    }
+
+    @Test
+    void addRejectsUnknownHandleAndBadQuantities() {
+        PosSession session = enteredStoreWithBasket();
+
+        assertTrue(session.execute("add socks").contains("Unknown item"));
+        assertTrue(session.execute("add soy-milk 3").length() > 0);
+        assertTrue(!session.execute("add soy-milk 3")
+                .contains("added to basket"));
+        assertTrue(!session.execute("add apple").contains("added to basket"));
+        assertTrue(!session.execute("add apple -5")
+                .contains("added to basket"));
+        assertTrue(!session.execute("add apple abc")
+                .contains("added to basket"));
+    }
+
+    @Test
+    void addBeforeCreateBasketIsRefused() {
+        PosSession session = newSession();
+        session.execute("enter store");
+
+        String out = session.execute("add soy-milk");
+
+        assertTrue(out.contains("create basket"), out);
+    }
+
+    @Test
+    void removeTakesExactlyOneAndReportsAbsence() {
+        PosSession session = enteredStoreWithBasket();
+        session.execute("add soy-milk");
+        session.execute("add soy-milk");
+
+        String removed = session.execute("remove soy-milk");
+        String absent = session.execute("remove olives");
+
+        assertEquals("One Alpro Soymilk has been removed from basket",
+                removed);
+        assertEquals("That item is not in your basket.", absent);
+    }
+
+    @Test
+    void listBasketItemsGroupsAndShowsWeights() {
+        PosSession session = enteredStoreWithBasket();
+        session.execute("add soy-milk");
+        session.execute("add orange-juice");
+        session.execute("add orange-juice");
+        session.execute("add apple 300");
+
+        String out = session.execute("list basket-items");
+
+        assertTrue(out.contains("The basket has the following items:"), out);
+        assertTrue(out.contains("1"), out);
+        assertTrue(out.contains("Alpro Soymilk"), out);
+        assertTrue(out.contains("2"), out);
+        assertTrue(out.contains("Tropicana Orange Juice"), out);
+        assertTrue(out.contains("300g"), out);
+        assertTrue(out.contains("Apple"), out);
+    }
+
+    @Test
+    void emptyBasketListingSaysSo() {
+        PosSession session = enteredStoreWithBasket();
+
+        assertEquals("Your basket is empty.",
+                session.execute("list basket-items"));
+    }
+
+    private PosSession enteredStoreWithBasket() {
+        PosSession session = newSession();
+        session.execute("enter store");
+        session.execute("create basket");
+        return session;
+    }
 }

@@ -52,6 +52,15 @@ public class PosSession {
             case "list store-items":
                 return listStoreItems();
             default:
+                if (command.startsWith("add ")) {
+                    return addItem(command.substring(4).trim());
+                }
+                if (command.startsWith("remove ")) {
+                    return removeItem(command.substring(7).trim());
+                }
+                if (command.equals("list basket-items")) {
+                    return listBasketItems();
+                }
                 return UNKNOWN_COMMAND;
         }
     }
@@ -86,6 +95,93 @@ public class PosSession {
                     PriceFormatter.format(item.getInclusivePrice())));
         }
         return sb.toString().stripTrailing();
+    }
+
+    private String addItem(String argument) {
+        if (state != SessionState.IN_STORE) {
+            return "You must enter the store first ('enter store').";
+        }
+        if (basket == null) {
+            return "Create a basket first ('create basket').";
+        }
+        String[] parts = argument.split("\\s+");
+        Item template = registry.findByName(parts[0]);
+        if (template == null) {
+            return "Unknown item. Use 'list store-items'.";
+        }
+        if (template instanceof WeighedItem) {
+            return addWeighed(template, parts);
+        }
+        if (parts.length > 1) {
+            return "That article is sold per piece; use 'add " + parts[0]
+                    + "' without a quantity.";
+        }
+        basket.addItem(copyOf(template, 1));
+        return "1 " + template.getFullDescription() + " added to basket";
+    }
+
+    private String addWeighed(Item template, String[] parts) {
+        if (parts.length < 2) {
+            return "That article is sold by weight; give grams, e.g. 'add "
+                    + template.getName() + " 200'.";
+        }
+        int grams;
+        try {
+            grams = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            return "Weight must be a whole number of grams.";
+        }
+        if (grams <= 0) {
+            return "Weight must be positive grams.";
+        }
+        basket.addItem(copyOf(template, grams));
+        return grams + "g " + template.getFullDescription()
+                + " added to basket";
+    }
+
+    private Item copyOf(Item template, int grams) {
+        if (template instanceof WeighedItem) {
+            // Registry weighed templates are seeded at 1000 g, so their
+            // line price is exactly the per-kg base price.
+            return new WeighedItem(template.getName(), template.getPrice(),
+                    template.getVatRate(), grams,
+                    template.getArticleNumber(),
+                    template.getFullDescription());
+        }
+        return template;
+    }
+
+    private String removeItem(String handle) {
+        if (state != SessionState.IN_STORE) {
+            return "You must enter the store first ('enter store').";
+        }
+        if (basket == null) {
+            return "Create a basket first ('create basket').";
+        }
+        Item removed = basket.removeOne(handle);
+        if (removed == null) {
+            return "That item is not in your basket.";
+        }
+        return "One " + removed.getFullDescription()
+                + " has been removed from basket";
+    }
+
+    private String listBasketItems() {
+        if (state != SessionState.IN_STORE) {
+            return "You must enter the store first ('enter store').";
+        }
+        if (basket == null) {
+            return "Create a basket first ('create basket').";
+        }
+        if (basket.getItems().isEmpty()) {
+            return "Your basket is empty.";
+        }
+        StringBuilder sb = new StringBuilder("The basket has the following items:");
+        for (BasketLine line : basket.lines()) {
+            sb.append(String.format("%n%-8s%s", line.getQuantity(),
+                    line.getDescription()));
+        }
+        return sb.toString();
     }
 
     /**
