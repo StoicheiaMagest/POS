@@ -68,7 +68,8 @@ BOOT ──enter store──▶ IN_STORE ──to pos / to cash-register──�
 | AT_REGISTER | `help`, `scan items`, `apply discount`, `register membership`, `payment`, `use card`, `create card` (per §4.14), `exit` |
 | DONE | `help`, `enter store`, `run pos`, `exit` |
 
-- Basket commands in IN_STORE additionally require an existing basket.
+- A basket is picked up automatically on `enter store`, so basket commands
+  work immediately in IN_STORE (`create basket` only resets it).
 - `scan items`, `apply discount`, `payment` require the basket to have been
   scanned (`scan items`) first; `apply discount` and `payment` also require a
   non-empty basket.
@@ -102,15 +103,21 @@ commands must appear.)
 ### 4.3 `enter store`
 
 Creates the store (`Kwik E-Smart`, with a store bank account) and a customer,
-and places the customer **in the store** with no basket yet. The customer has:
-name, birthday, person number, zero or more payment cards, and is **not** a
-member by default.
+and places the customer **in the store** *with a basket already picked up*.
+The customer has: name, birthday, person number, zero or more payment cards,
+and is **not** a member by default.
 
-Output: `Welcome to Kwik E-Smart! Go ahead and pick your items.`
+Output: `Welcome to Kwik E-Smart! You have picked up a basket. Go ahead and
+pick your items.`
+
+(The experience is natural: entering the store hands you a basket; no extra
+command is needed before `add`.)
 
 ### 4.4 `create basket`
 
-Creates an empty basket for the current customer (IN_STORE only).
+Resets to a fresh empty basket for the current customer (IN_STORE only). A
+basket already exists from `enter store`; this command is only needed to
+start over.
 
 Output: `Basket has been created`
 
@@ -350,8 +357,9 @@ come from an injectable source so tests are deterministic.
 5. `exit` terminates from any state with `Goodbye!`.
 
 **Flows & states**
-6. `enter store` creates store + non-member customer in IN_STORE; basket
-   commands before `create basket` are refused per C6.
+6. `enter store` creates store + non-member customer in IN_STORE **with a
+   basket already picked up**; `add` works immediately without any prior
+   `create basket`.
 7. `run pos` creates store, random customer (member status random) and a
    non-empty random basket with random quantities, starting AT_REGISTER; the
    three output lines of §4.16 appear; given a fixed seed the result is

@@ -56,15 +56,18 @@ public class PosSessionTest {
     }
 
     @Test
-    void enterStoreGreetsAndCreateBasketWorks() {
+    void enterStoreGreetsAndCreateBasketResets() {
         PosSession session = newSession();
 
         String entered = session.execute("enter store");
+        session.execute("add soy-milk");
         String created = session.execute("create basket");
 
-        assertEquals("Welcome to Kwik E-Smart! Go ahead and pick your items.",
-                entered);
+        assertEquals("Welcome to Kwik E-Smart! You have picked up a basket. "
+                + "Go ahead and pick your items.", entered);
         assertEquals("Basket has been created", created);
+        assertEquals("Your basket is empty.",
+                session.execute("list basket-items"));
     }
 
     @Test
@@ -85,8 +88,9 @@ public class PosSessionTest {
 
         String again = session.execute("enter store");
 
-        assertEquals("Welcome to Kwik E-Smart! Go ahead and pick your items.",
-                again);
+        assertTrue(again.startsWith("Welcome to Kwik E-Smart!"), again);
+        assertEquals("Your basket is empty.",
+                session.execute("list basket-items"));
     }
 
     @Test
@@ -170,13 +174,15 @@ public class PosSessionTest {
     }
 
     @Test
-    void addBeforeCreateBasketIsRefused() {
+    void enteringStorePicksUpABasketAutomatically() {
         PosSession session = newSession();
-        session.execute("enter store");
 
-        String out = session.execute("add soy-milk");
+        String entered = session.execute("enter store");
+        String added = session.execute("add soy-milk");
 
-        assertTrue(out.contains("create basket"), out);
+        assertTrue(entered.contains("basket"),
+                "entry must mention the basket picked up: " + entered);
+        assertEquals("1 Alpro Soymilk added to basket", added);
     }
 
     @Test
@@ -248,16 +254,6 @@ public class PosSessionTest {
 
         assertEquals("At store register. You can now scan the items or "
                 + "register membership", moved);
-    }
-
-    @Test
-    void toPosWithoutBasketIsRefused() {
-        PosSession session = newSession();
-        session.execute("enter store");
-
-        String out = session.execute("to pos");
-
-        assertTrue(out.contains("create basket"), out);
     }
 
     @Test

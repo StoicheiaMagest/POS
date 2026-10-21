@@ -106,9 +106,10 @@ public class PosSession {
     private String enterStore() {
         store = new Store("Kwik E-Smart", new Account(0));
         customer = new Customer("Customer", "");
-        basket = null;
+        basket = new Basket();
         state = SessionState.IN_STORE;
-        return "Welcome to Kwik E-Smart! Go ahead and pick your items.";
+        return "Welcome to Kwik E-Smart! You have picked up a basket. "
+                + "Go ahead and pick your items.";
     }
 
     private String createBasket() {
@@ -192,9 +193,6 @@ public class PosSession {
     private String goToRegister() {
         if (state != SessionState.IN_STORE) {
             return "You must enter the store first ('enter store').";
-        }
-        if (basket == null) {
-            return "Create a basket first ('create basket').";
         }
         customer.goToRegister();
         occasion = new PurchaseOccasion(new BarcodeScanner(registry), basket,
@@ -408,9 +406,6 @@ public class PosSession {
         if (state != SessionState.IN_STORE) {
             return basketStateHint();
         }
-        if (basket == null) {
-            return "Create a basket first ('create basket').";
-        }
         String[] parts = argument.split("\\s+");
         Item template = registry.findByName(parts[0]);
         if (template == null) {
@@ -466,9 +461,6 @@ public class PosSession {
         if (state != SessionState.IN_STORE) {
             return basketStateHint();
         }
-        if (basket == null) {
-            return "Create a basket first ('create basket').";
-        }
         Item removed = basket.removeOne(handle);
         if (removed == null) {
             return "That item is not in your basket.";
@@ -480,9 +472,6 @@ public class PosSession {
     private String listBasketItems() {
         if (state != SessionState.IN_STORE) {
             return basketStateHint();
-        }
-        if (basket == null) {
-            return "Create a basket first ('create basket').";
         }
         if (basket.getItems().isEmpty()) {
             return "Your basket is empty.";
