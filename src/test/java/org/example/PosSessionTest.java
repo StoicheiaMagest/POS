@@ -557,4 +557,46 @@ public class PosSessionTest {
 
         assertEquals(1, session.getCustomer().getCards().size());
     }
+
+    @Test
+    void happyPathMemberBuysWithDiscountAndCard() {
+        // Arrange/Act: full journey, deterministic amounts
+        PosSession session = newSession();
+        session.execute("enter store");
+        session.execute("create basket");
+        session.execute("add soy-milk");       // 34.96 incl
+        session.execute("add banana 500");     // 7.95 incl -> total 42.91
+        session.execute("to pos");
+        session.execute("scan items");
+        session.registerMembership("Ann", "19900101", "x");
+        assertEquals("Discount has succeeded. Enjoy 20% off your purchase!",
+                session.execute("apply discount"));
+        session.execute("create card 100");
+
+        String out = session.execute("use card 1");
+
+        // Assert: 4291 - half-up(858) = 34.33 paid to the store
+        assertTrue(out.contains("Total paid: 34.33 SEK"), out);
+        assertTrue(out.contains("Discount -20%: -8.58 SEK"), out);
+        assertEquals(3433, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void failurePathNonMemberPaysFullAmount() {
+        PosSession session = newSession();
+        session.execute("enter store");
+        session.execute("create basket");
+        session.execute("add soy-milk");
+        session.execute("add banana 500");
+        session.execute("to pos");
+        session.execute("scan items");
+
+        assertEquals("Applying discount failed. You need to be a member",
+                session.execute("apply discount"));
+        session.execute("create card 100");
+        String out = session.execute("use card 1");
+
+        assertTrue(out.contains("Total paid: 42.91 SEK"), out);
+        assertEquals(4291, session.getStore().getBankAccount().getBalance());
+    }
 }
