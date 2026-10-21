@@ -41,3 +41,8 @@ One entry per incident: what changed, which tests were touched, why it is OK.
   §4.15 (store name, scan lines with prices, discount line, total paid).
   Old constructor (receipt number/date/basket) and its `ReceiptTest` cases
   replaced; receipt number/timestamp are not part of v1 output.
+- 2026-10-21 — `RegisterSystem` rewritten as a thin I/O shell with injectable
+  Reader/Writer (spec §4.1, testability requirement). Its old empty
+  placeholder test was replaced by real scripted-I/O tests; the old no-arg
+  constructor and "Register starting" banner are gone.
+

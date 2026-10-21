@@ -1,66 +1,52 @@
 package org.example;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.Random;
 
+/**
+ * Console shell of the POS: prints the welcome banner, feeds input lines to
+ * a {@link PosSession} and prints the responses. All behaviour lives in the
+ * session; this class is pure edge I/O (spec &sect;4.1).
+ */
 public class RegisterSystem {
-    Scanner input = new Scanner(System.in);
-    private static final String NEW_ORDER_COMMAND = "SCAN ITEM";
-    private static final String EXIT_COMMAND = "EXIT";
-    private String command;
+
+    private final BufferedReader in;
+    private final PrintWriter out;
+    private final PosSession session;
+
+    public RegisterSystem(Reader in, Writer out) {
+        this.in = new BufferedReader(in);
+        this.out = new PrintWriter(out, true);
+        this.session = new PosSession(
+                ArticleRegistry.withStandardAssortment(), new Random());
+    }
 
     public static void main(String[] args) {
-        new RegisterSystem().start();
+        new RegisterSystem(new InputStreamReader(System.in),
+                new java.io.OutputStreamWriter(System.out)).run();
     }
 
-    private void start() {
-        setUp();
-        runCommandLoop();
-        shutDown();
-    }
-
-    private void setUp() {
-        System.out.println("Register starting");
-        System.out.println("The following commands are availible:");
-        printCommands();
-    }
-
-    private void printCommands() {
-        System.out.println("* Exit");
-    }
-
-    private void runCommandLoop() {
-        do { 
-            command = input.nextLine().toUpperCase();
-            executeCommand(command);
-            System.out.println();
-        } while (!command.equalsIgnoreCase(EXIT_COMMAND));
-    }
-
-    private void executeCommand(String command) {
-        switch (command) {
-            case NEW_ORDER_COMMAND:
-                commandNewOrder();
-                break;
-
-            case EXIT_COMMAND:
-                break;
-            default:
-                System.out.println("Error, try again!");
+    /**
+     * Runs the interactive loop until exit or end of input.
+     */
+    public void run() {
+        out.println("Welcome to Kwik E-Smart, your favorite vegan grocery shop");
+        out.println("Type 'help' to see available commands.");
+        String line;
+        try {
+            while (session.isRunning() && (line = in.readLine()) != null) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                out.println(session.execute(line));
+            }
+        } catch (IOException e) {
+            out.println("Input error: " + e.getMessage());
         }
-    }
-
-    private void commandNewOrder() {//byt void till order när den klassen är skapad
-        //loop
-            //scanna vara eller väg vara
-            //det läggs till i basket
-            
-    }
-
-
-
-
-    private void shutDown() {
-        System.out.println("Register shutting down");
-        input.close();
     }
 }
