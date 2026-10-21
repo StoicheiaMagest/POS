@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -515,5 +517,44 @@ public class PosSessionTest {
         session.execute("scan items");
         session.execute("create card " + amount);
         return session;
+    }
+
+    @Test
+    void runPosCreatesRandomSetupAtRegister() {
+        PosSession session = newSession();
+
+        String out = session.execute("run pos");
+
+        assertTrue(out.matches("(?s).*Random customer created: \\w+ "
+                + "\\(member: (yes|no)\\).*"), out);
+        assertTrue(out.matches("(?s).*Random basket created with \\d+ "
+                + "articles\\. Total: \\d+\\.\\d{2} SEK.*"), out);
+        assertTrue(out.contains("At store register. You can now scan the "
+                + "items or register membership"), out);
+
+        String scan = session.execute("scan items");
+        assertTrue(scan.contains("scanned"), scan);
+    }
+
+    @Test
+    void runPosIsReproducibleWithFixedSeed() {
+        StringBuilder first = new StringBuilder();
+        StringBuilder second = new StringBuilder();
+        for (StringBuilder sink : List.of(first, second)) {
+            PosSession session = newSession();
+            sink.append(session.execute("run pos"));
+            sink.append(session.execute("scan items"));
+        }
+
+        assertEquals(second.toString(), first.toString());
+    }
+
+    @Test
+    void runPosCustomerComesWithOneCard() {
+        PosSession session = newSession();
+
+        session.execute("run pos");
+
+        assertEquals(1, session.getCustomer().getCards().size());
     }
 }

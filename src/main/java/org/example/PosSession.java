@@ -1,5 +1,8 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -16,6 +19,12 @@ public class PosSession {
     private static final String[] CARD_ISSUERS = {"MasterCard", "Visa",
             "Amex"};
     private static final long DEFAULT_CARD_BALANCE_CENTS = 50000;
+    private static final String[] RANDOM_NAMES = {"Alex", "Brinley", "Casey",
+            "Dana", "Eli", "Frida"};
+    private static final int MAX_RANDOM_ARTICLES = 6;
+    private static final int MIN_RANDOM_GRAMS = 100;
+    private static final int MAX_RANDOM_GRAMS = 2000;
+    private static final int MAX_RANDOM_PIECES = 3;
 
     private final ArticleRegistry registry;
     private final Random random;
@@ -63,6 +72,8 @@ public class PosSession {
                 return goToRegister();
             case "scan items":
                 return scanItems();
+            case "run pos":
+                return runPos();
             case "apply discount":
                 return applyDiscount();
             case "payment":
@@ -121,6 +132,60 @@ public class PosSession {
                     PriceFormatter.format(item.getInclusivePrice())));
         }
         return sb.toString().stripTrailing();
+    }
+
+    private String runPos() {
+        store = new Store("Kwik E-Smart", new Account(0));
+        state = SessionState.IN_STORE;
+        String name = RANDOM_NAMES[random.nextInt(RANDOM_NAMES.length)];
+        customer = new Customer(name, "");
+        boolean member = random.nextBoolean();
+        if (member) {
+            memberCounter++;
+            customer.joinMembership(randomBirthday(),
+                    String.format("M%06d", memberCounter));
+        }
+
+        basket = new Basket();
+        List<Item> picks = new ArrayList<>(registry.getAllArticles());
+        Collections.shuffle(picks, random);
+        int articleCount = 1 + random.nextInt(MAX_RANDOM_ARTICLES);
+        for (Item article : picks.subList(0, articleCount)) {
+            if (article instanceof WeighedItem) {
+                basket.addItem(copyOf(article,
+                        MIN_RANDOM_GRAMS + random.nextInt(
+                                MAX_RANDOM_GRAMS - MIN_RANDOM_GRAMS + 1)));
+            } else {
+                int pieces = 1 + random.nextInt(MAX_RANDOM_PIECES);
+                for (int i = 0; i < pieces; i++) {
+                    basket.addItem(article);
+                }
+            }
+        }
+
+        long totalCents = 0;
+        for (Item item : basket.getItems()) {
+            totalCents += item.getInclusivePrice();
+        }
+        cardCounter++;
+        int balanceCents = random.nextInt((int) Math.max(1, totalCents * 2));
+        customer.addCard(new PaymentCard(cardCounter,
+                CARD_ISSUERS[random.nextInt(CARD_ISSUERS.length)],
+                new Account(balanceCents)));
+
+        String registerLine = goToRegister();
+        return "Random customer created: " + name + " (member: "
+                + (member ? "yes" : "no") + ")\n"
+                + "Random basket created with " + articleCount
+                + " articles. Total: " + PriceFormatter.format(totalCents)
+                + "\n" + registerLine;
+    }
+
+    private java.time.LocalDate randomBirthday() {
+        int year = 1950 + random.nextInt(2020 - 1950 + 1);
+        int month = 1 + random.nextInt(12);
+        int day = 1 + random.nextInt(28);
+        return java.time.LocalDate.of(year, month, day);
     }
 
     private String goToRegister() {
