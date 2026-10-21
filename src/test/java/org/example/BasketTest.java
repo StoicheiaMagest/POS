@@ -2,6 +2,10 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -148,6 +152,58 @@ class BasketTest {
         // Assert
         assertEquals(500.0, basket.getTotalPrice(), 0.001,
                 "The basket should work correctly after being emptied");
+    }
+
+    @Test
+    void removeOne_removes_exactly_one_unit_entry_by_handle() {
+        // Arrange
+        Basket basket = new Basket();
+        basket.addItem(soyMilk());
+        basket.addItem(soyMilk());
+
+        // Act
+        Item removed = basket.removeOne("soy-milk");
+
+        // Assert
+        assertNotNull(removed);
+        assertEquals(1, basket.getItems().size(),
+                "exactly one piece should have been removed");
+    }
+
+    @Test
+    void removeOne_returns_null_for_absent_item() {
+        Basket basket = new Basket();
+
+        assertNull(basket.removeOne("soy-milk"));
+    }
+
+    @Test
+    void lines_group_unit_articles_and_keep_weighed_entries_separate() {
+        // Arrange
+        Basket basket = new Basket();
+        basket.addItem(soyMilk());
+        basket.addItem(soyMilk());
+        basket.addItem(soyMilk());
+        basket.addItem(new WeighedItem("apple", 2223, Vat.FOOD, 300, 9,
+                "Apple"));
+        basket.addItem(new WeighedItem("apple", 2223, Vat.FOOD, 200, 9,
+                "Apple"));
+
+        // Act
+        List<BasketLine> lines = basket.lines();
+
+        // Assert
+        assertEquals(3, lines.size());
+        assertEquals("3", lines.get(0).getQuantity());
+        assertEquals("Alpro Soymilk", lines.get(0).getDescription());
+        assertEquals("300g", lines.get(1).getQuantity());
+        assertEquals("Apple", lines.get(1).getDescription());
+        assertEquals("200g", lines.get(2).getQuantity());
+    }
+
+    private static Item soyMilk() {
+        return new UnitPricedArticle("soy-milk", 3121, Vat.FOOD, 1,
+                "Alpro Soymilk");
     }
 
 }
