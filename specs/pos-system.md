@@ -66,7 +66,7 @@ BOOT ──enter store──▶ IN_STORE ──to pos / to cash-register──�
 | BOOT (program start, before a flow) | `help`, `enter store`, `run pos`, `exit` |
 | IN_STORE | `help`, `create basket`, `list store-items`, `add`, `remove`, `list basket-items`, `create card`, `to pos`, `to cash-register`, `exit` |
 | AT_REGISTER | `help`, `scan items`, `apply discount`, `register membership`, `payment`, `use card`, `split order <n>`, `create card` (per §4.14), `exit` |
-| DONE | `help`, `enter store`, `run pos`, `exit` |
+| DONE | `help`, `print receipt`, `enter store`, `run pos`, `exit` |
 
 - A basket is picked up automatically on `enter store`, so basket commands
   work immediately in IN_STORE (`create basket` only resets it).
@@ -471,6 +471,8 @@ come from an injectable source so tests are deterministic.
     the purchase completes. Re-splitting, splitting after payment started,
     amount-taps during a split, discounts after a split, invalid `n`, and
     splitting before scan are all refused with no change of state.
+31. `print receipt` re-prints the §4.15 receipt after a completed payment;
+    before anything is paid it is refused with a hint and prints no receipt.
 
 **End-to-end**
 28. Happy path (fixed seed): `run pos` → `scan items` → `apply discount`

@@ -81,6 +81,8 @@ public class PosSession {
                 return applyDiscount();
             case "payment":
                 return payment();
+            case "print receipt":
+                return printReceipt();
             default:
                 if (command.startsWith("add ")) {
                     return addItem(command.substring(4).trim());
@@ -456,6 +458,19 @@ public class PosSession {
         return null;
     }
 
+    /**
+     * Re-prints the receipt of the completed purchase (spec &sect;4.13b).
+     *
+     * @return the receipt, or a refusal while nothing is paid yet
+     */
+    private String printReceipt() {
+        if (state != SessionState.DONE) {
+            return "There is no receipt yet — complete your purchase first "
+                    + "('payment' shows the amount due).";
+        }
+        return renderReceipt();
+    }
+
     private String renderReceipt() {
         return new Receipt(store.getName(), occasion.getScanLines(),
                 occasion.getDiscountCents(), occasion.getPaidCents()).print();
@@ -670,6 +685,7 @@ public class PosSession {
                 + "apply discount      - 20% membership discount\n"
                 + "register membership - join the club at the register\n"
                 + "payment             - show your cards and the amount due\n"
+                + "print receipt       - see the receipt again after paying\n"
                 + "use card [amount]   - tap your card: pay all, or a set sum\n"
                 + "split order <n>     - divide the due into n parts for "
                 + "several cards\n"

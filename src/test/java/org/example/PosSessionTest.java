@@ -40,8 +40,8 @@ public class PosSessionTest {
         String[] commands = {"enter store", "run pos", "create basket",
                 "list store-items", "add", "remove", "list basket-items",
                 "to pos", "to cash-register", "scan items", "apply discount",
-                "register membership", "payment", "use card", "create card",
-                "help", "exit"};
+                "register membership", "payment", "use card", "split order",
+                "print receipt", "create card", "help", "exit"};
 
         String out = session.execute("HELP");
 
@@ -698,6 +698,28 @@ public class PosSessionTest {
         session.execute("scan items");
         session.execute("create card " + amount);
         return session;
+    }
+
+    @Test
+    void printReceiptAfterPaymentShowsTheReceiptAgain() {
+        PosSession session = scannedRegisterWithCard("300");
+        session.execute("use card");
+
+        String out = session.execute("print receipt");
+
+        assertTrue(out.contains("Store name: Kwik E-Smart"), out);
+        assertTrue(out.contains("Total paid: 34.96 SEK"), out);
+    }
+
+    @Test
+    void printReceiptBeforePaymentIsRefused() {
+        PosSession session = atRegisterWithItems();
+        session.execute("scan items");
+
+        String out = session.execute("print receipt");
+
+        assertTrue(out.toLowerCase().contains("receipt"), out);
+        assertTrue(!out.contains("Store name:"), out);
     }
 
     @Test
