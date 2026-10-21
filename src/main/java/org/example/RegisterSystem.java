@@ -65,10 +65,13 @@ public class RegisterSystem {
             return;
         }
         out.print("Please enter your name: ");
+        out.flush();
         String name = in.readLine();
         out.print("Please enter your birthday: ");
+        out.flush();
         String birthday = in.readLine();
         out.print("Please enter your personnr: ");
+        out.flush();
         String personnr = in.readLine();
         out.println(session.registerMembership(name, birthday, personnr));
         out.println();

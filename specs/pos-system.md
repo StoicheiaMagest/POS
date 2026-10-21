@@ -216,7 +216,9 @@ methods) and returns the concrete sale item.
 
 ### 4.11 `register membership`
 
-Allowed only at the register (AT_REGISTER). Prompts interactively:
+Allowed only at the register (AT_REGISTER). Prompts interactively — each
+prompt is flushed to the console *before* its answer is read, so the user
+always sees what is being asked:
 
 ```
 Please enter your name: <entered name>

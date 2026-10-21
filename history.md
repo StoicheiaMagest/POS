@@ -36,7 +36,10 @@ commits must go through `scripts/commit-push.sh` — that rule is now written
 into AGENTS.md §6 so it cannot be missed again; VAT half-up rounding made a
 10 kg cheese line land on 1990.02 rather than 1990.00, caught by the suite;
 and two early test bugs were caught by watching them fail for the *wrong*
-reason (mutating the basket after `to pos`, asserting between two taps).
+reason (mutating the basket after `to pos`, asserting between two taps);
+and right after the session's wrap-up the owner found that the membership
+prompts all appeared *after* the answers — unflushed `print` calls, fixed by
+flushing each prompt before reading (reproduced by a flush-recording test).
 ACs 6 and 23–26 were rewritten to the new behaviour and ACs 30–31 added;
 the suite grew from 108 to 125 tests, all green. A scripted end-to-end run
 of `./start` shows a first-time visitor shopping, tapping once and printing

@@ -75,6 +75,48 @@ public class RegisterSystemTest {
                         + "number is"), text);
     }
 
+    @Test
+    void membershipPromptsAppearBeforeEachAnswer() {
+        String text = runRecordingScript("enter store", "add soy-milk",
+                "to pos", "register membership", "Ann Example", "19900101",
+                "900101-0000", "exit");
+
+        int name = text.indexOf("Please enter your name:");
+        int birthday = text.indexOf("Please enter your birthday:");
+        int personnr = text.indexOf("Please enter your personnr:");
+        assertTrue(name >= 0 && birthday > name && personnr > birthday, text);
+        assertTrue(flushedBetween(text, name, birthday),
+                "name prompt must flush before the answer is read: " + text);
+        assertTrue(flushedBetween(text, birthday, personnr),
+                "birthday prompt must flush before the answer is read: "
+                        + text);
+    }
+
+    /** True when a recorded flush occurs strictly between two offsets. */
+    private static boolean flushedBetween(String text, int from, int to) {
+        int flush = text.indexOf("<flush>", from);
+        return flush >= 0 && flush < to;
+    }
+
+    /** StringWriter that marks every flush in the recorded output. */
+    private static class RecordingWriter extends StringWriter {
+        @Override
+        public void flush() {
+            getBuffer().append("<flush>");
+            super.flush();
+        }
+    }
+
+    private String runRecordingScript(String... commands) {
+        StringBuilder script = new StringBuilder();
+        for (String command : commands) {
+            script.append(command).append('\n');
+        }
+        RecordingWriter out = new RecordingWriter();
+        new RegisterSystem(new StringReader(script.toString()), out).run();
+        return out.toString();
+    }
+
     private StringWriter runScript(String... commands) {
         StringBuilder script = new StringBuilder();
         for (String command : commands) {
