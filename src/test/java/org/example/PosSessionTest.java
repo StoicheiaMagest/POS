@@ -63,8 +63,9 @@ public class PosSessionTest {
         session.execute("add soy-milk");
         String created = session.execute("create basket");
 
-        assertEquals("Welcome to Kwik E-Smart! You have picked up a basket. "
-                + "Go ahead and pick your items.", entered);
+        assertEquals("Welcome to Kwik E-Smart! You have picked up a basket "
+                + "and a payment card is ready in your pocket. Go ahead and "
+                + "pick your items.", entered);
         assertEquals("Basket has been created", created);
         assertEquals("Your basket is empty.",
                 session.execute("list basket-items"));
@@ -183,6 +184,19 @@ public class PosSessionTest {
         assertTrue(entered.contains("basket"),
                 "entry must mention the basket picked up: " + entered);
         assertEquals("1 Alpro Soymilk added to basket", added);
+    }
+
+    @Test
+    void enteringStorePutsAWorkingCardInTheCustomersPocket() {
+        PosSession session = newSession();
+
+        String entered = session.execute("enter store");
+
+        assertTrue(entered.contains("card"),
+                "entry must mention the payment card: " + entered);
+        assertEquals(1, session.getCustomer().getCards().size());
+        assertTrue(session.getCustomer().getCards().get(0).getBalance() > 0,
+                "welcome card must be usable");
     }
 
     @Test
@@ -388,9 +402,9 @@ public class PosSessionTest {
 
         assertTrue(out.matches("A new (MasterCard|Visa|Amex) card has been "
                 + "created with id \\d+\\. Balance: 300\\.00 SEK"), out);
-        assertEquals(1, session.getCustomer().getCards().size());
-        assertEquals(30000, session.getCustomer().getCards().get(0)
-                .getBalance());
+        List<PaymentCard> cards = session.getCustomer().getCards();
+        assertEquals(2, cards.size(), "welcome card plus the new one");
+        assertEquals(30000, cards.get(cards.size() - 1).getBalance());
     }
 
     @Test
@@ -409,8 +423,8 @@ public class PosSessionTest {
         String out = session.execute("create card 29.95");
 
         assertTrue(out.endsWith("Balance: 29.95 SEK"), out);
-        assertEquals(2995,
-                session.getCustomer().getCards().get(0).getBalance());
+        List<PaymentCard> cards = session.getCustomer().getCards();
+        assertEquals(2995, cards.get(cards.size() - 1).getBalance());
     }
 
     @Test
@@ -420,7 +434,8 @@ public class PosSessionTest {
         String out = session.execute("create card lots");
 
         assertTrue(!out.contains("has been created"), out);
-        assertTrue(session.getCustomer().getCards().isEmpty());
+        assertEquals(1, session.getCustomer().getCards().size(),
+                "only the welcome card remains");
     }
 
     @Test
@@ -439,7 +454,8 @@ public class PosSessionTest {
         String out = session.execute("payment");
 
         assertTrue(out.contains("Use card"), out);
-        assertTrue(out.contains("1 "), out);
+        assertTrue(out.contains("(balance: 500.00 SEK)"),
+                "welcome card listed: " + out);
         assertTrue(out.contains("(balance: 300.00 SEK)"), out);
         assertTrue(out.contains("Amount due: 34.96 SEK"), out);
     }
@@ -451,16 +467,6 @@ public class PosSessionTest {
         String out = session.execute("payment");
 
         assertTrue(out.contains("scan items"), out);
-    }
-
-    @Test
-    void paymentWithoutAnyCardSaysSo() {
-        PosSession session = atRegisterWithItems();
-        session.execute("scan items");
-
-        String out = session.execute("payment");
-
-        assertEquals("You have no payment card. Use 'create card'.", out);
     }
 
     @Test
@@ -482,7 +488,7 @@ public class PosSessionTest {
     void insufficientCardTransfersNothing() {
         PosSession session = scannedRegisterWithCard("0.50");
 
-        String out = session.execute("use card 1");
+        String out = session.execute("use card 2");
 
         assertEquals("Your card has insufficient balance", out);
         assertEquals(0, session.getStore().getBankAccount().getBalance());

@@ -106,10 +106,15 @@ public class PosSession {
     private String enterStore() {
         store = new Store("Kwik E-Smart", new Account(0));
         customer = new Customer("Customer", "");
+        cardCounter++;
+        customer.addCard(new PaymentCard(cardCounter,
+                CARD_ISSUERS[random.nextInt(CARD_ISSUERS.length)],
+                new Account((int) DEFAULT_CARD_BALANCE_CENTS)));
         basket = new Basket();
         state = SessionState.IN_STORE;
-        return "Welcome to Kwik E-Smart! You have picked up a basket. "
-                + "Go ahead and pick your items.";
+        return "Welcome to Kwik E-Smart! You have picked up a basket and a "
+                + "payment card is ready in your pocket. Go ahead and pick "
+                + "your items.";
     }
 
     private String createBasket() {
@@ -288,13 +293,10 @@ public class PosSession {
         if (basket.getItems().isEmpty()) {
             return "Your basket is empty.";
         }
-        if (customer.getCards().isEmpty()) {
-            return "You have no payment card. Use 'create card'.";
-        }
         StringBuilder sb = new StringBuilder("Use card");
         for (PaymentCard card : customer.getCards()) {
-            sb.append(String.format("%n%d %s (balance: %s)",
-                    card.getCardId(), card.getIssuer(),
+            sb.append(String.format("%n%s (balance: %s)",
+                    card.getIssuer(),
                     PriceFormatter.format(card.getBalance())));
         }
         sb.append(String.format("%nAmount due: %s",

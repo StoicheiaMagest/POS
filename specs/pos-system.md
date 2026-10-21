@@ -104,14 +104,17 @@ commands must appear.)
 
 Creates the store (`Kwik E-Smart`, with a store bank account) and a customer,
 and places the customer **in the store** *with a basket already picked up*.
-The customer has: name, birthday, person number, zero or more payment cards,
-and is **not** a member by default.
+As if by magic the customer also carries **one working payment card**
+(random issuer, balance 500.00 SEK), so the whole in-store experience —
+shop, pay, leave — works without any setup commands. The customer has: name,
+birthday, person number, one or more payment cards, and is **not** a member
+by default.
 
-Output: `Welcome to Kwik E-Smart! You have picked up a basket. Go ahead and
-pick your items.`
+Output: `Welcome to Kwik E-Smart! You have picked up a basket and a payment
+card is ready in your pocket. Go ahead and pick your items.`
 
-(The experience is natural: entering the store hands you a basket; no extra
-command is needed before `add`.)
+(The experience is natural: entering the store hands you a basket and a card;
+no extra command is needed before `add`.)
 
 ### 4.4 `create basket`
 
@@ -239,8 +242,9 @@ Payment can only be made by card (account-to-account transfer to the store
 account). Requires a scanned, non-empty basket.
 
 - `payment` → prints `Use card` followed by the customer's cards:
-  `<id> <issuer> (balance: X.XX SEK)` and the amount due. If the customer has
-  no card, it prints `You have no payment card. Use 'create card'.`
+  `<issuer> (balance: X.XX SEK)` and the amount due. Every customer carries
+  at least the welcome card from `enter store`, so a card-less state no
+  longer exists.
 - `use card <card-id>` → pays the full remaining amount due:
   - Sufficient balance → transfer executes; print
     `Your card has enough balance`
@@ -406,9 +410,9 @@ come from an injectable source so tests are deterministic.
 22. `create card 300` adds a card with a random issuer from {MasterCard,
     Visa, Amex}, a unique id, and an account balance of exactly 300.00 SEK;
     output matches §4.14.
-23. `payment` without a scanned basket is refused (C6); with cards it prints
-    `Use card`, the card list and the amount due; without cards it prints the
-    no-card message.
+23. `payment` without a scanned basket is refused (C6); it prints `Use card`,
+    the customer's cards (issuer + balance, no ids) and the amount due; the
+    welcome card from `enter store` guarantees a card is always listed.
 24. `use card <id>` with sufficient balance transfers the full due amount from
     the customer account to the store account (both balances verified) and
     prints `Your card has enough balance`.
