@@ -11,11 +11,6 @@ public class UnitPricedArticle extends Item {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
     public int getPrice() {
         return price; // Returns the base price (exclusive of VAT) in cents
     }
@@ -23,11 +18,6 @@ public class UnitPricedArticle extends Item {
     @Override
     public Vat getVatRate() {
         return vat;
-    }
-
-    @Override
-    public int getArticleNumber() {
-        return articleNumber;
     }
 
     /**

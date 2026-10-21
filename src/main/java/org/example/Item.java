@@ -16,11 +16,15 @@ public abstract class Item {
         this.articleNumber = articleId;
     }
 
-    public abstract String getName();
+    public String getName() {
+        return name;
+    };
 
     public abstract int getPrice();
 
     public abstract Vat getVatRate();
 
-    public abstract int getArticleNumber();
+    public int getArticleNumber() {
+        return articleNumber;
+    };
 }

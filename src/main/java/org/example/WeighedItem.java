@@ -15,18 +15,8 @@ public class WeighedItem extends Item {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
     public Vat getVatRate() {
         return vat;
-    }
-
-    @Override
-    public int getArticleNumber() {
-        return articleNumber;
     }
 
     public int getWeight() {
