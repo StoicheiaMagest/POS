@@ -6,7 +6,7 @@ package org.example;
 public class WeighedItem extends Item {
 
     private final int weightInGrams;
-    private int pricePerKg;
+    private final int pricePerKg;
 
     public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
         super(name, pricePerKg, vat, articleId);
@@ -15,27 +15,8 @@ public class WeighedItem extends Item {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public int getPrice() {
-        // Calculates the total base price (exclusive of VAT) in cents
-        // based on the price per kg and the weight in grams.
-        // Cast to long prevents integer overflow during multiplication.
-        //return (int) ((long) price * weightInGrams / 1000);
-        return pricePerKg;
-    }
-
-    @Override
     public Vat getVatRate() {
         return vat;
-    }
-
-    @Override
-    public int getArticleId() {
-        return articleId;
     }
 
     public int getWeight() {
@@ -47,6 +28,16 @@ public class WeighedItem extends Item {
      */
     public long getVatAmount() {
         return vat.calculateVatAmount(getPrice());
+    }
+
+    @Override
+    public int getPrice() {
+        // Calculate the base price in cents using weight in grams.
+        return (int) ((long) pricePerKg * weightInGrams / 1000);
+    }
+
+    public int getPricePerKg() {
+        return pricePerKg;
     }
 
     /**

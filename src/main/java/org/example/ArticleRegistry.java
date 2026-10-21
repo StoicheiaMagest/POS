@@ -5,13 +5,13 @@ import java.util.Map;
 
 public class ArticleRegistry {
 
-    private final Map<String, Item> items = new HashMap<>();
+    private final Map<Integer, Item> items = new HashMap<>();
 
-    public void addItem(String articleNumber, Item item) {
+    public void addItem(int articleNumber, Item item) {
         items.put(articleNumber, item);
     }
 
-    public Item findByArticleNumber(String articleNumber) {
+    public Item findByArticleNumber(int articleNumber) {
         return items.get(articleNumber);
     }
 }

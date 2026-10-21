@@ -13,10 +13,10 @@ public class ArticleRegistryTest {
         ArticleRegistry registry = new ArticleRegistry();
         Item item = mock(Item.class);
 
-        registry.addItem("1001", item);
+        registry.addItem(1001, item);
 
         // Act
-        Item result = registry.findByArticleNumber("1001");
+        Item result = registry.findByArticleNumber(1001);
 
         // Assert
         assertSame(item, result);
@@ -29,7 +29,7 @@ public class ArticleRegistryTest {
         ArticleRegistry registry = new ArticleRegistry();
 
         // Act
-        Item result = registry.findByArticleNumber("9999");
+        Item result = registry.findByArticleNumber(9999);
 
         // Assert
         assertNull(result);

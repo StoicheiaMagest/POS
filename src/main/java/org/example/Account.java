@@ -4,37 +4,33 @@ public class Account {
 
     private int balance;
 
-    public Account(){
-        this.balance = 0;
+    public Account() {
+        this(0);
     }
 
-    public boolean transfer(int amount, Account account){
-
-        if (amount < balance){
-            this.balance -= amount;
-            account.addToBalance( amount );
-            return true;
-        }
-
-        return false;
-
+    public Account(int amount) {
+        this.balance = amount;
     }
 
-    public void addToBalance(int amount){
-        balance += amount;
-    }
-
-
-    public void addToBalance(Money money){
-        balance += money.getAmount();
-
-    }
-
-    public boolean checkCanTransfer(int amount){
-        if (amount > balance){
+    public boolean transfer(int amount, Account recipient) {
+        if (recipient == null || !checkCanTransfer(amount)) {
             return false;
         }
+
+        balance -= amount;
+        recipient.addToBalance(amount);
         return true;
     }
 
+    public void addToBalance(int amount) {
+        balance += amount;
+    }
+
+    public void addToBalance(Money money) {
+        balance += money.getAmount();
+    }
+
+    public boolean checkCanTransfer(int amount) {
+        return amount >= 0 && amount <= balance;
+    }
 }
