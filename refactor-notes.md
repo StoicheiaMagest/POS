@@ -37,3 +37,7 @@ One entry per incident: what changed, which tests were touched, why it is OK.
   replacement tests arrive with the receipt cycle. The untested legacy
   `applyDiscount(int)` is likewise dropped; membership-discount behaviour
   gets its own tested API in the discount cycle (spec §4.12).
+- 2026-10-21 — `Receipt` rebuilt as the single English renderer of spec
+  §4.15 (store name, scan lines with prices, discount line, total paid).
+  Old constructor (receipt number/date/basket) and its `ReceiptTest` cases
+  replaced; receipt number/timestamp are not part of v1 output.

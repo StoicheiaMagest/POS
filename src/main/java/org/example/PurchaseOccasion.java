@@ -23,7 +23,10 @@ public class PurchaseOccasion {
     private boolean scanned;
     private long amountDueCents;
     private boolean discountApplied;
+    private long discountCents;
+    private long paidCents;
     private boolean paymentStarted;
+    private List<ScanLine> scanLines = List.of();
 
     public PurchaseOccasion(
             BarcodeScanner scanner,
@@ -70,25 +73,57 @@ public class PurchaseOccasion {
             if (item instanceof WeighedItem weighed) {
                 runningTotal += item.getInclusivePrice();
                 lines.add(new ScanLine(weighed.getWeight() + "g",
-                        item.getFullDescription(), runningTotal));
+                        item.getFullDescription(), item.getInclusivePrice(),
+                        runningTotal));
             } else {
                 Integer index = groupIndexByName.get(item.getName());
                 runningTotal += item.getInclusivePrice();
                 if (index == null) {
                     lines.add(new ScanLine("1", item.getFullDescription(),
-                            runningTotal));
+                            item.getInclusivePrice(), runningTotal));
                     groupIndexByName.put(item.getName(), lines.size() - 1);
                 } else {
                     ScanLine line = lines.get(index);
                     int count = Integer.parseInt(line.getQuantity()) + 1;
                     lines.set(index, new ScanLine(String.valueOf(count),
-                            line.getDescription(), runningTotal));
+                            line.getDescription(),
+                            line.getLineTotalCents()
+                                    + item.getInclusivePrice(),
+                            runningTotal));
                 }
             }
         }
         scanned = true;
         amountDueCents = runningTotal;
+        scanLines = List.copyOf(lines);
         return lines;
+    }
+
+    /**
+     * The sales lines produced by scanning, empty before scanAll.
+     *
+     * @return scanned lines in scan order
+     */
+    public List<ScanLine> getScanLines() {
+        return scanLines;
+    }
+
+    /**
+     * The membership discount amount actually deducted, in cents.
+     *
+     * @return discount in cents (0 when none)
+     */
+    public long getDiscountCents() {
+        return discountCents;
+    }
+
+    /**
+     * Total already paid by card on this occasion, in cents.
+     *
+     * @return sum of successful transfers
+     */
+    public long getPaidCents() {
+        return paidCents;
     }
 
     /**
@@ -121,6 +156,7 @@ public class PurchaseOccasion {
         long discountCents =
                 (amountDueCents * MEMBERSHIP_DISCOUNT_PERCENT + 50) / 100;
         amountDueCents -= discountCents;
+        this.discountCents = discountCents;
         discountApplied = true;
         return DiscountResult.APPLIED;
     }
@@ -151,6 +187,7 @@ public class PurchaseOccasion {
             return PaymentResult.INSUFFICIENT_BALANCE;
         }
         amountDueCents -= amountCents;
+        paidCents += amountCents;
         paymentStarted = true;
         return PaymentResult.SUCCESS;
     }

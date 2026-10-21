@@ -1,57 +1,49 @@
 package org.example;
 
-import org.junit.jupiter.api.Test;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * Tests for the single receipt renderer of spec &sect;4.15: store name, one
+ * line per article with quantity/weight and price, an optional discount
+ * line and the total paid.
+ */
 public class ReceiptTest {
 
     @Test
-    void testGetReceiptNumber() {
-        int expectedReceiptNumber = 1001;
-        LocalDateTime receiptDate = LocalDateTime.now();
-        Basket basket = new Basket();
-        Receipt receipt = new Receipt(expectedReceiptNumber, receiptDate, "storeName", basket);
+    void listsArticlesWithQuantityAndPriceAndTotalPaid() {
+        List<ScanLine> lines = List.of(
+                new ScanLine("1", "Alpro Soymilk", 3496, 3496),
+                new ScanLine("2", "Tropicana Orange Juice", 5990, 9486));
 
-        assertEquals(expectedReceiptNumber, receipt.getReceiptNumber());
+        String receipt = new Receipt("Kwik E-Smart", lines, 0, 9486).print();
+
+        assertTrue(receipt.contains("Kwik E-Smart"), receipt);
+        assertTrue(receipt.contains("1"), receipt);
+        assertTrue(receipt.contains("Alpro Soymilk"), receipt);
+        assertTrue(receipt.contains("34.96 SEK"), receipt);
+        assertTrue(receipt.contains("2"), receipt);
+        assertTrue(receipt.contains("Tropicana Orange Juice"), receipt);
+        assertTrue(receipt.contains("59.90 SEK"), receipt);
+        assertFalse(receipt.contains("Discount"), receipt);
+        assertTrue(receipt.contains("Total paid: 94.86 SEK"), receipt);
+        assertTrue(receipt.endsWith("Thank you for shopping at Kwik E-Smart!"),
+                receipt);
     }
 
     @Test
-    void testGetDateTime() {
-        LocalDateTime expectedDateTime = LocalDateTime.of(2026, 6, 1, 12, 30);
-        Basket basket = new Basket();
-        Receipt receipt = new Receipt(1001, expectedDateTime, "storeName", basket);
+    void showsDiscountLineWhenDiscountWasApplied() {
+        List<ScanLine> lines = List.of(
+                new ScanLine("1", "Alpro Soymilk", 3496, 3496));
 
-        assertEquals(expectedDateTime, receipt.getReceiptDateAndTime());
+        String receipt =
+                new Receipt("Kwik E-Smart", lines, 700, 2796).print();
+
+        assertTrue(receipt.contains("Discount -20%: -7.00 SEK"), receipt);
+        assertTrue(receipt.contains("Total paid: 27.96 SEK"), receipt);
     }
-
-    @Test
-    void testGetStoreName() {
-        String expectedStoreName = "Java Craftsman Store";
-        LocalDateTime receiptDate = LocalDateTime.now();
-        Basket basket = new Basket();
-        Receipt receipt = new Receipt(1001, receiptDate, expectedStoreName, basket);
-
-        assertEquals(expectedStoreName, receipt.getStoreName());
-    }
-
-    @Test
-    void testPrintReceiptWithItems() {
-        Basket basket = new Basket();
-        Item item = new UnitPricedArticle("Coffee", 2500, Vat.FOOD, 1, "Coffee");
-        basket.addItem(item);
-
-        LocalDateTime receiptDate = LocalDateTime.of(2026, 6, 1, 12, 30);
-        Receipt receipt = new Receipt(1001, receiptDate, "Java Craftsman Store", basket);
-
-        String printedReceipt = receipt.print();
-
-        assertNotNull(printedReceipt);
-        assertTrue(printedReceipt.contains("Java Craftsman Store"));
-        assertTrue(printedReceipt.contains("Coffee"));
-    }
-
-
 }
