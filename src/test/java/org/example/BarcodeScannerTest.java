@@ -15,7 +15,8 @@ public class BarcodeScannerTest {
     @Test
     public void scanReturnsRegisteredArticle() {
         ArticleRegistry registry = new ArticleRegistry();
-        Item milk = new UnitPricedArticle("soy-milk", 3121, Vat.FOOD, 1);
+        Item milk = new UnitPricedArticle("soy-milk", 3121, Vat.FOOD, 1,
+                "Alpro Soymilk");
         registry.addItem(1, milk);
         BarcodeScanner scanner = new BarcodeScanner(registry);
 

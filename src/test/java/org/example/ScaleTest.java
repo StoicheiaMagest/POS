@@ -11,7 +11,8 @@ public class ScaleTest {
                 100, // 100 cents per kg
                 Vat.FOOD,
                 500, // 500 grams
-                42   // article id
+                42,  // article id
+                "Pink Lady Apple"
         );
     
     @Test

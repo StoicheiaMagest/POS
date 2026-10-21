@@ -6,8 +6,8 @@ package org.example;
 public class UnitPricedArticle extends Item {
 
     public UnitPricedArticle(String name, int priceExclCents,
-                             Vat vat, int articleId) {
-        super(name, priceExclCents, vat, articleId);
+                             Vat vat, int articleId, String fullDescription) {
+        super(name, priceExclCents, vat, articleId, fullDescription);
     }
 
     @Override

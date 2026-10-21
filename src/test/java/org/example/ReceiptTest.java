@@ -40,7 +40,7 @@ public class ReceiptTest {
     @Test
     void testPrintReceiptWithItems() {
         Basket basket = new Basket();
-        Item item = new UnitPricedArticle("Coffee", 2500, Vat.FOOD, 1);
+        Item item = new UnitPricedArticle("Coffee", 2500, Vat.FOOD, 1, "Coffee");
         basket.addItem(item);
 
         LocalDateTime receiptDate = LocalDateTime.of(2026, 6, 1, 12, 30);

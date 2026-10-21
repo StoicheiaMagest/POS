@@ -12,7 +12,8 @@ public class WeighedItemTest {
                 100, // 100 cents per kg
                 Vat.FOOD,
                 500, // 500 grams
-                42   // article id
+                42,  // article id
+                "Pink Lady Apple"
         );
 
         assertEquals("Pink Lady Apple", weighedItem.getName(), "Name of the article was not set correctly");
@@ -29,7 +30,8 @@ public class WeighedItemTest {
                 100, // 100 cents per kg base price
                 Vat.FOOD,
                 500, // 500 grams -> base price = 50 cents
-                42
+                42,
+                "Pink Lady Apple"
         );
 
         // Validates that inclusive price calculation works correctly using integer math

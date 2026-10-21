@@ -8,8 +8,9 @@ public class WeighedItem extends Item {
     private final int weightInGrams;
     private final int pricePerKg;
 
-    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
-        super(name, pricePerKg, vat, articleId);
+    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams,
+                       int articleId, String fullDescription) {
+        super(name, pricePerKg, vat, articleId, fullDescription);
         this.weightInGrams = weightInGrams;
         this.pricePerKg = pricePerKg;
     }

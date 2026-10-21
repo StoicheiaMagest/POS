@@ -12,7 +12,8 @@ class UnitPricedArticleTest {
                 "The Bible",
                 10000,
                 Vat.BOOK,
-                1001
+                1001,
+                "The Bible"
         );
 
         assertEquals("The Bible", article.getName(), "Name of the article was not set correctly");
@@ -22,12 +23,26 @@ class UnitPricedArticleTest {
     }
 
     @Test
+    void exposes_full_description() {
+        UnitPricedArticle article = new UnitPricedArticle(
+                "soy-milk",
+                3121,
+                Vat.FOOD,
+                1001,
+                "Alpro Soymilk"
+        );
+
+        assertEquals("Alpro Soymilk", article.getFullDescription());
+    }
+
+    @Test
     void should_calculate_inclusive_price_correctly() {
         UnitPricedArticle article = new UnitPricedArticle(
                 "The Bible",
                 10000, // 10000 cents base price
                 Vat.BOOK, // 6% VAT
-                1001
+                1001,
+                "The Bible"
         );
 
         // 10000 cents + 6% VAT (600 cents) = 10600 cents total
