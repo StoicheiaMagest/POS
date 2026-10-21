@@ -423,4 +423,97 @@ public class PosSessionTest {
 
         assertTrue(out.contains("enter store"), out);
     }
+
+    @Test
+    void paymentListsCardsAndAmountDue() {
+        PosSession session = scannedRegisterWithCard("300");
+
+        String out = session.execute("payment");
+
+        assertTrue(out.contains("Use card"), out);
+        assertTrue(out.contains("1 "), out);
+        assertTrue(out.contains("(balance: 300.00 SEK)"), out);
+        assertTrue(out.contains("Amount due: 34.96 SEK"), out);
+    }
+
+    @Test
+    void paymentWithoutScanningIsRefused() {
+        PosSession session = atRegisterWithItems();
+
+        String out = session.execute("payment");
+
+        assertTrue(out.contains("scan items"), out);
+    }
+
+    @Test
+    void paymentWithoutAnyCardSaysSo() {
+        PosSession session = atRegisterWithItems();
+        session.execute("scan items");
+
+        String out = session.execute("payment");
+
+        assertEquals("You have no payment card. Use 'create card'.", out);
+    }
+
+    @Test
+    void fullCardPaymentCompletesOccasionAndPrintsReceipt() {
+        PosSession session = scannedRegisterWithCard("300");
+
+        String out = session.execute("use card 1");
+
+        assertTrue(out.contains("Your card has enough balance"), out);
+        assertTrue(out.contains(
+                "Payment completed. Thank you for shopping at Kwik E-Smart!"),
+                out);
+        assertTrue(out.contains("Store name: Kwik E-Smart"), out);
+        assertTrue(out.contains("Total paid: 34.96 SEK"), out);
+        assertEquals(3496, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void insufficientCardTransfersNothing() {
+        PosSession session = scannedRegisterWithCard("0.50");
+
+        String out = session.execute("use card 1");
+
+        assertEquals("Your card has insufficient balance", out);
+        assertEquals(0, session.getStore().getBankAccount().getBalance());
+    }
+
+    @Test
+    void splitPaymentFinishesAndReachesDone() {
+        PosSession session = scannedRegisterWithCard("20");
+        session.execute("create card 99");
+
+        String first = session.execute("use card 1 20");
+        String second = session.execute("use card 2 14.96");
+
+        assertEquals("Your card has enough balance", first);
+        assertTrue(second.contains("Your card has enough balance"), second);
+        assertTrue(second.contains(
+                "Payment completed. Thank you for shopping at Kwik E-Smart!"),
+                second);
+        assertEquals(3496, session.getStore().getBankAccount().getBalance());
+
+        String late = session.execute("payment");
+        assertTrue(late.toLowerCase().contains("already"),
+                "commands after DONE are refused: " + late);
+    }
+
+    @Test
+    void unknownCardIdIsReported() {
+        PosSession session = scannedRegisterWithCard("300");
+
+        String out = session.execute("use card 42");
+
+        assertTrue(out.contains("no card"), out);
+        assertEquals(0, session.getStore().getBankAccount().getBalance());
+    }
+
+    private PosSession scannedRegisterWithCard(String amount) {
+        PosSession session = atRegisterWithItems();
+        session.execute("scan items");
+        session.execute("create card " + amount);
+        return session;
+    }
 }

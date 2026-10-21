@@ -65,6 +65,8 @@ public class PosSession {
                 return scanItems();
             case "apply discount":
                 return applyDiscount();
+            case "payment":
+                return payment();
             default:
                 if (command.startsWith("add ")) {
                     return addItem(command.substring(4).trim());
@@ -78,6 +80,11 @@ public class PosSession {
                 if (command.equals("create card")
                         || command.startsWith("create card ")) {
                     return createCard(command.substring("create card".length())
+                            .trim());
+                }
+                if (command.equals("use card")
+                        || command.startsWith("use card ")) {
+                    return useCard(command.substring("use card".length())
                             .trim());
                 }
                 return UNKNOWN_COMMAND;
@@ -201,6 +208,106 @@ public class PosSession {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private String payment() {
+        if (state == SessionState.DONE) {
+            return "This purchase is already paid ('enter store' for a new "
+                    + "visit).";
+        }
+        if (state != SessionState.AT_REGISTER) {
+            return "Go to the cash register first ('to pos').";
+        }
+        if (!occasion.isScanned()) {
+            return "Scan the items first ('scan items').";
+        }
+        if (basket.getItems().isEmpty()) {
+            return "Your basket is empty.";
+        }
+        if (customer.getCards().isEmpty()) {
+            return "You have no payment card. Use 'create card'.";
+        }
+        StringBuilder sb = new StringBuilder("Use card");
+        for (PaymentCard card : customer.getCards()) {
+            sb.append(String.format("%n%d %s (balance: %s)",
+                    card.getCardId(), card.getIssuer(),
+                    PriceFormatter.format(card.getBalance())));
+        }
+        sb.append(String.format("%nAmount due: %s",
+                PriceFormatter.format(occasion.getAmountDueCents())));
+        return sb.toString();
+    }
+
+    private String useCard(String argument) {
+        if (state == SessionState.DONE) {
+            return "This purchase is already paid ('enter store' for a new "
+                    + "visit).";
+        }
+        if (state != SessionState.AT_REGISTER) {
+            return "Go to the cash register first ('to pos').";
+        }
+        if (!occasion.isScanned()) {
+            return "Scan the items first ('scan items').";
+        }
+        if (basket.getItems().isEmpty()) {
+            return "Your basket is empty.";
+        }
+        String[] parts = argument.split("\\s+");
+        if (parts.length == 0 || parts[0].isEmpty()) {
+            return "Usage: use card <id> [amount]";
+        }
+        int cardId;
+        try {
+            cardId = Integer.parseInt(parts[0]);
+        } catch (NumberFormatException e) {
+            return "Usage: use card <id> [amount]";
+        }
+        PaymentCard card = findCard(cardId);
+        if (card == null) {
+            return "You have no card with that id. Use 'payment' to list "
+                    + "them.";
+        }
+        long amountCents = occasion.getAmountDueCents();
+        if (parts.length > 1) {
+            Long parsed = parseAmountCents(parts[1]);
+            if (parsed == null || parsed <= 0) {
+                return "Amount must be a positive sum, e.g. 'use card 1 "
+                        + "29.95'.";
+            }
+            amountCents = parsed;
+        }
+        PaymentResult result = occasion.pay(card, amountCents);
+        switch (result) {
+            case SUCCESS:
+                if (!occasion.isPaymentComplete()) {
+                    return "Your card has enough balance";
+                }
+                state = SessionState.DONE;
+                return "Your card has enough balance\n"
+                        + "Payment completed. Thank you for shopping at "
+                        + store.getName() + "!\n"
+                        + renderReceipt();
+            case INSUFFICIENT_BALANCE:
+                return "Your card has insufficient balance";
+            default:
+                return "That is more than the remaining "
+                        + PriceFormatter.format(occasion.getAmountDueCents())
+                        + " due.";
+        }
+    }
+
+    private String renderReceipt() {
+        return new Receipt(store.getName(), occasion.getScanLines(),
+                occasion.getDiscountCents(), occasion.getPaidCents()).print();
+    }
+
+    private PaymentCard findCard(int cardId) {
+        for (PaymentCard card : customer.getCards()) {
+            if (card.getCardId() == cardId) {
+                return card;
+            }
+        }
+        return null;
     }
 
     private String applyDiscount() {
@@ -334,6 +441,15 @@ public class PosSession {
      */
     public Customer getCustomer() {
         return customer;
+    }
+
+    /**
+     * The current store, for the console shell and tests.
+     *
+     * @return the store of this visit, null before entering the store
+     */
+    public Store getStore() {
+        return store;
     }
 
     /**
