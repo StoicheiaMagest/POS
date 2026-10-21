@@ -58,6 +58,8 @@ public class PosSession {
                 return goToRegister();
             case "scan items":
                 return scanItems();
+            case "apply discount":
+                return applyDiscount();
             default:
                 if (command.startsWith("add ")) {
                     return addItem(command.substring(4).trim());
@@ -139,6 +141,27 @@ public class PosSession {
         }
         sb.append("All items scanned. Go to \"payment\" or \"apply discount\"");
         return sb.toString();
+    }
+
+    private String applyDiscount() {
+        if (state != SessionState.AT_REGISTER) {
+            return "Go to the cash register first ('to pos').";
+        }
+        if (!occasion.isScanned()) {
+            return "Scan the items first ('scan items').";
+        }
+        DiscountResult result = occasion.applyMembershipDiscount();
+        switch (result) {
+            case APPLIED:
+                return "Discount has succeeded. Enjoy 20% off your purchase!";
+            case NOT_A_MEMBER:
+                return "Applying discount failed. You need to be a member";
+            case ALREADY_APPLIED:
+                return "A discount has already been applied to this purchase.";
+            default:
+                return "Discount can no longer be applied once payment "
+                        + "has started.";
+        }
     }
 
     private String basketStateHint() {

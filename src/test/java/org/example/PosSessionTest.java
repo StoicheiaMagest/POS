@@ -337,4 +337,38 @@ public class PosSessionTest {
         session.execute("to pos");
         return session;
     }
+
+    @Test
+    void memberSeesDiscountSuccessMessage() {
+        PosSession session = atRegisterWithItems();
+        session.registerMembership("Ann", "19900101", "x");
+        session.execute("scan items");
+
+        String out = session.execute("apply discount");
+
+        assertEquals("Discount has succeeded. Enjoy 20% off your purchase!",
+                out);
+        assertEquals("A discount has already been applied to this purchase.",
+                session.execute("apply discount"));
+    }
+
+    @Test
+    void nonMemberSeesDiscountFailureMessage() {
+        PosSession session = atRegisterWithItems();
+        session.execute("scan items");
+
+        String out = session.execute("apply discount");
+
+        assertEquals("Applying discount failed. You need to be a member",
+                out);
+    }
+
+    @Test
+    void discountBeforeScanningIsRefused() {
+        PosSession session = atRegisterWithItems();
+
+        String out = session.execute("apply discount");
+
+        assertTrue(out.contains("scan items"), out);
+    }
 }
