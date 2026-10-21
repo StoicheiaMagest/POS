@@ -10,5 +10,7 @@ public enum DiscountResult {
     /** Only members may claim the discount. */
     NOT_A_MEMBER,
     /** One discount per purchase occasion. */
-    ALREADY_APPLIED
+    ALREADY_APPLIED,
+    /** Discount cannot be claimed after payment has started (§4.3). */
+    PAYMENT_STARTED
 }

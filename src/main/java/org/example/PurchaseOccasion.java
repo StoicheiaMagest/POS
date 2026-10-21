@@ -23,6 +23,7 @@ public class PurchaseOccasion {
     private boolean scanned;
     private long amountDueCents;
     private boolean discountApplied;
+    private boolean paymentStarted;
 
     public PurchaseOccasion(
             BarcodeScanner scanner,
@@ -111,6 +112,9 @@ public class PurchaseOccasion {
         if (discountApplied) {
             return DiscountResult.ALREADY_APPLIED;
         }
+        if (paymentStarted) {
+            return DiscountResult.PAYMENT_STARTED;
+        }
         if (!customer.isMember()) {
             return DiscountResult.NOT_A_MEMBER;
         }
@@ -128,6 +132,36 @@ public class PurchaseOccasion {
      */
     public boolean isDiscountApplied() {
         return discountApplied;
+    }
+
+    /**
+     * Pays part (or all) of the amount due by transferring from the card's
+     * linked account to the store account (spec &sect;4.13).
+     *
+     * @param card        the customer's card to charge
+     * @param amountCents amount to transfer, at most the remaining due
+     * @return the outcome; nothing is transferred unless SUCCESS
+     */
+    public PaymentResult pay(PaymentCard card, long amountCents) {
+        if (amountCents > amountDueCents) {
+            return PaymentResult.EXCEEDS_AMOUNT_DUE;
+        }
+        boolean transferred = card.pay((int) amountCents, storeBankAccount);
+        if (!transferred) {
+            return PaymentResult.INSUFFICIENT_BALANCE;
+        }
+        amountDueCents -= amountCents;
+        paymentStarted = true;
+        return PaymentResult.SUCCESS;
+    }
+
+    /**
+     * Whether the whole amount due has been paid by card.
+     *
+     * @return true when nothing is left to pay
+     */
+    public boolean isPaymentComplete() {
+        return paymentStarted && amountDueCents == 0;
     }
 
     /**

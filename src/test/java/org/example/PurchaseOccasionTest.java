@@ -117,4 +117,92 @@ class PurchaseOccasionTest {
         assertEquals(2797, purchase.getAmountDueCents(),
                 "second attempt must not discount again");
     }
+
+    @Test
+    void fullCardPaymentTransfersDueAmountToStore() {
+        // Arrange: due 34.96, card holds 500.00
+        ArticleRegistry registry = ArticleRegistry.withStandardAssortment();
+        Basket basket = new Basket();
+        basket.addItem(registry.findByName("soy-milk"));
+        Account storeAccount = new Account(0);
+        Customer customer = new Customer("Payer", "19900101-1234");
+        PaymentCard card = new PaymentCard(7, "Visa", new Account(50000));
+        customer.addCard(card);
+        PurchaseOccasion purchase = new PurchaseOccasion(
+                new BarcodeScanner(registry), basket, customer, storeAccount);
+        purchase.scanAll();
+
+        // Act
+        PaymentResult result = purchase.pay(card, purchase.getAmountDueCents());
+
+        // Assert
+        assertEquals(PaymentResult.SUCCESS, result);
+        assertEquals(0, purchase.getAmountDueCents());
+        assertTrue(purchase.isPaymentComplete());
+        assertEquals(3496, storeAccount.getBalance());
+        assertEquals(50000 - 3496, card.getBalance());
+    }
+
+    @Test
+    void insufficientCardBalanceTransfersNothing() {
+        ArticleRegistry registry = ArticleRegistry.withStandardAssortment();
+        Basket basket = new Basket();
+        basket.addItem(registry.findByName("soy-milk"));
+        Account storeAccount = new Account(0);
+        PaymentCard card = new PaymentCard(8, "Amex", new Account(100));
+        PurchaseOccasion purchase = new PurchaseOccasion(
+                new BarcodeScanner(registry), basket,
+                new Customer("Poor", "19900101-1234"), storeAccount);
+        purchase.scanAll();
+
+        PaymentResult result = purchase.pay(card, 3496);
+
+        assertEquals(PaymentResult.INSUFFICIENT_BALANCE, result);
+        assertEquals(3496, purchase.getAmountDueCents());
+        assertEquals(0, storeAccount.getBalance());
+        assertEquals(100, card.getBalance());
+    }
+
+    @Test
+    void splitPaymentAcrossTwoCardsCompletesOccasion() {
+        ArticleRegistry registry = ArticleRegistry.withStandardAssortment();
+        Basket basket = new Basket();
+        basket.addItem(registry.findByName("soy-milk")); // due 34.96
+        Account storeAccount = new Account(0);
+        PaymentCard first = new PaymentCard(1, "Visa", new Account(2000));
+        PaymentCard second = new PaymentCard(2, "MasterCard", new Account(9999));
+        PurchaseOccasion purchase = new PurchaseOccasion(
+                new BarcodeScanner(registry), basket,
+                new Customer("Splitter", "19900101-1234"), storeAccount);
+        purchase.scanAll();
+
+        assertEquals(PaymentResult.SUCCESS, purchase.pay(first, 2000));
+        assertEquals(1496, purchase.getAmountDueCents());
+        assertEquals(PaymentResult.SUCCESS, purchase.pay(second, 1496));
+
+        assertTrue(purchase.isPaymentComplete());
+        assertEquals(3496, storeAccount.getBalance());
+        assertEquals(0, first.getBalance());
+        assertEquals(9999 - 1496, second.getBalance());
+    }
+
+    @Test
+    void discountIsRefusedOncePaymentHasStarted() {
+        ArticleRegistry registry = ArticleRegistry.withStandardAssortment();
+        Basket basket = new Basket();
+        basket.addItem(registry.findByName("soy-milk"));
+        Customer member = new Customer("Member", "19900101-1234");
+        member.joinMembership(java.time.LocalDate.of(1990, 1, 1), "M000001");
+        PaymentCard card = new PaymentCard(3, "Visa", new Account(50000));
+        PurchaseOccasion purchase = new PurchaseOccasion(
+                new BarcodeScanner(registry), basket, member, new Account(0));
+        purchase.scanAll();
+        purchase.pay(card, 100);
+
+        DiscountResult result = purchase.applyMembershipDiscount();
+
+        assertEquals(DiscountResult.PAYMENT_STARTED, result);
+        assertEquals(3396, purchase.getAmountDueCents(),
+                "only the 100-cent payment reduced the due");
+    }
 }
