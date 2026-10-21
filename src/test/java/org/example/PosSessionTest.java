@@ -86,4 +86,48 @@ public class PosSessionTest {
         assertEquals("Welcome to Kwik E-Smart! Go ahead and pick your items.",
                 again);
     }
+
+    @Test
+    void listStoreItemsShowsTwelveArticlesWithFourColumns() {
+        // Arrange: spec §5 handles with their inclusive display prices
+        String[][] expected = {
+            {"soy-milk", "Alpro Soymilk", "34.96 SEK"},
+            {"oat-drink", "Alpro Oat Drink", "32.95 SEK"},
+            {"orange-juice", "Tropicana Orange Juice", "29.95 SEK"},
+            {"hummus", "Hummus Original 200g", "24.95 SEK"},
+            {"tofu", "Organic Firm Tofu", "27.96 SEK"},
+            {"black-beans", "Black Beans 400g", "19.95 SEK"},
+            {"dark-chocolate", "Maraboo Dark Chocolate 100g", "22.95 SEK"},
+            {"candle", "Scented Candle Vanilla", "49.95 SEK"},
+            {"apple", "Apple", "24.90 SEK"},
+            {"banana", "Banana", "15.90 SEK"},
+            {"vegan-cheese", "Vegan Cheese Slices", "199.00 SEK"},
+            {"olives", "Marinated Olives", "149.50 SEK"}
+        };
+        PosSession session = newSession();
+        session.execute("enter store");
+
+        String out = session.execute("list store-items");
+
+        assertTrue(out.contains("Name"), out);
+        assertTrue(out.contains("Full Description"), out);
+        assertTrue(out.contains("Unit"), out);
+        assertTrue(out.contains("Price"), out);
+        for (String[] row : expected) {
+            assertTrue(out.contains(row[0]), "missing row: " + row[0]);
+            assertTrue(out.contains(row[1]), "missing description: " + row[1]);
+            assertTrue(out.contains(row[2]), "missing price: " + row[2]);
+        }
+        assertTrue(out.contains("1 pc"), out);
+        assertTrue(out.contains("per kg"), out);
+    }
+
+    @Test
+    void listStoreItemsBeforeEnteringStoreIsRefused() {
+        PosSession session = newSession();
+
+        String out = session.execute("list store-items");
+
+        assertTrue(out.contains("enter store"), out);
+    }
 }

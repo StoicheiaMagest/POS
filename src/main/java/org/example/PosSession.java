@@ -49,6 +49,8 @@ public class PosSession {
                 return enterStore();
             case "create basket":
                 return createBasket();
+            case "list store-items":
+                return listStoreItems();
             default:
                 return UNKNOWN_COMMAND;
         }
@@ -68,6 +70,22 @@ public class PosSession {
         }
         basket = new Basket();
         return "Basket has been created";
+    }
+
+    private String listStoreItems() {
+        if (state != SessionState.IN_STORE) {
+            return "You must enter the store first ('enter store').";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-15s %-28s %-9s %s%n",
+                "Name", "Full Description", "Unit", "Price"));
+        for (Item item : registry.getAllArticles()) {
+            String unit = item instanceof WeighedItem ? "per kg" : "1 pc";
+            sb.append(String.format("%-15s %-28s %-9s %s%n",
+                    item.getName(), item.getFullDescription(), unit,
+                    PriceFormatter.format(item.getInclusivePrice())));
+        }
+        return sb.toString().stripTrailing();
     }
 
     /**

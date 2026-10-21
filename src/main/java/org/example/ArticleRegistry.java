@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,6 +29,18 @@ public class ArticleRegistry {
     public Item findByName(String name) {
         Integer number = numbersByName.get(name.toLowerCase(Locale.ROOT));
         return number == null ? null : items.get(number);
+    }
+
+    /**
+     * All registered articles ordered by article number.
+     *
+     * @return the assortment as an immutable list
+     */
+    public List<Item> getAllArticles() {
+        return items.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(Map.Entry::getValue)
+                .toList();
     }
 
     /**
