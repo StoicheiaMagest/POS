@@ -214,4 +214,79 @@ public class PosSessionTest {
         session.execute("create basket");
         return session;
     }
+
+    @Test
+    void toPosMovesCustomerToRegisterAndBlocksBasketCommands() {
+        PosSession session = enteredStoreWithBasket();
+        session.execute("add soy-milk");
+
+        String moved = session.execute("to pos");
+        String blocked = session.execute("add oat-drink");
+
+        assertEquals("At store register. You can now scan the items or "
+                + "register membership", moved);
+        assertTrue(blocked.contains("register"), blocked);
+    }
+
+    @Test
+    void cashRegisterAliasBehavesIdentically() {
+        PosSession session = enteredStoreWithBasket();
+
+        String moved = session.execute("TO CASH-REGISTER");
+
+        assertEquals("At store register. You can now scan the items or "
+                + "register membership", moved);
+    }
+
+    @Test
+    void toPosWithoutBasketIsRefused() {
+        PosSession session = newSession();
+        session.execute("enter store");
+
+        String out = session.execute("to pos");
+
+        assertTrue(out.contains("create basket"), out);
+    }
+
+    @Test
+    void scanItemsPrintsRunningTotalsAndClosingLine() {
+        PosSession session = enteredStoreWithBasket();
+        session.execute("add soy-milk");
+        session.execute("add orange-juice");
+        session.execute("add orange-juice");
+        session.execute("add apple 300");
+        session.execute("to pos");
+
+        String out = session.execute("scan items");
+
+        assertTrue(out.contains("1 Alpro Soymilk scanned"), out);
+        assertTrue(out.contains("Total: 34.96 SEK"), out);
+        assertTrue(out.contains("2 Tropicana Orange Juice scanned"), out);
+        assertTrue(out.contains("Total: 94.86 SEK"), out);
+        assertTrue(out.contains("300g Apple scanned"), out);
+        assertTrue(out.contains("Total: 102.32 SEK"), out);
+        assertTrue(out.contains(
+                "All items scanned. Go to \"payment\" or \"apply discount\""),
+                out);
+
+        assertEquals("All items have already been scanned.",
+                session.execute("scan items"));
+    }
+
+    @Test
+    void scanWithEmptyBasketIsRefused() {
+        PosSession session = enteredStoreWithBasket();
+        session.execute("to pos");
+
+        assertEquals("Your basket is empty.", session.execute("scan items"));
+    }
+
+    @Test
+    void registerCommandsAreRefusedInTheStore() {
+        PosSession session = enteredStoreWithBasket();
+
+        String out = session.execute("scan items");
+
+        assertTrue(out.contains("to pos"), out);
+    }
 }

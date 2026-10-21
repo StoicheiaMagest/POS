@@ -20,6 +20,7 @@ public class PosSession {
     private Store store;
     private Customer customer;
     private Basket basket;
+    private PurchaseOccasion occasion;
 
     /** Where the flow currently is (spec §3). */
     private enum SessionState {
@@ -51,6 +52,11 @@ public class PosSession {
                 return createBasket();
             case "list store-items":
                 return listStoreItems();
+            case "to pos":
+            case "to cash-register":
+                return goToRegister();
+            case "scan items":
+                return scanItems();
             default:
                 if (command.startsWith("add ")) {
                     return addItem(command.substring(4).trim());
@@ -97,9 +103,53 @@ public class PosSession {
         return sb.toString().stripTrailing();
     }
 
-    private String addItem(String argument) {
+    private String goToRegister() {
         if (state != SessionState.IN_STORE) {
             return "You must enter the store first ('enter store').";
+        }
+        if (basket == null) {
+            return "Create a basket first ('create basket').";
+        }
+        customer.goToRegister();
+        occasion = new PurchaseOccasion(new BarcodeScanner(registry), basket,
+                customer, store.getBankAccount());
+        state = SessionState.AT_REGISTER;
+        return "At store register. You can now scan the items or "
+                + "register membership";
+    }
+
+    private String scanItems() {
+        if (state != SessionState.AT_REGISTER) {
+            return "Go to the cash register first ('to pos').";
+        }
+        if (occasion.isScanned()) {
+            return "All items have already been scanned.";
+        }
+        if (basket.getItems().isEmpty()) {
+            return "Your basket is empty.";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (ScanLine line : occasion.scanAll()) {
+            sb.append(String.format("%-32s%s%n",
+                    line.getQuantity() + " " + line.getDescription()
+                            + " scanned",
+                    "Total: " + PriceFormatter.format(
+                            line.getRunningTotalCents())));
+        }
+        sb.append("All items scanned. Go to \"payment\" or \"apply discount\"");
+        return sb.toString();
+    }
+
+    private String basketStateHint() {
+        if (state == SessionState.AT_REGISTER) {
+            return "Basket commands are not available at the register.";
+        }
+        return "You must enter the store first ('enter store').";
+    }
+
+    private String addItem(String argument) {
+        if (state != SessionState.IN_STORE) {
+            return basketStateHint();
         }
         if (basket == null) {
             return "Create a basket first ('create basket').";
@@ -153,7 +203,7 @@ public class PosSession {
 
     private String removeItem(String handle) {
         if (state != SessionState.IN_STORE) {
-            return "You must enter the store first ('enter store').";
+            return basketStateHint();
         }
         if (basket == null) {
             return "Create a basket first ('create basket').";
@@ -168,7 +218,7 @@ public class PosSession {
 
     private String listBasketItems() {
         if (state != SessionState.IN_STORE) {
-            return "You must enter the store first ('enter store').";
+            return basketStateHint();
         }
         if (basket == null) {
             return "Create a basket first ('create basket').";
