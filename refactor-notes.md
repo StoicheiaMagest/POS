@@ -22,3 +22,10 @@ One entry per incident: what changed, which tests were touched, why it is OK.
   `Card.java`/`CardTest.java`; the pay-success/pay-failure behaviour of
   `CardTest` is preserved in the rewritten `PaymentCardTest` (now with real
   `Account`s instead of mocks).
+- 2026-10-21 — `Customer` model replaced (spec §6): constructor is now
+  (name, personId); membership is *joined* (`joinMembership`) rather than a
+  constructor flag; senior status dropped as out of scope (§9). Old
+  `CustomerTest` cases for the constructor flags were rewritten to cover the
+  new behaviour. `PurchaseOccasionTest.createPurchase` only needed the new
+  constructor call (its Swedish receipt tests are scheduled for replacement
+  in the receipt-rendering cycle, spec §4.15).

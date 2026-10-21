@@ -53,8 +53,7 @@ class PurchaseOccasionTest {
     }
 
     private PurchaseOccasion createPurchase(Basket basket) {
-        Customer customer =
-                new Customer("Test Customer", "19900101-1234", false, false);
+        Customer customer = new Customer("Test Customer", "19900101-1234");
         Account account = mock(Account.class);
 
         return new PurchaseOccasion(basket, customer, account);
