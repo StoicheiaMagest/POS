@@ -1,6 +1,6 @@
 # SPEC — Kwik E-Smart POS System (v1)
 
-Status: DRAFT — pending approval.
+Status: APPROVED (owner sign-off 2026-10-21; assumptions A1–A5 stand as defaults).
 Sources: owner's draft brief (see commit history of this file). Money handling
 in `money code (reference)/` is reference material only; its conventions are
 not adopted.
@@ -177,6 +177,11 @@ All items scanned. Go to "payment" or "apply discount"
 Re-running after a completed scan → `All items have already been scanned.`
 Empty basket → `Your basket is empty.`
 
+Scanning is **not** a Basket concern: the `PurchaseOccasion` owns a barcode
+scanner (`BarcodeScanner`) which resolves a scanned article number to the
+registry article; the occasion records the resulting sales lines and running
+total. The Basket only holds what the customer picked (owner decision).
+
 ### 4.11 `register membership`
 
 Allowed only at the register (AT_REGISTER). Prompts interactively:
@@ -307,7 +312,7 @@ are VAT-inclusive per §C3; food at 12 %, non-food at 25 %.
 | Discount | `Discount`, `applyDiscount` | v1 uses the membership 20 % rule only; rest stays backlog |
 | Receipt | `Receipt` (single renderer) | English output incl. discount line |
 | Store | **new class** | Name + store bank account |
-| Scanning/weighing | `Scanner`, `Scale` | Drive scan/weight behaviour internally (`Scanner` rename per backlog on implementation) |
+| Scanning/weighing | `Scanner` → renamed `BarcodeScanner`, `Scale` | `BarcodeScanner` is **owned by `PurchaseOccasion`** and resolves barcodes to registry articles; Basket stays scanner-free (owner decision, backlog rename adopted) |
 
 ## 7. Acceptance criteria
 
