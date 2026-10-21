@@ -179,9 +179,15 @@ Re-running after a completed scan → `All items have already been scanned.`
 Empty basket → `Your basket is empty.`
 
 Scanning is **not** a Basket concern: the `PurchaseOccasion` owns a barcode
-scanner (`BarcodeScanner`) which resolves a scanned article number to the
-registry article; the occasion records the resulting sales lines and running
-total. The Basket only holds what the customer picked (owner decision).
+scanner (`BarcodeScanner`) which resolves a scanned barcode to the sale
+article; the occasion records the resulting sales lines and running total.
+The Basket only holds what the customer picked (owner decision).
+
+A barcode is an integer with information at fixed digit positions, like a
+scale printout: values below 100000 are plain article numbers; larger ones
+carry the weight in grams in their last five digits (`900300` = article 9
+at 300 g). The scanner decodes it positionally (mod arithmetic inside its
+methods) and returns the concrete sale item.
 
 ### 4.11 `register membership`
 
