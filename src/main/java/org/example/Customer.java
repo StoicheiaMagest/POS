@@ -2,7 +2,6 @@ package org.example;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -99,6 +98,6 @@ public class Customer {
      * @return a defensive copy of the card list
      */
     public List<PaymentCard> getCards() {
-        return Collections.unmodifiableList(new ArrayList<>(cards));
+        return new ArrayList<>(cards);
     }
 }

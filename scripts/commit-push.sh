@@ -17,6 +17,13 @@ fi
 MESSAGE="$1"
 shift
 
+# Definition of done: full suite green before any commit (AGENTS.md §5).
+mvn -q test > /tmp/commit-push-mvn.log 2>&1 || {
+    echo "Aborting: mvn test failed. Last lines:" >&2
+    tail -25 /tmp/commit-push-mvn.log >&2
+    exit 1
+}
+
 git add -- "$@"
 git commit -m "$MESSAGE"
 git push origin pos-system
