@@ -1,9 +1,6 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A purchase occasion at the cash register: it owns the barcode scanner,
@@ -65,38 +62,14 @@ public class PurchaseOccasion {
             throw new IllegalStateException(
                     "All items have already been scanned.");
         }
-        List<ScanLine> lines = new ArrayList<>();
-        Map<String, Integer> groupIndexByName = new HashMap<>();
-        long runningTotal = 0;
-        for (Item item : customerBasket.getItems()) {
-            scanner.scan(item.getArticleNumber());
-            if (item instanceof WeighedItem weighed) {
-                runningTotal += item.getInclusivePrice();
-                lines.add(new ScanLine(weighed.getWeight() + "g",
-                        item.getFullDescription(), item.getInclusivePrice(),
-                        runningTotal));
-            } else {
-                Integer index = groupIndexByName.get(item.getName());
-                runningTotal += item.getInclusivePrice();
-                if (index == null) {
-                    lines.add(new ScanLine("1", item.getFullDescription(),
-                            item.getInclusivePrice(), runningTotal));
-                    groupIndexByName.put(item.getName(), lines.size() - 1);
-                } else {
-                    ScanLine line = lines.get(index);
-                    int count = Integer.parseInt(line.getQuantity()) + 1;
-                    lines.set(index, new ScanLine(String.valueOf(count),
-                            line.getDescription(),
-                            line.getLineTotalCents()
-                                    + item.getInclusivePrice(),
-                            runningTotal));
-                }
-            }
+        ScanLedger ledger = new ScanLedger();
+        for (Item entry : customerBasket.getItems()) {
+            ledger.record(scanner.scan(BarcodeScanner.barcodeOf(entry)));
         }
         scanned = true;
-        amountDueCents = runningTotal;
-        scanLines = List.copyOf(lines);
-        return lines;
+        amountDueCents = ledger.getTotalCents();
+        scanLines = ledger.getLines();
+        return scanLines;
     }
 
     /**
