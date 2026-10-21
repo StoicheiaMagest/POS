@@ -371,4 +371,56 @@ public class PosSessionTest {
 
         assertTrue(out.contains("scan items"), out);
     }
+
+    @Test
+    void createCardWithAmountIssuesRandomIssuerAndExactBalance() {
+        PosSession session = enteredStoreWithBasket();
+
+        String out = session.execute("create card 300");
+
+        assertTrue(out.matches("A new (MasterCard|Visa|Amex) card has been "
+                + "created with id \\d+\\. Balance: 300\\.00 SEK"), out);
+        assertEquals(1, session.getCustomer().getCards().size());
+        assertEquals(30000, session.getCustomer().getCards().get(0)
+                .getBalance());
+    }
+
+    @Test
+    void createCardDefaultsToFiveHundredKronor() {
+        PosSession session = enteredStoreWithBasket();
+
+        String out = session.execute("create card");
+
+        assertTrue(out.endsWith("Balance: 500.00 SEK"), out);
+    }
+
+    @Test
+    void createCardAcceptsDecimalAmounts() {
+        PosSession session = enteredStoreWithBasket();
+
+        String out = session.execute("create card 29.95");
+
+        assertTrue(out.endsWith("Balance: 29.95 SEK"), out);
+        assertEquals(2995,
+                session.getCustomer().getCards().get(0).getBalance());
+    }
+
+    @Test
+    void createCardRejectsGarbageAmountAndUnknownExtras() {
+        PosSession session = enteredStoreWithBasket();
+
+        String out = session.execute("create card lots");
+
+        assertTrue(!out.contains("has been created"), out);
+        assertTrue(session.getCustomer().getCards().isEmpty());
+    }
+
+    @Test
+    void createCardBeforeEnteringStoreIsRefused() {
+        PosSession session = newSession();
+
+        String out = session.execute("create card 100");
+
+        assertTrue(out.contains("enter store"), out);
+    }
 }

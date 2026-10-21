@@ -13,6 +13,10 @@ public class PosSession {
     private static final String UNKNOWN_COMMAND =
             "Unknown command. Type 'help'.";
 
+    private static final String[] CARD_ISSUERS = {"MasterCard", "Visa",
+            "Amex"};
+    private static final long DEFAULT_CARD_BALANCE_CENTS = 50000;
+
     private final ArticleRegistry registry;
     private final Random random;
     private boolean running = true;
@@ -22,6 +26,7 @@ public class PosSession {
     private Basket basket;
     private PurchaseOccasion occasion;
     private int memberCounter;
+    private int cardCounter;
 
     /** Where the flow currently is (spec §3). */
     private enum SessionState {
@@ -69,6 +74,11 @@ public class PosSession {
                 }
                 if (command.equals("list basket-items")) {
                     return listBasketItems();
+                }
+                if (command.equals("create card")
+                        || command.startsWith("create card ")) {
+                    return createCard(command.substring("create card".length())
+                            .trim());
                 }
                 return UNKNOWN_COMMAND;
         }
@@ -141,6 +151,56 @@ public class PosSession {
         }
         sb.append("All items scanned. Go to \"payment\" or \"apply discount\"");
         return sb.toString();
+    }
+
+    private String createCard(String amountArgument) {
+        if (customer == null) {
+            return "You must enter the store first ('enter store').";
+        }
+        long balanceCents = DEFAULT_CARD_BALANCE_CENTS;
+        if (!amountArgument.isEmpty()) {
+            Long parsed = parseAmountCents(amountArgument);
+            if (parsed == null || parsed <= 0) {
+                return "Amount must be a positive sum, e.g. 'create card "
+                        + "300' or 'create card 29.95'.";
+            }
+            balanceCents = parsed;
+        }
+        cardCounter++;
+        String issuer = CARD_ISSUERS[random.nextInt(CARD_ISSUERS.length)];
+        customer.addCard(new PaymentCard(cardCounter, issuer,
+                new Account((int) balanceCents)));
+        return "A new " + issuer + " card has been created with id "
+                + cardCounter + ". Balance: "
+                + PriceFormatter.format(balanceCents);
+    }
+
+    /**
+     * Parses a SEK amount like {@code 300} or {@code 29.95} into cents.
+     *
+     * @param text raw amount argument
+     * @return the amount in cents, or null when malformed
+     */
+    private static Long parseAmountCents(String text) {
+        String[] parts = text.trim().split("\\.");
+        if (parts.length > 2 || parts[0].isEmpty()) {
+            return null;
+        }
+        try {
+            long kronor = Long.parseLong(parts[0]);
+            long cents = 0;
+            if (parts.length == 2) {
+                if (parts[1].length() > 2 || parts[1].isEmpty()) {
+                    return null;
+                }
+                String padded = parts[1].length() == 1
+                        ? parts[1] + "0" : parts[1];
+                cents = Long.parseLong(padded);
+            }
+            return kronor * 100 + cents;
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private String applyDiscount() {

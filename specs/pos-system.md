@@ -57,9 +57,9 @@ BOOT ──enter store──▶ IN_STORE ──to pos / to cash-register──�
 
 | State | Valid commands |
 |---|---|
-| BOOT (program start, before a flow) | `help`, `enter store`, `run pos`, `create card`, `exit` |
+| BOOT (program start, before a flow) | `help`, `enter store`, `run pos`, `exit` |
 | IN_STORE | `help`, `create basket`, `list store-items`, `add`, `remove`, `list basket-items`, `create card`, `to pos`, `to cash-register`, `exit` |
-| AT_REGISTER | `help`, `scan items`, `apply discount`, `register membership`, `payment`, `use card`, `exit` |
+| AT_REGISTER | `help`, `scan items`, `apply discount`, `register membership`, `payment`, `use card`, `create card` (per §4.14), `exit` |
 | DONE | `help`, `enter store`, `run pos`, `exit` |
 
 - Basket commands in IN_STORE additionally require an existing basket.
@@ -243,8 +243,9 @@ Assumption A3). Cards may be created in BOOT/IN_STORE/AT_REGISTER.
 
 Output: `A new <issuer> card has been created with id <id>. Balance: X.XX SEK`
 
-Purpose: tests can give a customer several cards, e.g. to split-pay when one
-card runs short.
+Cards may be created once a customer exists (IN_STORE or AT_REGISTER — at
+the register this enables split payment when one card runs short). In BOOT
+or DONE the command is refused per C6.
 
 ### 4.15 Receipt (printed on completed payment)
 
