@@ -1,6 +1,4 @@
 package org.example;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 public class PurchaseOccasion {
 
@@ -44,17 +42,9 @@ public class PurchaseOccasion {
 
 
     public String printReceipt() {
-        long totalCents = customerBasket.getTotalPrice();
-
-        NumberFormat formatter = NumberFormat.getNumberInstance(
-                Locale.forLanguageTag("sv-SE")
-        );
-        formatter.setMinimumFractionDigits(2);
-        formatter.setMaximumFractionDigits(2);
-
         return "Kvitto\n"
                 + "Antal varor: " + customerBasket.getItems().size() + "\n"
-                + "Totalt: " + formatter.format(totalCents / 100.0) + " SEK";
+                + "Totalt: " + Money.format(customerBasket.getTotalPrice(), ',') + " SEK";
     }
 
 
