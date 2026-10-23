@@ -23,4 +23,26 @@ class MoneyTest {
     void constructorRejectsNegativeAmount() {
         assertThrows(IllegalArgumentException.class, () -> new Money(-1));
     }
+
+    @Test
+    void formatUsesGivenDecimalSeparator() {
+        assertEquals("11,20", Money.format(1120, ','));
+        assertEquals("11.20", Money.format(1120, '.'));
+    }
+
+    @Test
+    void formatZero() {
+        assertEquals("0,00", Money.format(0, ','));
+    }
+
+    @Test
+    void formatGroupsThousandsWithNonBreakingSpace() {
+        assertEquals("1 234,56", Money.format(123456, ','));
+    }
+
+    @Test
+    void formatDecimalUsesGivenNumberOfDecimals() {
+        assertEquals("0,520", Money.formatDecimal(520, 3, ','));
+        assertEquals("0.520", Money.formatDecimal(520, 3, '.'));
+    }
 }

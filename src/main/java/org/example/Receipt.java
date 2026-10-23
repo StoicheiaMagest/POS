@@ -1,8 +1,6 @@
 package org.example;
 
 import java.time.LocalDateTime;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -92,7 +90,7 @@ public class Receipt {
             Item item = group.get(0);
             sb.append(item.getName()).append(" ");
             if (item instanceof WeighedItem weighed) {
-                sb.append(formatDecimal(weighed.getWeight(), 3)).append(" kg x ")
+                sb.append(Money.formatDecimal(weighed.getWeight(), 3, decimalSeparator)).append(" kg x ")
                         .append(formatCents(weighed.getPricePerKg())).append(" = ");
             } else if (group.size() > 1) {
                 sb.append(group.size()).append(" x ")
@@ -106,17 +104,7 @@ public class Receipt {
     }
 
     private String formatCents(long cents) {
-        return formatDecimal(cents, 2);
-    }
-
-    // Formats an integer holding `decimals` implied decimal places.
-    private String formatDecimal(long value, int decimals) {
-        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.forLanguageTag("sv-SE"));
-        symbols.setDecimalSeparator(decimalSeparator);
-        DecimalFormat formatter = new DecimalFormat("#,##0.00", symbols);
-        formatter.setMinimumFractionDigits(decimals);
-        formatter.setMaximumFractionDigits(decimals);
-        return formatter.format(value / Math.pow(10, decimals));
+        return Money.format(cents, decimalSeparator);
     }
 
     @Override
