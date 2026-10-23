@@ -140,6 +140,19 @@ public class ReceiptTest {
     }
 
     @Test
+    void testPrintOneItem() {
+        Basket basket = new Basket();
+        basket.addItem(new UnitPricedArticle("Milk", 1000, Vat.FOOD, 111));
+        when(purchaseOccasion.getBasket()).thenReturn(basket);
+        String expected = "My Store\n" +
+                "Receipt number: 1\n" +
+                "Date: 2026-10-23 13:03\n" +
+                "Milk 11,20 SEK\n" +
+                "Total: 11,20 SEK";
+        assertEquals(expected, receipt.print());
+    }
+
+    @Test
     void testToString() {
         when(purchaseOccasion.toString()).thenReturn("Occasion X");
         String expectedToString = "Receipt{receiptNumber=1, receiptDate=2026-10-23T13:03," +

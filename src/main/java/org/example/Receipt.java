@@ -61,11 +61,17 @@ public class Receipt {
     }
 
     public String print() {
-        long totalCents = purchaseOccasion.getBasket().getTotalPrice();
-        return storeName + "\n"
-                + "Receipt number: " + receiptNumber + "\n"
-                + "Date: " + getFormattedDate() + "\n"
-                + "Total: " + formatCents(totalCents) + " SEK";
+        Basket basket = purchaseOccasion.getBasket();
+        StringBuilder sb = new StringBuilder();
+        sb.append(storeName).append("\n")
+                .append("Receipt number: ").append(receiptNumber).append("\n")
+                .append("Date: ").append(getFormattedDate()).append("\n");
+        for (Item item : basket.getItems()) {
+            sb.append(item.getName()).append(" ")
+                    .append(formatCents(item.getInclusivePrice())).append(" SEK\n");
+        }
+        sb.append("Total: ").append(formatCents(basket.getTotalPrice())).append(" SEK");
+        return sb.toString();
     }
 
     private static String formatCents(long cents) {
