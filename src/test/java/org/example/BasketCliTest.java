@@ -189,4 +189,30 @@ class BasketCliTest {
         assertTrue(run("remove", "quit").contains("Usage: remove <no>"));
         assertTrue(run("remove x", "quit").contains("Not a number: x"));
     }
+
+    @Test
+    void updateChangesTheWeightAndKeepsThePosition() {
+        String output = run("add 111", "add 333 520", "add 222", "update 2 700", "list", "quit");
+
+        assertTrue(output.contains("Updated Apples to 0,700 kg"));
+        assertTrue(output.contains("1  Milk  11,20 SEK"));
+        assertTrue(output.contains("2  Apples  0,700 kg  23,44 SEK"));
+        assertTrue(output.contains("3  Bread  22,40 SEK"));
+        assertEquals(3, cli.getBasket().getItems().size());
+    }
+
+    @Test
+    void updateOfAUnitItemIsRejected() {
+        String output = run("add 111", "update 1 500", "quit");
+
+        assertTrue(output.contains("Milk is not sold by weight, only weighed items can be updated"));
+    }
+
+    @Test
+    void updateWithBadInputIsRejected() {
+        assertTrue(run("update", "quit").contains("Usage: update <no> <grams>"));
+        assertTrue(run("update 1 100", "quit").contains("No item number 1 in the basket"));
+        assertTrue(run("add 333 500", "update 1 0", "quit").contains("Weight must be greater than 0"));
+        assertTrue(run("add 333 500", "update 1 heavy", "quit").contains("Not a number: heavy"));
+    }
 }

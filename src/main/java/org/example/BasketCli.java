@@ -64,6 +64,9 @@ public class BasketCli {
             case "remove":
                 remove(parts);
                 return true;
+            case "update":
+                update(parts);
+                return true;
             default:
                 out.println("Unknown command: " + parts[0]);
                 return true;
@@ -136,6 +139,41 @@ public class BasketCli {
             out.println("Removed " + item.getName());
         } catch (IllegalArgumentException e) {
             out.println(e.getMessage());
+        }
+    }
+
+    private void update(String[] parts) {
+        if (parts.length != 3) {
+            out.println("Usage: update <no> <grams>");
+            return;
+        }
+        try {
+            Item item = itemNumber(parts[1]);
+            int grams = parseNumber(parts[2]);
+            if (!(item instanceof WeighedItem weighed)) {
+                throw new IllegalArgumentException(
+                        item.getName() + " is not sold by weight, only weighed items can be updated");
+            }
+            if (grams <= 0) {
+                throw new IllegalArgumentException("Weight must be greater than 0");
+            }
+            replaceItem(weighed, new WeighedItem(weighed.getName(), weighed.getPricePerKg(),
+                    weighed.getVatRate(), grams, weighed.getArticleNumber()));
+            out.println("Updated " + weighed.getName() + " to "
+                    + Money.formatDecimal(grams, 3, ',') + " kg");
+        } catch (IllegalArgumentException e) {
+            out.println(e.getMessage());
+        }
+    }
+
+    // Basket has no replace operation, so rebuild it to keep the item's position.
+    private void replaceItem(Item oldItem, Item newItem) {
+        List<Item> items = basket.getItems();
+        for (Item item : items) {
+            basket.removeItem(item);
+        }
+        for (Item item : items) {
+            basket.addItem(item == oldItem ? newItem : item);
         }
     }
 
