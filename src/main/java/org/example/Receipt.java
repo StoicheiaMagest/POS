@@ -3,12 +3,12 @@ package org.example;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class Receipt {
 
@@ -102,17 +102,23 @@ public class Receipt {
                     .append(" SEK\n");
         }
         // Discounts, sorted by name so the order is stable.
-        Map<String, Long> discounts = new TreeMap<>(new Discount().getAllDiscounts(basket.getItems()));
+        List<DiscountLine> discounts = new ArrayList<>(new Discount().getDiscountLines(basket.getItems()));
+        discounts.sort(Comparator.comparing(DiscountLine::name));
         long totalSaved = 0;
-        for (Map.Entry<String, Long> discount : discounts.entrySet()) {
-            sb.append(discount.getKey()).append(" -")
-                    .append(formatCents(discount.getValue())).append(" SEK\n");
-            totalSaved += discount.getValue();
+        for (DiscountLine discount : discounts) {
+            sb.append(discount.name()).append(" -")
+                    .append(formatCents(discount.amount())).append(" SEK\n");
+            totalSaved += discount.amount();
         }
-        // VAT per rate = inclusive price minus exclusive price, summed over the items.
+        // VAT per rate = inclusive price minus exclusive price, summed over the items,
+        // minus the VAT contained in the (VAT-inclusive) discounts on that rate.
         Map<Vat, Long> vatByRate = new EnumMap<>(Vat.class);
         for (Item item : basket.getItems()) {
             vatByRate.merge(item.getVatRate(), item.getInclusivePrice() - item.getPrice(), Long::sum);
+        }
+        for (DiscountLine discount : discounts) {
+            long discountVat = discount.amount() - discount.vat().calculateExclusivePrice(discount.amount());
+            vatByRate.merge(discount.vat(), -discountVat, Long::sum);
         }
         vatByRate.forEach((vat, amount) -> sb.append("VAT ")
                 .append(Money.format(vat.getBasisPoints(), decimalSeparator)).append("%: ")

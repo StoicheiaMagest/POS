@@ -199,7 +199,7 @@ public class ReceiptTest {
                 "Bread 22,40 SEK\n" +
                 "2 kr off on Bread -2,00 SEK\n" +
                 "3 for 2 Milk -11,20 SEK\n" +
-                "VAT 12,00%: 6,00 SEK\n" +
+                "VAT 12,00%: 4,59 SEK\n" +
                 "You saved: 13,20 SEK\n" +
                 "Total: 42,80 SEK";
         assertEquals(expected, receipt.print());
@@ -254,7 +254,7 @@ public class ReceiptTest {
                 "Date: 2026-10-23 13:03\n" +
                 "Milk 3 x 11,20 = 33,60 SEK\n" +
                 "3 for 2 Milk -11,20 SEK\n" +
-                "VAT 12,00%: 3,60 SEK\n" +
+                "VAT 12,00%: 2,40 SEK\n" +
                 "You saved: 11,20 SEK\n" +
                 "Total: 22,40 SEK";
         assertEquals(expected, receipt.print());
@@ -271,10 +271,31 @@ public class ReceiptTest {
                 "Date: 2026-10-23 13:03\n" +
                 "Bread 22.40 SEK\n" +
                 "2 kr off on Bread -2.00 SEK\n" +
-                "VAT 12.00%: 2.40 SEK\n" +
+                "VAT 12.00%: 2.19 SEK\n" +
                 "You saved: 2.00 SEK\n" +
                 "Total: 20.40 SEK";
         assertEquals(expected, dotReceipt.print());
+    }
+
+    @Test
+    void testDiscountOnlyReducesVatOfItsOwnRate() {
+        Basket basket = new Basket();
+        for (int i = 0; i < 3; i++) {
+            basket.addItem(new UnitPricedArticle("Milk", 1000, Vat.FOOD, 111));
+        }
+        basket.addItem(new UnitPricedArticle("Book", 5000, Vat.BOOK, 444));
+        when(purchaseOccasion.getBasket()).thenReturn(basket);
+        String expected = "My Store\n" +
+                "Receipt number: 1\n" +
+                "Date: 2026-10-23 13:03\n" +
+                "Milk 3 x 11,20 = 33,60 SEK\n" +
+                "Book 53,00 SEK\n" +
+                "3 for 2 Milk -11,20 SEK\n" +
+                "VAT 12,00%: 2,40 SEK\n" +
+                "VAT 6,00%: 3,00 SEK\n" +
+                "You saved: 11,20 SEK\n" +
+                "Total: 75,40 SEK";
+        assertEquals(expected, receipt.print());
     }
 
     @Test
