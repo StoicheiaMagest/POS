@@ -4,7 +4,7 @@ package org.example;
 import java.util.ArrayList;
 
 public class Basket {
-    private int totalPrice;
+    private long totalPrice;
     private ArrayList<Item> items;
 
     public Basket() {
@@ -14,12 +14,12 @@ public class Basket {
 
     public void addItem(Item item) {
         this.items.add(item);
-        this.totalPrice = this.totalPrice + item.getPrice();
+        this.totalPrice += item.getInclusivePrice();
     }
 
     public void removeItem(Item item) {
         if (this.items.remove(item)) {
-            this.totalPrice = this.totalPrice - item.getPrice();
+            this.totalPrice -= item.getInclusivePrice();
         }
     }
 
@@ -27,7 +27,7 @@ public class Basket {
         return new ArrayList<>(items);
     }
 
-    public int getTotalPrice() {
+    public long getTotalPrice() {
         return totalPrice;
     }
 }

@@ -8,7 +8,7 @@ public class PurchaseOccasion {
     private Basket customerBasket;
     private Customer customer;
     private Discount[] discounts;
-    private int totalPrice; // cents
+    private long totalPrice; // cents
 
 
 
@@ -26,7 +26,7 @@ public class PurchaseOccasion {
     }
 
     // Returns the discounted price in cents.
-    public int applyDiscount(int discountPercent) {
+    public long applyDiscount(int discountPercent) {
         if (discountPercent < 0 || discountPercent > 100) {
             throw new IllegalArgumentException("Discount must be between 0 and 100");
         }
@@ -40,7 +40,7 @@ public class PurchaseOccasion {
 
 
     public String printReceipt() {
-        int totalCents = customerBasket.getTotalPrice();
+        long totalCents = customerBasket.getTotalPrice();
 
         NumberFormat formatter = NumberFormat.getNumberInstance(
                 Locale.forLanguageTag("sv-SE")
