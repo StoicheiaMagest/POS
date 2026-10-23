@@ -143,4 +143,18 @@ class BasketCliTest {
         assertTrue(run("add 111 -2", "quit").contains("must be greater than 0"));
         assertEquals(0, cli.getBasket().getItems().size());
     }
+
+    @Test
+    void listOfEmptyBasket() {
+        assertTrue(run("list", "quit").contains("Basket is empty"));
+    }
+
+    @Test
+    void listNumbersTheItemsAndShowsTheTotal() {
+        String output = run("add 111", "add 333 520", "list", "quit");
+
+        assertTrue(output.contains("1  Milk  11,20 SEK"));
+        assertTrue(output.contains("2  Apples  0,520 kg  17,40 SEK"));
+        assertTrue(output.contains("Total: 28,60 SEK"));
+    }
 }

@@ -57,6 +57,9 @@ public class BasketCli {
             case "add":
                 add(parts);
                 return true;
+            case "list":
+                list();
+                return true;
             default:
                 out.println("Unknown command: " + parts[0]);
                 return true;
@@ -116,6 +119,22 @@ public class BasketCli {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Not a number: " + text);
         }
+    }
+
+    private void list() {
+        if (basket.getItems().isEmpty()) {
+            out.println("Basket is empty");
+            return;
+        }
+        int number = 1;
+        for (Item item : basket.getItems()) {
+            String weight = item instanceof WeighedItem weighed
+                    ? Money.formatDecimal(weighed.getWeight(), 3, ',') + " kg  "
+                    : "";
+            out.println(number++ + "  " + item.getName() + "  " + weight
+                    + Money.format(item.getInclusivePrice(), ',') + " SEK");
+        }
+        out.println("Total: " + Money.format(basket.getTotalPrice(), ',') + " SEK");
     }
 
     private void printCatalog() {
