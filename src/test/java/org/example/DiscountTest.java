@@ -32,6 +32,15 @@ public class DiscountTest {
         assertEquals(null,discount.getDiscountType(item));
     }
 
+    @Test
+    void Items_without_discount_give_no_discounts(){
+        when(item.getArticleNumber()).thenReturn(101);
+        ArrayList<Item> orderList = new ArrayList<>();
+        orderList.add(item);
+
+        assertEquals(new HashMap<String, Long>(), discount.getAllDiscounts(orderList));
+    }
+
     //
     @Test
     void Discount_total_is_returned(){

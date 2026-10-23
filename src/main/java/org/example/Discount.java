@@ -24,11 +24,11 @@ public class Discount {
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
         for (Item item : orderListen) {
-            if(getDiscountType(item).equals("2krOff")){
+            if("2krOff".equals(getDiscountType(item))){
                 //if(discountsMap)
                 discountsMap.put("2 kr off on "+item.getName(), 2l);
-            } 
-            if(getDiscountType(item).equals("3for2")){
+            }
+            if("3for2".equals(getDiscountType(item))){
                 check3for2Discount(orderListen);
                 //discountsMap.put("3 for 2 "+item.getName(), (long)item.getPrice());
             }
