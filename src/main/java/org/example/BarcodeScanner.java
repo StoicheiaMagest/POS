@@ -7,8 +7,7 @@ package org.example;
  * numbers, larger ones encode the weight in grams in their last five
  * digits, e.g. 900300 is article 9 weighed at 300 g. The scanner resolves
  * a barcode to the sale item and nothing else — it is owned by the
- * {@link PurchaseOccasion} and never touches the customer's basket
- * (spec &sect;4.10).
+ * {@link PurchaseOccasion}
  */
 public class BarcodeScanner {
 
