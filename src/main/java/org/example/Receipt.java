@@ -67,18 +67,27 @@ public class Receipt {
                 .append("Receipt number: ").append(receiptNumber).append("\n")
                 .append("Date: ").append(getFormattedDate()).append("\n");
         for (Item item : basket.getItems()) {
-            sb.append(item.getName()).append(" ")
-                    .append(formatCents(item.getInclusivePrice())).append(" SEK\n");
+            sb.append(item.getName()).append(" ");
+            if (item instanceof WeighedItem weighed) {
+                sb.append(formatDecimal(weighed.getWeight(), 3)).append(" kg x ")
+                        .append(formatCents(weighed.getPricePerKg())).append(" = ");
+            }
+            sb.append(formatCents(item.getInclusivePrice())).append(" SEK\n");
         }
         sb.append("Total: ").append(formatCents(basket.getTotalPrice())).append(" SEK");
         return sb.toString();
     }
 
     private static String formatCents(long cents) {
+        return formatDecimal(cents, 2);
+    }
+
+    // Formats an integer holding `decimals` implied decimal places.
+    private static String formatDecimal(long value, int decimals) {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.forLanguageTag("sv-SE"));
-        formatter.setMinimumFractionDigits(2);
-        formatter.setMaximumFractionDigits(2);
-        return formatter.format(cents / 100.0);
+        formatter.setMinimumFractionDigits(decimals);
+        formatter.setMaximumFractionDigits(decimals);
+        return formatter.format(value / Math.pow(10, decimals));
     }
 
     @Override
