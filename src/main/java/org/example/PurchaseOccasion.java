@@ -26,21 +26,22 @@ public class PurchaseOccasion {
     }
 
     // Returns the discounted price in cents.
-    public long applyDiscount(int discountPercent) {
+    public void applyDiscount(int discountPercent) {
         if (discountPercent < 0 || discountPercent > 100) {
             throw new IllegalArgumentException("Discount must be between 0 and 100");
         }
 
-        long priceAfterDiscount =
-                (long) totalPrice * (100 - discountPercent);
+        double priceAfterDiscount = totalPrice * ((100 - discountPercent) / 100);
 
+        totalPrice = (long) ((priceAfterDiscount + 50) / 100);    //skickar upp nya totalpriset för köpet.
+        
         // Add 50 before division to round to the nearest cent.
-        return (int) ((priceAfterDiscount + 50) / 100);
+        //return ((priceAfterDiscount + 50) / 100);
+        
     }
 
-
     public String printReceipt() {
-        long totalCents = customerBasket.getTotalPrice();
+        //customerbasket.getttotal ger ju inte totalen om det finns en discount
 
         NumberFormat formatter = NumberFormat.getNumberInstance(
                 Locale.forLanguageTag("sv-SE")
@@ -50,9 +51,12 @@ public class PurchaseOccasion {
 
         return "Kvitto\n"
                 + "Antal varor: " + customerBasket.getItems().size() + "\n"
-                + "Totalt: " + formatter.format(totalCents / 100.0) + " SEK";
+                + "Totalt: " + formatter.format(totalPrice / 100.0) + " SEK";
     }
 
+    public long getTotalPriceForPurchace() {
+        return totalPrice;
+    }
 
 }
 
