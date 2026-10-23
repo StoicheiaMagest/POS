@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.util.List;
 
 // Line-based command interface for trying out the basket and receipt code.
 // Input and output are injected so the commands can be tested with scripted input.
@@ -59,6 +60,9 @@ public class BasketCli {
                 return true;
             case "list":
                 list();
+                return true;
+            case "remove":
+                remove(parts);
                 return true;
             default:
                 out.println("Unknown command: " + parts[0]);
@@ -119,6 +123,30 @@ public class BasketCli {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Not a number: " + text);
         }
+    }
+
+    private void remove(String[] parts) {
+        if (parts.length != 2) {
+            out.println("Usage: remove <no>");
+            return;
+        }
+        try {
+            Item item = itemNumber(parts[1]);
+            basket.removeItem(item);
+            out.println("Removed " + item.getName());
+        } catch (IllegalArgumentException e) {
+            out.println(e.getMessage());
+        }
+    }
+
+    // Looks up a basket item by its 1-based number as shown by the list command.
+    private Item itemNumber(String text) {
+        int number = parseNumber(text);
+        List<Item> items = basket.getItems();
+        if (number < 1 || number > items.size()) {
+            throw new IllegalArgumentException("No item number " + number + " in the basket");
+        }
+        return items.get(number - 1);
     }
 
     private void list() {

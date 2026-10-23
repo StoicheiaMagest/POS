@@ -157,4 +157,36 @@ class BasketCliTest {
         assertTrue(output.contains("2  Apples  0,520 kg  17,40 SEK"));
         assertTrue(output.contains("Total: 28,60 SEK"));
     }
+
+    @Test
+    void removeTakesTheNumberedItemOutOfTheBasket() {
+        String output = run("add 111", "add 222", "remove 1", "list", "quit");
+
+        assertEquals(1, cli.getBasket().getItems().size());
+        assertEquals("Bread", cli.getBasket().getItems().get(0).getName());
+        assertTrue(output.contains("Removed Milk"));
+        assertTrue(output.contains("1  Bread  22,40 SEK"));
+    }
+
+    @Test
+    void removeOneOfSeveralIdenticalItems() {
+        run("add 111 3", "remove 2", "quit");
+
+        assertEquals(2, cli.getBasket().getItems().size());
+    }
+
+    @Test
+    void removeWithNumberOutsideTheBasketIsRejected() {
+        String output = run("add 111", "remove 2", "remove 0", "quit");
+
+        assertEquals(1, cli.getBasket().getItems().size());
+        assertTrue(output.contains("No item number 2 in the basket"));
+        assertTrue(output.contains("No item number 0 in the basket"));
+    }
+
+    @Test
+    void removeWithBadArgumentsIsRejected() {
+        assertTrue(run("remove", "quit").contains("Usage: remove <no>"));
+        assertTrue(run("remove x", "quit").contains("Not a number: x"));
+    }
 }
