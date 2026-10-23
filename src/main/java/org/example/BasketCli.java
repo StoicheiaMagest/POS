@@ -51,9 +51,21 @@ public class BasketCli {
             case "help":
                 printHelp();
                 return true;
+            case "catalog":
+                printCatalog();
+                return true;
             default:
                 out.println("Unknown command: " + parts[0]);
                 return true;
+        }
+    }
+
+    private void printCatalog() {
+        for (Item item : catalog.findAll()) {
+            String price = item instanceof WeighedItem weighed
+                    ? Money.format(weighed.getPricePerKg(), ',') + " SEK/kg"
+                    : Money.format(item.getInclusivePrice(), ',') + " SEK";
+            out.println(item.getArticleNumber() + "  " + item.getName() + "  " + price);
         }
     }
 

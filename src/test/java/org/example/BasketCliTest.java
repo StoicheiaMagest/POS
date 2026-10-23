@@ -68,6 +68,18 @@ class BasketCliTest {
 
     @Test
     void commandsAreCaseInsensitive() {
-        assertTrue(run("HELP", "QUIT").contains("Commands:"));
+        String output = run("HELP", "QUIT");
+
+        assertEquals(2, output.split("Commands:", -1).length - 1,
+                "banner plus the HELP output");
+    }
+
+    @Test
+    void catalogListsAllItemsWithPrices() {
+        String output = run("catalog", "quit");
+
+        assertTrue(output.contains("111  Milk  11,20 SEK"));
+        assertTrue(output.contains("222  Bread  22,40 SEK"));
+        assertTrue(output.contains("333  Apples  29,90 SEK/kg"));
     }
 }
