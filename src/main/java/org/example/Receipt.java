@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Receipt {
 
@@ -100,6 +101,14 @@ public class Receipt {
             sb.append(formatCents(group.stream().mapToLong(Item::getInclusivePrice).sum()))
                     .append(" SEK\n");
         }
+        // Discounts, sorted by name so the order is stable.
+        Map<String, Long> discounts = new TreeMap<>(new Discount().getAllDiscounts(basket.getItems()));
+        long totalSaved = 0;
+        for (Map.Entry<String, Long> discount : discounts.entrySet()) {
+            sb.append(discount.getKey()).append(" -")
+                    .append(formatCents(discount.getValue())).append(" SEK\n");
+            totalSaved += discount.getValue();
+        }
         // VAT per rate = inclusive price minus exclusive price, summed over the items.
         Map<Vat, Long> vatByRate = new EnumMap<>(Vat.class);
         for (Item item : basket.getItems()) {
@@ -108,7 +117,10 @@ public class Receipt {
         vatByRate.forEach((vat, amount) -> sb.append("VAT ")
                 .append(Money.format(vat.getBasisPoints(), decimalSeparator)).append("%: ")
                 .append(formatCents(amount)).append(" SEK\n"));
-        sb.append("Total: ").append(formatCents(basket.getTotalPrice())).append(" SEK");
+        if (totalSaved > 0) {
+            sb.append("You saved: ").append(formatCents(totalSaved)).append(" SEK\n");
+        }
+        sb.append("Total: ").append(formatCents(basket.getTotalPrice() - totalSaved)).append(" SEK");
         return sb.toString();
     }
 
