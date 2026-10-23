@@ -3,6 +3,7 @@ package org.example;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class Discount {
@@ -15,7 +16,7 @@ public class Discount {
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
         for (Item item : orderListen) {
-            if(getDiscountType(item).equals("2p")){
+            if(getDiscountType(item).equals("2krOff")){
                 discountsMap.put("2 kr off on "+item.getName(), 2l);
             } 
             if(getDiscountType(item).equals("3for2")){
@@ -31,7 +32,7 @@ public class Discount {
             case 111: //milk
                 return "3for2";
             case 222: //bread
-                return "2p";
+                return "2krOff";
             default:
                 return null;
         }
@@ -45,8 +46,22 @@ public class Discount {
                 listof3for2.add((long)item.getArticleNumber());
             }   
         }
+
+        /*
+        Map<Long, Long> antal = new HashMap<>();
+        for (Item item : itemList) {
+            antal.merge((long)item.getArticleNumber(), 1l, Long::sum);
+        }
+
+        for (Map.Entry<Long, Long> e : antal.entrySet()) {
+            Long attTaBort = (e.getValue() / 3) * 3;   // heltalsdivision
+            Iterator<Item> it = orderList.iterator();
+            while (it.hasNext() && attTaBort > 0) {
+                if (it.next().getArticleNumber() == e.getKey()) {
+                    it.remove();
+                    attTaBort--;
+                }
+            }
+        } */
     }
-
-
-
 }

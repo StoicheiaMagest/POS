@@ -23,7 +23,7 @@ public class DiscountTest {
     @Test
     void Discount_type_is_2p(){
         when(item.getArticleNumber()).thenReturn(222);
-        assertEquals("2p", discount.getDiscountType(item));
+        assertEquals("2krOff", discount.getDiscountType(item));
     }
 
     @Test 
