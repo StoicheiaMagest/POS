@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DiscountTest {
@@ -110,6 +111,31 @@ public class DiscountTest {
         expected.put("2 kr off on Bread", 200L);
 
         assertEquals(expected, discount.getAllDiscounts(orderList));
+    }
+
+    @Test
+    void Discount_lines_carry_the_vat_rate_of_the_article(){
+        List<DiscountLine> expected = List.of(new DiscountLine("3 for 2 Milk", 1120L, Vat.FOOD));
+
+        assertEquals(expected, discount.getDiscountLines(milks(3)));
+    }
+
+    @Test
+    void Discount_lines_combine_bread_and_milk(){
+        ArrayList<Item> orderList = milks(3);
+        orderList.add(new UnitPricedArticle("Bread", 2000, Vat.FOOD, 222));
+        orderList.add(new UnitPricedArticle("Bread", 2000, Vat.FOOD, 222));
+
+        List<DiscountLine> expected = List.of(
+                new DiscountLine("2 kr off on Bread", 400L, Vat.FOOD),
+                new DiscountLine("3 for 2 Milk", 1120L, Vat.FOOD));
+
+        assertEquals(expected, discount.getDiscountLines(orderList));
+    }
+
+    @Test
+    void Discount_lines_are_empty_without_discounts(){
+        assertEquals(List.of(), discount.getDiscountLines(milks(2)));
     }
 
     @Test

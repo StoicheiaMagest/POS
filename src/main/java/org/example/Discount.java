@@ -20,23 +20,37 @@ public class Discount {
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
         Map<String, Long> discountsMap = new HashMap<>();
+        for (DiscountLine line : getDiscountLines(orderListen)) {
+            discountsMap.merge(line.name(), line.amount(), Long::sum);
+        }
+        return discountsMap;
+    }
+
+    // Same discounts as getAllDiscounts, but each one also carries the VAT rate
+    // of its article. 2 kr off lines come first, then 3 for 2 lines.
+    public List<DiscountLine> getDiscountLines(List<Item> items){
+        Map<String, DiscountLine> breadLines = new LinkedHashMap<>();
         Map<Integer, List<Item>> threeForTwoItems = new LinkedHashMap<>();
-        for (Item item : orderListen) {
+        for (Item item : items) {
             if("2krOff".equals(getDiscountType(item))){
                 // 2 kr = 200 cents, per item
-                discountsMap.merge("2 kr off on "+item.getName(), 200L, Long::sum);
+                breadLines.merge("2 kr off on " + item.getName(),
+                        new DiscountLine("2 kr off on " + item.getName(), 200L, item.getVatRate()),
+                        (a, b) -> new DiscountLine(a.name(), a.amount() + b.amount(), a.vat()));
             }
             if("3for2".equals(getDiscountType(item))){
                 threeForTwoItems.computeIfAbsent(item.getArticleNumber(), k -> new ArrayList<>()).add(item);
             }
         }
+        List<DiscountLine> lines = new ArrayList<>(breadLines.values());
         for (List<Item> group : threeForTwoItems.values()) {
             long saving = check3for2Discount(group);
             if (saving > 0) {
-                discountsMap.put("3 for 2 " + group.get(0).getName(), saving);
+                Item first = group.get(0);
+                lines.add(new DiscountLine("3 for 2 " + first.getName(), saving, first.getVatRate()));
             }
         }
-        return discountsMap;
+        return lines;
     }
 
     public String getDiscountType(Item item){
