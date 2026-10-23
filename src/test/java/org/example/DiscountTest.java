@@ -45,16 +45,11 @@ public class DiscountTest {
 
         Map<String, Long> expected = new HashMap<>();
         expected.put("2 kr off on "+item.getName(), 2L);
+        //expected.put("2 kr off on "+item.getName(), 2L);
 
         assertEquals(expected, discount.getAllDiscounts(orderList));
+
+
+
     }
-    @Test 
-    void Discount_for_200kr_purchace_is_20kr(){
-
-        //when(basket.getTotalPrice()>=200);
-
-        //discount.add20krDiscount();
-        //assertEquals(20,discount.totalDiscountSum());
-    }
-
 }
