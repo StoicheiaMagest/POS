@@ -3,6 +3,7 @@ package org.example;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -99,6 +100,14 @@ public class Receipt {
             sb.append(formatCents(group.stream().mapToLong(Item::getInclusivePrice).sum()))
                     .append(" SEK\n");
         }
+        // VAT per rate = inclusive price minus exclusive price, summed over the items.
+        Map<Vat, Long> vatByRate = new EnumMap<>(Vat.class);
+        for (Item item : basket.getItems()) {
+            vatByRate.merge(item.getVatRate(), item.getInclusivePrice() - item.getPrice(), Long::sum);
+        }
+        vatByRate.forEach((vat, amount) -> sb.append("VAT ")
+                .append(Money.format(vat.getBasisPoints(), decimalSeparator)).append("%: ")
+                .append(formatCents(amount)).append(" SEK\n"));
         sb.append("Total: ").append(formatCents(basket.getTotalPrice())).append(" SEK");
         return sb.toString();
     }

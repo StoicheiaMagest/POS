@@ -148,6 +148,7 @@ public class ReceiptTest {
                 "Receipt number: 1\n" +
                 "Date: 2026-10-23 13:03\n" +
                 "Milk 11,20 SEK\n" +
+                "VAT 12,00%: 1,20 SEK\n" +
                 "Total: 11,20 SEK";
         assertEquals(expected, receipt.print());
     }
@@ -161,6 +162,7 @@ public class ReceiptTest {
                 "Receipt number: 1\n" +
                 "Date: 2026-10-23 13:03\n" +
                 "Apples 0,520 kg x 29,90 = 17,40 SEK\n" +
+                "VAT 12,00%: 1,86 SEK\n" +
                 "Total: 17,40 SEK";
         assertEquals(expected, receipt.print());
     }
@@ -177,6 +179,7 @@ public class ReceiptTest {
                 "Date: 2026-10-23 13:03\n" +
                 "Milk 11.20 SEK\n" +
                 "Apples 0.520 kg x 29.90 = 17.40 SEK\n" +
+                "VAT 12.00%: 3.06 SEK\n" +
                 "Total: 28.60 SEK";
         assertEquals(expected, dotReceipt.print());
     }
@@ -194,6 +197,7 @@ public class ReceiptTest {
                 "Date: 2026-10-23 13:03\n" +
                 "Milk 3 x 11,20 = 33,60 SEK\n" +
                 "Bread 22,40 SEK\n" +
+                "VAT 12,00%: 6,00 SEK\n" +
                 "Total: 56,00 SEK";
         assertEquals(expected, receipt.print());
     }
@@ -209,7 +213,29 @@ public class ReceiptTest {
                 "Date: 2026-10-23 13:03\n" +
                 "Apples 0,520 kg x 29,90 = 17,40 SEK\n" +
                 "Apples 0,520 kg x 29,90 = 17,40 SEK\n" +
+                "VAT 12,00%: 3,72 SEK\n" +
                 "Total: 34,80 SEK";
+        assertEquals(expected, receipt.print());
+    }
+
+    @Test
+    void testPrintVatSummaryPerRate() {
+        Basket basket = new Basket();
+        basket.addItem(new UnitPricedArticle("Milk", 1000, Vat.FOOD, 111));
+        basket.addItem(new UnitPricedArticle("Book", 5000, Vat.BOOK, 444));
+        basket.addItem(new UnitPricedArticle("Pen", 1000, Vat.STANDARD, 555));
+        basket.addItem(new UnitPricedArticle("Milk", 1000, Vat.FOOD, 111));
+        when(purchaseOccasion.getBasket()).thenReturn(basket);
+        String expected = "My Store\n" +
+                "Receipt number: 1\n" +
+                "Date: 2026-10-23 13:03\n" +
+                "Milk 2 x 11,20 = 22,40 SEK\n" +
+                "Book 53,00 SEK\n" +
+                "Pen 12,50 SEK\n" +
+                "VAT 25,00%: 2,50 SEK\n" +
+                "VAT 12,00%: 2,40 SEK\n" +
+                "VAT 6,00%: 3,00 SEK\n" +
+                "Total: 87,90 SEK";
         assertEquals(expected, receipt.print());
     }
 
