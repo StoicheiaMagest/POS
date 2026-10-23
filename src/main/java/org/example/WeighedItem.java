@@ -43,6 +43,7 @@ public class WeighedItem extends Item {
     /**
      * Calculates the total price including VAT for this weighed item in cents.
      */
+    @Override
     public long getInclusivePrice() {
         return vat.calculateInclusivePrice(getPrice());
     }

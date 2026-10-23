@@ -30,6 +30,8 @@ public class UnitPricedArticle extends Item {
     /**
      * Calculates the total price including VAT for this item in cents.
      */
+    
+    @Override
     public long getInclusivePrice() {
         return vat.calculateInclusivePrice(price);
     }

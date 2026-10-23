@@ -1,157 +1,117 @@
+
 package org.example;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class BasketTest {
-    private final Basket basket = new Basket();
 
     @Test
-    void empty_basket_has_zero_price() {
-        assertEquals(0, basket.getTotalPrice(), "Total price for the empty basket should be zero");
+    void newBasketHasTotalPriceZero() {
+        Basket basket = new Basket();
+
+        assertEquals(0L, basket.getTotalPrice());
     }
 
     @Test
-    void adding_one_item_increases_total_price() {
-        // Arrange
+    void addItemIncreasesTotalPrice() {
+        Basket basket = new Basket();
         Item item = mock(Item.class);
-        when(item.getPrice()).thenReturn(1000);
 
-        // Act
+        when(item.getInclusivePrice()).thenReturn(1000L);
+
         basket.addItem(item);
 
-        // Assert
-        assertEquals(1000.0, basket.getTotalPrice(), 0.001, "Total price for the basket should be 1000");
+        assertEquals(1000L, basket.getTotalPrice());
     }
 
     @Test
-    void adding_two_items_calculates_total_price() {
-        // Arrange
+    void addTwoItemsIncreasesTotalPriceCorrectly() {
+        Basket basket = new Basket();
         Item firstItem = mock(Item.class);
         Item secondItem = mock(Item.class);
 
-        when(firstItem.getPrice()).thenReturn(1000);
-        when(secondItem.getPrice()).thenReturn(2500);
+        when(firstItem.getInclusivePrice()).thenReturn(1000L);
+        when(secondItem.getInclusivePrice()).thenReturn(2500L);
 
-        // Act
         basket.addItem(firstItem);
         basket.addItem(secondItem);
 
-        // Assert
-        assertEquals(
-                3500.0,
-                basket.getTotalPrice(),
-                0.001,
-                "Total price should be the sum of both items"
-        );
+        assertEquals(3500L, basket.getTotalPrice());
     }
 
     @Test
-    void adding_same_item_twice_counts_its_price_twice() {
-        // Arrange
+    void addingSameItemTwiceIncreasesTotalPriceTwice() {
+        Basket basket = new Basket();
         Item item = mock(Item.class);
-        when(item.getPrice()).thenReturn(1000);
 
-        // Act
+        when(item.getInclusivePrice()).thenReturn(1000L);
+
         basket.addItem(item);
         basket.addItem(item);
 
-        // Assert
-        assertEquals(
-                2000.0,
-                basket.getTotalPrice(),
-                0.001,
-                "Adding the same item twice should count its price twice"
-        );
+        assertEquals(2000L, basket.getTotalPrice());
+        assertEquals(2, basket.getItems().size());
     }
 
     @Test
-    void removing_item_decreases_total_price() {
-        // Arrange
+    void removeItemDecreasesTotalPrice() {
+        Basket basket = new Basket();
         Item item = mock(Item.class);
-        when(item.getPrice()).thenReturn(1000);
+
+        when(item.getInclusivePrice()).thenReturn(1000L);
 
         basket.addItem(item);
-
-        // Act
         basket.removeItem(item);
 
-        // Assert
-        assertEquals(
-                0.0,
-                basket.getTotalPrice(),
-                0.001,
-                "Removing the only item should return the total price to zero"
-        );
+        assertEquals(0L, basket.getTotalPrice());
+        assertTrue(basket.getItems().isEmpty());
     }
 
     @Test
-    void removing_item_not_in_basket_does_not_change_total_price() {
-        // Arrange
-        Item existingItem = mock(Item.class);
-        Item absentItem = mock(Item.class);
+    void removingItemThatIsNotInBasketDoesNotChangeTotalPrice() {
+        Basket basket = new Basket();
+        Item itemInBasket = mock(Item.class);
+        Item itemNotInBasket = mock(Item.class);
 
-        when(existingItem.getPrice()).thenReturn(1000);
-        when(absentItem.getPrice()).thenReturn(500);
+        when(itemInBasket.getInclusivePrice()).thenReturn(1000L);
+        when(itemNotInBasket.getInclusivePrice()).thenReturn(500L);
 
-        basket.addItem(existingItem);
+        basket.addItem(itemInBasket);
+        basket.removeItem(itemNotInBasket);
 
-        // Act
-        basket.removeItem(absentItem);
-
-        // Assert
-        assertEquals(
-                1000.0,
-                basket.getTotalPrice(),
-                0.001,
-                "Removing an absent item should not change the total price"
-        );
+        assertEquals(1000L, basket.getTotalPrice());
+        assertEquals(1, basket.getItems().size());
     }
 
     @Test
-    void removing_one_item_keeps_the_other_item_in_total() {
-        // Arrange
-        Item firstItem = mock(Item.class);
-        Item secondItem = mock(Item.class);
+    void getItemsReturnsCopyOfItemList() {
+        Basket basket = new Basket();
+        Item item = mock(Item.class);
 
-        when(firstItem.getPrice()).thenReturn(1000);
-        when(secondItem.getPrice()).thenReturn(500);
+        when(item.getInclusivePrice()).thenReturn(1000L);
 
-        basket.addItem(firstItem);
-        basket.addItem(secondItem);
+        basket.addItem(item);
 
-        // Act
-        basket.removeItem(firstItem);
+        var items = basket.getItems();
+        items.clear();
 
-        // Assert
-        assertEquals(500.0, basket.getTotalPrice(), 0.001,
-                "The total price should include only the remaining item");
+        assertEquals(1, basket.getItems().size());
     }
 
     @Test
-    void basket_can_be_used_again_after_being_emptied() {
-        // Arrange
-        Item firstItem = mock(Item.class);
-        Item secondItem = mock(Item.class);
+    void totalPriceIsCalculatedUsingPricesIncludingVat() {
+        Basket basket = new Basket();
+        Item item = mock(Item.class);
 
-        when(firstItem.getPrice()).thenReturn(1000);
-        when(secondItem.getPrice()).thenReturn(500);
+        when(item.getPrice()).thenReturn(1000);
+        when(item.getInclusivePrice()).thenReturn(1250L);
 
-        basket.addItem(firstItem);
-        basket.removeItem(firstItem);
+        basket.addItem(item);
 
-        // Act
-        basket.addItem(secondItem);
-
-        // Assert
-        assertEquals(500.0, basket.getTotalPrice(), 0.001,
-                "The basket should work correctly after being emptied");
+        assertEquals(1250L, basket.getTotalPrice());
     }
-
 }
-
-
-
-

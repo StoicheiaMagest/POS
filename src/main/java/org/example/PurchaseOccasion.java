@@ -41,7 +41,7 @@ public class PurchaseOccasion {
     }
 
     public String printReceipt() {
-        long totalCents = totalPrice;    //customerbasket.getttotal ger ju inte totalen om det finns en discount
+        //customerbasket.getttotal ger ju inte totalen om det finns en discount
 
         NumberFormat formatter = NumberFormat.getNumberInstance(
                 Locale.forLanguageTag("sv-SE")
@@ -51,7 +51,7 @@ public class PurchaseOccasion {
 
         return "Kvitto\n"
                 + "Antal varor: " + customerBasket.getItems().size() + "\n"
-                + "Totalt: " + formatter.format(totalCents / 100.0) + " SEK";
+                + "Totalt: " + formatter.format(totalPrice / 100.0) + " SEK";
     }
 
     public long getTotalPriceForPurchace() {

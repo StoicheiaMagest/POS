@@ -1,47 +1,67 @@
 package org.example;
 
-import java.sql.SQLOutput;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 public class Receipt {
 
     private final int receiptNumber;
     private final LocalDateTime receiptDate;
-    private String storeName;
-    private Basket basket;
+    private final String storeName;
+    private final PurchaseOccasion purchaseOccasion;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public Receipt(int receiptNumber, LocalDateTime receiptDate, String storeName, Basket basket) {
+    public Receipt(int receiptNumber, LocalDateTime receiptDate, String storeName, PurchaseOccasion purchaseOccasion) {
+        if (receiptNumber < 1) {
+            throw new IllegalArgumentException("Receipt number must be greater than 0.");
+        }
+
+        if (storeName == null) {
+            throw new NullPointerException("Store name must not be null.");
+        }
+
+        if (storeName.isBlank()) {
+            throw new IllegalArgumentException("Store name must not be blank.");
+        }
+
+        if (receiptDate == null) {
+            throw new NullPointerException("Receipt date must not be null.");
+        }
+
+        if (purchaseOccasion == null) {
+            throw new NullPointerException("Purchase occasion must not be null.");
+        }
+
         this.receiptNumber = receiptNumber;
         this.receiptDate = receiptDate;
         this.storeName = storeName;
-        this.basket = basket;
-    }
-
-    public int getReceiptNumber() {
-        return receiptNumber;
-    }
-
-    public LocalDateTime getReceiptDateAndTime() {
-        return receiptDate;
+        this.purchaseOccasion = purchaseOccasion;
     }
 
     public String getStoreName() {
         return storeName;
     }
 
-    public String print() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Printing receipt number ").append(receiptNumber).append("\n");
-        sb.append("Store name: ").append(getStoreName()).append("\n");
-        sb.append("Basket: [\n");
-        for (Item item : basket.getItems()) {
-            sb.append("  ").append(item.getName()).append(" - ").append(item.getPrice()).append("\n");
-        }
-        sb.append("]");
-        return sb.toString();
+    public int getReceiptNumber() {
+        return receiptNumber;
     }
 
+    public LocalDateTime getReceiptDate() {
+        return receiptDate;
+    }
 
+    public PurchaseOccasion getPurchaseOccasion() {
+        return purchaseOccasion;
+    }
 
+    public String getFormattedDate() {
+        return DATE_FORMAT.format(receiptDate);
+    }
+
+    @Override
+    public String toString() {
+        return "Receipt{receiptNumber=" + receiptNumber + ", receiptDate=" +
+                receiptDate + ", storeName=" + storeName +
+                ", purchaseOccasion=" + purchaseOccasion + "}";
+    }
 }

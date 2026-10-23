@@ -45,20 +45,6 @@ class PurchaseOccasionTest {
         );
     }
 
-    private Item itemWithPrice(int priceInOre) {
-        Item item = mock(Item.class);
-        when(item.getPrice()).thenReturn(priceInOre);
-        return item;
-    }
-
-    private PurchaseOccasion createPurchase(Basket basket) {
-        Customer customer =
-                new Customer("Test Customer", "19900101-1234", false, false);
-        Account account = mock(Account.class);
-
-        return new PurchaseOccasion(basket, customer, account);
-    }
-
     @Test
     void a_senior_discount_should_change_total_cost_of_purchase() {
         Basket basket = new Basket();
@@ -76,5 +62,19 @@ class PurchaseOccasionTest {
 
     @Test
     void applying_group_discount_should_change_total_cost_of_purchase() {
+    }
+
+    private Item itemWithPrice(int priceInOre) {
+        Item item = mock(Item.class);
+        when(item.getPrice()).thenReturn(priceInOre);
+        return item;
+    }
+
+    private PurchaseOccasion createPurchase(Basket basket) {
+        Customer customer =
+                new Customer("Test Customer", "19900101-1234", false, false);
+        Account account = mock(Account.class);
+
+        return new PurchaseOccasion(basket, customer, account);
     }
 }

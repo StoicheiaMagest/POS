@@ -27,4 +27,6 @@ public abstract class Item {
     public int getArticleNumber() {
         return articleNumber;
     };
+
+    public abstract long getInclusivePrice();
 }
