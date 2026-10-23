@@ -71,6 +71,47 @@ public class DiscountTest {
         assertEquals(expected, discount.getAllDiscounts(orderList));
     }
 
+    private ArrayList<Item> milks(int count) {
+        ArrayList<Item> list = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            list.add(new UnitPricedArticle("Milk", 1000, Vat.FOOD, 111));
+        }
+        return list;
+    }
+
+    @Test
+    void Three_milks_give_one_free_milk(){
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("3 for 2 Milk", 1120L);
+
+        assertEquals(expected, discount.getAllDiscounts(milks(3)));
+    }
+
+    @Test
+    void Seven_milks_give_two_free_milks(){
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("3 for 2 Milk", 2240L);
+
+        assertEquals(expected, discount.getAllDiscounts(milks(7)));
+    }
+
+    @Test
+    void Two_milks_give_no_discount(){
+        assertEquals(new HashMap<String, Long>(), discount.getAllDiscounts(milks(2)));
+    }
+
+    @Test
+    void Milk_and_bread_discounts_are_combined(){
+        ArrayList<Item> orderList = milks(3);
+        orderList.add(new UnitPricedArticle("Bread", 2000, Vat.FOOD, 222));
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("3 for 2 Milk", 1120L);
+        expected.put("2 kr off on Bread", 200L);
+
+        assertEquals(expected, discount.getAllDiscounts(orderList));
+    }
+
     @Test
     void Repeated_calls_do_not_accumulate_discounts(){
         when(item.getArticleNumber()).thenReturn(222);

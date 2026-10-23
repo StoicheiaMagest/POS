@@ -3,7 +3,8 @@ package org.example;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 /*
     coupon, one per purchace
@@ -15,25 +16,26 @@ import java.util.Map;
 
 
 public class Discount {
-    //Map of discount name and value
-    Map<String, Long> discountsMap = new HashMap<>();
-    //Ex. [ 3 for 2 milk, 10], [3 for 2 juice, 5] 
-    // [ milk, 3 for 2]
-    ArrayList<Item> orderList = new ArrayList<>();
 
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
         Map<String, Long> discountsMap = new HashMap<>();
+        Map<Integer, List<Item>> threeForTwoItems = new LinkedHashMap<>();
         for (Item item : orderListen) {
             if("2krOff".equals(getDiscountType(item))){
                 // 2 kr = 200 cents, per item
                 discountsMap.merge("2 kr off on "+item.getName(), 200L, Long::sum);
             }
             if("3for2".equals(getDiscountType(item))){
-                check3for2Discount(orderListen);
-                //discountsMap.put("3 for 2 "+item.getName(), (long)item.getPrice());
+                threeForTwoItems.computeIfAbsent(item.getArticleNumber(), k -> new ArrayList<>()).add(item);
             }
-        }   
+        }
+        for (List<Item> group : threeForTwoItems.values()) {
+            long saving = check3for2Discount(group);
+            if (saving > 0) {
+                discountsMap.put("3 for 2 " + group.get(0).getName(), saving);
+            }
+        }
         return discountsMap;
     }
 
@@ -48,30 +50,18 @@ public class Discount {
         }
     }
 
-    //
-    public void check3for2Discount(ArrayList<Item> itemList){
-        ArrayList<Long> listof3for2 = new ArrayList<>();
-        for (Item item : itemList) {
-            if(getDiscountType(item).equals("2p")){
-                listof3for2.add((long)item.getArticleNumber());
-            }   
+    // Every full group of 3 identical articles gets its cheapest item free.
+    // Returns the saving in cents.
+    public long check3for2Discount(List<Item> sameArticle){
+        List<Long> prices = new ArrayList<>();
+        for (Item item : sameArticle) {
+            prices.add(item.getInclusivePrice());
         }
-
-        /*
-        Map<Long, Long> antal = new HashMap<>();
-        for (Item item : itemList) {
-            antal.merge((long)item.getArticleNumber(), 1l, Long::sum);
+        prices.sort(Comparator.naturalOrder());
+        long saving = 0;
+        for (int i = 0; i < prices.size() / 3; i++) {
+            saving += prices.get(i);
         }
-
-        for (Map.Entry<Long, Long> e : antal.entrySet()) {
-            Long attTaBort = (e.getValue() / 3) * 3;   // heltalsdivision
-            Iterator<Item> it = orderList.iterator();
-            while (it.hasNext() && attTaBort > 0) {
-                if (it.next().getArticleNumber() == e.getKey()) {
-                    it.remove();
-                    attTaBort--;
-                }
-            }
-        } */
+        return saving;
     }
 }
