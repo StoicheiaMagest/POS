@@ -1,7 +1,9 @@
 package org.example;
 
 import java.time.LocalDateTime;
+import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class Receipt {
 
@@ -56,6 +58,21 @@ public class Receipt {
 
     public String getFormattedDate() {
         return DATE_FORMAT.format(receiptDate);
+    }
+
+    public String print() {
+        long totalCents = purchaseOccasion.getBasket().getTotalPrice();
+        return storeName + "\n"
+                + "Receipt number: " + receiptNumber + "\n"
+                + "Date: " + getFormattedDate() + "\n"
+                + "Total: " + formatCents(totalCents) + " SEK";
+    }
+
+    private static String formatCents(long cents) {
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.forLanguageTag("sv-SE"));
+        formatter.setMinimumFractionDigits(2);
+        formatter.setMaximumFractionDigits(2);
+        return formatter.format(cents / 100.0);
     }
 
     @Override

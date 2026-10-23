@@ -25,6 +25,10 @@ public class PurchaseOccasion {
         this.totalPrice = basket.getTotalPrice();
     }
 
+    public Basket getBasket() {
+        return customerBasket;
+    }
+
     // Returns the discounted price in cents.
     public long applyDiscount(int discountPercent) {
         if (discountPercent < 0 || discountPercent > 100) {
