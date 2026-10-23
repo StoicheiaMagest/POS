@@ -82,4 +82,65 @@ class BasketCliTest {
         assertTrue(output.contains("222  Bread  22,40 SEK"));
         assertTrue(output.contains("333  Apples  29,90 SEK/kg"));
     }
+
+    @Test
+    void addPutsOneUnitItemInTheBasket() {
+        String output = run("add 111", "quit");
+
+        assertEquals(1, cli.getBasket().getItems().size());
+        assertEquals("Milk", cli.getBasket().getItems().get(0).getName());
+        assertTrue(output.contains("Added 1 x Milk"));
+    }
+
+    @Test
+    void addWithQuantityPutsSeveralItemsInTheBasket() {
+        String output = run("add 111 3", "quit");
+
+        assertEquals(3, cli.getBasket().getItems().size());
+        assertTrue(output.contains("Added 3 x Milk"));
+    }
+
+    @Test
+    void addWeighedItemUsesTheGivenGrams() {
+        String output = run("add 333 520", "quit");
+
+        WeighedItem apples = (WeighedItem) cli.getBasket().getItems().get(0);
+        assertEquals(520, apples.getWeight());
+        assertEquals(2990, apples.getPricePerKg());
+        assertTrue(output.contains("Added Apples 0,520 kg"));
+    }
+
+    @Test
+    void addWeighedItemWithoutGramsIsRejected() {
+        String output = run("add 333", "quit");
+
+        assertEquals(0, cli.getBasket().getItems().size());
+        assertTrue(output.contains("Apples is sold by weight, give the weight in grams"));
+    }
+
+    @Test
+    void addUnknownArticleIsRejected() {
+        String output = run("add 999", "quit");
+
+        assertEquals(0, cli.getBasket().getItems().size());
+        assertTrue(output.contains("No such article: 999"));
+    }
+
+    @Test
+    void addWithNonNumericArgumentsIsRejected() {
+        assertTrue(run("add abc", "quit").contains("Not a number: abc"));
+        assertTrue(run("add 111 two", "quit").contains("Not a number: two"));
+    }
+
+    @Test
+    void addWithoutArticleShowsUsage() {
+        assertTrue(run("add", "quit").contains("Usage: add <article> [qty|grams]"));
+    }
+
+    @Test
+    void addWithNonPositiveQuantityIsRejected() {
+        assertTrue(run("add 111 0", "quit").contains("must be greater than 0"));
+        assertTrue(run("add 111 -2", "quit").contains("must be greater than 0"));
+        assertEquals(0, cli.getBasket().getItems().size());
+    }
 }

@@ -54,9 +54,67 @@ public class BasketCli {
             case "catalog":
                 printCatalog();
                 return true;
+            case "add":
+                add(parts);
+                return true;
             default:
                 out.println("Unknown command: " + parts[0]);
                 return true;
+        }
+    }
+
+    private void add(String[] parts) {
+        if (parts.length < 2 || parts.length > 3) {
+            out.println("Usage: add <article> [qty|grams]");
+            return;
+        }
+        try {
+            int articleNumber = parseNumber(parts[1]);
+            Item item = catalog.findByArticleNumber(articleNumber);
+            if (item == null) {
+                out.println("No such article: " + articleNumber);
+                return;
+            }
+            Integer amount = parts.length == 3 ? parseNumber(parts[2]) : null;
+            if (item instanceof WeighedItem weighed) {
+                addWeighed(weighed, amount);
+            } else {
+                addUnits(item, amount == null ? 1 : amount);
+            }
+        } catch (IllegalArgumentException e) {
+            out.println(e.getMessage());
+        }
+    }
+
+    private void addUnits(Item item, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0");
+        }
+        for (int i = 0; i < quantity; i++) {
+            basket.addItem(item);
+        }
+        out.println("Added " + quantity + " x " + item.getName());
+    }
+
+    // The catalog holds weighed items as templates; each basket entry gets its own weight.
+    private void addWeighed(WeighedItem template, Integer grams) {
+        if (grams == null) {
+            throw new IllegalArgumentException(
+                    template.getName() + " is sold by weight, give the weight in grams");
+        }
+        if (grams <= 0) {
+            throw new IllegalArgumentException("Weight must be greater than 0");
+        }
+        basket.addItem(new WeighedItem(template.getName(), template.getPricePerKg(),
+                template.getVatRate(), grams, template.getArticleNumber()));
+        out.println("Added " + template.getName() + " " + Money.formatDecimal(grams, 3, ',') + " kg");
+    }
+
+    private int parseNumber(String text) {
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Not a number: " + text);
         }
     }
 
