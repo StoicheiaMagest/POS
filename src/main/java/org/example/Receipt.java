@@ -4,7 +4,11 @@ import java.time.LocalDateTime;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class Receipt {
 
@@ -75,13 +79,27 @@ public class Receipt {
         sb.append(storeName).append("\n")
                 .append("Receipt number: ").append(receiptNumber).append("\n")
                 .append("Date: ").append(getFormattedDate()).append("\n");
+        // Identical unit-priced items share a key and are printed as one line.
+        Map<String, List<Item>> lines = new LinkedHashMap<>();
+        int lineNumber = 0;
         for (Item item : basket.getItems()) {
+            String key = item instanceof WeighedItem
+                    ? "weighed-" + lineNumber++
+                    : item.getArticleNumber() + "|" + item.getName() + "|" + item.getInclusivePrice();
+            lines.computeIfAbsent(key, k -> new ArrayList<>()).add(item);
+        }
+        for (List<Item> group : lines.values()) {
+            Item item = group.get(0);
             sb.append(item.getName()).append(" ");
             if (item instanceof WeighedItem weighed) {
                 sb.append(formatDecimal(weighed.getWeight(), 3)).append(" kg x ")
                         .append(formatCents(weighed.getPricePerKg())).append(" = ");
+            } else if (group.size() > 1) {
+                sb.append(group.size()).append(" x ")
+                        .append(formatCents(item.getInclusivePrice())).append(" = ");
             }
-            sb.append(formatCents(item.getInclusivePrice())).append(" SEK\n");
+            sb.append(formatCents(group.stream().mapToLong(Item::getInclusivePrice).sum()))
+                    .append(" SEK\n");
         }
         sb.append("Total: ").append(formatCents(basket.getTotalPrice())).append(" SEK");
         return sb.toString();
