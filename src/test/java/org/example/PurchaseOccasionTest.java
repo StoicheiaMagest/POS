@@ -10,6 +10,7 @@ class PurchaseOccasionTest {
     @Test
     void receiptShowsZeroTotalForEmptyBasket() {
         Basket basket = new Basket();
+
         PurchaseOccasion purchase = createPurchase(basket);
 
         assertEquals(
@@ -58,7 +59,6 @@ class PurchaseOccasionTest {
 
         assertEquals(9000, purchase.getTotalPriceForPurchace(), 0.001, "Total price should adhere to discount");
     }
-
 
     @Test
     void applying_group_discount_should_change_total_cost_of_purchase() {
