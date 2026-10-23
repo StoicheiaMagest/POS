@@ -215,4 +215,33 @@ class BasketCliTest {
         assertTrue(run("add 333 500", "update 1 0", "quit").contains("Weight must be greater than 0"));
         assertTrue(run("add 333 500", "update 1 heavy", "quit").contains("Not a number: heavy"));
     }
+
+    @Test
+    void receiptPrintsTheBasketWithDiscountsAndVat() {
+        String output = run("add 111 3", "add 333 520", "receipt", "quit");
+
+        assertTrue(output.contains("Test Store"));
+        assertTrue(output.contains("Receipt number: 1"));
+        assertTrue(output.contains("Milk 3 x 11,20 = 33,60 SEK"));
+        assertTrue(output.contains("Apples 0,520 kg x 29,90 = 17,40 SEK"));
+        assertTrue(output.contains("3 for 2 Milk -11,20 SEK"));
+        assertTrue(output.contains("VAT 12,00%: 4,26 SEK"));
+        assertTrue(output.contains("Total: 39,80 SEK"));
+    }
+
+    @Test
+    void receiptNumbersCountUp() {
+        String output = run("add 111", "receipt", "receipt", "quit");
+
+        assertTrue(output.contains("Receipt number: 1"));
+        assertTrue(output.contains("Receipt number: 2"));
+    }
+
+    @Test
+    void receiptOfEmptyBasketIsRefused() {
+        String output = run("receipt", "quit");
+
+        assertTrue(output.contains("Basket is empty, nothing to print"));
+        assertTrue(!output.contains("Receipt number"));
+    }
 }

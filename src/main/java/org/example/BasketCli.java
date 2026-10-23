@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 // Line-based command interface for trying out the basket and receipt code.
@@ -15,6 +16,7 @@ public class BasketCli {
     private final BufferedReader in;
     private final PrintStream out;
     private final Basket basket = new Basket();
+    private int nextReceiptNumber = 1;
 
     public BasketCli(ArticleRegistry catalog, Reader in, PrintStream out) {
         this.catalog = catalog;
@@ -66,6 +68,9 @@ public class BasketCli {
                 return true;
             case "update":
                 update(parts);
+                return true;
+            case "receipt":
+                receipt();
                 return true;
             default:
                 out.println("Unknown command: " + parts[0]);
@@ -140,6 +145,16 @@ public class BasketCli {
         } catch (IllegalArgumentException e) {
             out.println(e.getMessage());
         }
+    }
+
+    private void receipt() {
+        if (basket.getItems().isEmpty()) {
+            out.println("Basket is empty, nothing to print");
+            return;
+        }
+        PurchaseOccasion purchase = new PurchaseOccasion(basket,
+                new Customer("Guest", "", false, false), new Account());
+        out.println(new Receipt(nextReceiptNumber++, LocalDateTime.now(), "Test Store", purchase).print());
     }
 
     private void update(String[] parts) {
