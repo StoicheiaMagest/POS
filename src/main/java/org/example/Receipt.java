@@ -1,7 +1,8 @@
 package org.example;
 
 import java.time.LocalDateTime;
-import java.text.NumberFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -11,9 +12,16 @@ public class Receipt {
     private final LocalDateTime receiptDate;
     private final String storeName;
     private final PurchaseOccasion purchaseOccasion;
+    private final char decimalSeparator;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public Receipt(int receiptNumber, LocalDateTime receiptDate, String storeName, PurchaseOccasion purchaseOccasion) {
+    public Receipt(int receiptNumber, LocalDateTime receiptDate, String storeName,
+                   PurchaseOccasion purchaseOccasion) {
+        this(receiptNumber, receiptDate, storeName, purchaseOccasion, ',');
+    }
+
+    public Receipt(int receiptNumber, LocalDateTime receiptDate, String storeName,
+                   PurchaseOccasion purchaseOccasion, char decimalSeparator) {
         if (receiptNumber < 1) {
             throw new IllegalArgumentException("Receipt number must be greater than 0.");
         }
@@ -38,6 +46,7 @@ public class Receipt {
         this.receiptDate = receiptDate;
         this.storeName = storeName;
         this.purchaseOccasion = purchaseOccasion;
+        this.decimalSeparator = decimalSeparator;
     }
 
     public String getStoreName() {
@@ -78,13 +87,15 @@ public class Receipt {
         return sb.toString();
     }
 
-    private static String formatCents(long cents) {
+    private String formatCents(long cents) {
         return formatDecimal(cents, 2);
     }
 
     // Formats an integer holding `decimals` implied decimal places.
-    private static String formatDecimal(long value, int decimals) {
-        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.forLanguageTag("sv-SE"));
+    private String formatDecimal(long value, int decimals) {
+        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.forLanguageTag("sv-SE"));
+        symbols.setDecimalSeparator(decimalSeparator);
+        DecimalFormat formatter = new DecimalFormat("#,##0.00", symbols);
         formatter.setMinimumFractionDigits(decimals);
         formatter.setMaximumFractionDigits(decimals);
         return formatter.format(value / Math.pow(10, decimals));

@@ -166,6 +166,22 @@ public class ReceiptTest {
     }
 
     @Test
+    void testPrintWithPeriodAsDecimalSeparator() {
+        Basket basket = new Basket();
+        basket.addItem(new UnitPricedArticle("Milk", 1000, Vat.FOOD, 111));
+        basket.addItem(new WeighedItem("Apples", 2990, Vat.FOOD, 520, 333));
+        when(purchaseOccasion.getBasket()).thenReturn(basket);
+        Receipt dotReceipt = new Receipt(receiptNumber, receiptDate, storeName, purchaseOccasion, '.');
+        String expected = "My Store\n" +
+                "Receipt number: 1\n" +
+                "Date: 2026-10-23 13:03\n" +
+                "Milk 11.20 SEK\n" +
+                "Apples 0.520 kg x 29.90 = 17.40 SEK\n" +
+                "Total: 28.60 SEK";
+        assertEquals(expected, dotReceipt.print());
+    }
+
+    @Test
     void testToString() {
         when(purchaseOccasion.toString()).thenReturn("Occasion X");
         String expectedToString = "Receipt{receiptNumber=1, receiptDate=2026-10-23T13:03," +
