@@ -53,12 +53,32 @@ public class DiscountTest {
         orderList.add(item);
 
         Map<String, Long> expected = new HashMap<>();
-        expected.put("2 kr off on "+item.getName(), 2L);
-        //expected.put("2 kr off on "+item.getName(), 2L);
+        expected.put("2 kr off on "+item.getName(), 400L);
 
         assertEquals(expected, discount.getAllDiscounts(orderList));
+    }
 
+    @Test
+    void Bread_discount_is_200_cents_for_one_bread(){
+        when(item.getArticleNumber()).thenReturn(222);
+        when(item.getName()).thenReturn("Bread");
+        ArrayList<Item> orderList = new ArrayList<>();
+        orderList.add(item);
 
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("2 kr off on Bread", 200L);
 
+        assertEquals(expected, discount.getAllDiscounts(orderList));
+    }
+
+    @Test
+    void Repeated_calls_do_not_accumulate_discounts(){
+        when(item.getArticleNumber()).thenReturn(222);
+        when(item.getName()).thenReturn("Bread");
+        ArrayList<Item> orderList = new ArrayList<>();
+        orderList.add(item);
+
+        discount.getAllDiscounts(orderList);
+        assertEquals(200L, discount.getAllDiscounts(orderList).get("2 kr off on Bread"));
     }
 }
