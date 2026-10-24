@@ -25,24 +25,16 @@ public class PurchaseOccasion {
         this.totalPrice = basket.getTotalPrice();
     }
 
-    // Returns the discounted price in cents.
     public void applyDiscount(int discountPercent) {
         if (discountPercent < 0 || discountPercent > 100) {
             throw new IllegalArgumentException("Discount must be between 0 and 100");
         }
 
-        double priceAfterDiscount = totalPrice * ((100 - discountPercent) / 100);
-
-        totalPrice = (long) ((priceAfterDiscount + 50) / 100);    //skickar upp nya totalpriset för köpet.
-        
-        // Add 50 before division to round to the nearest cent.
-        //return ((priceAfterDiscount + 50) / 100);
-        
+        // Add 50 before division to round to the nearest cent. Send new total back up.
+        totalPrice = (totalPrice * (100L - discountPercent) + 50) / 100;
     }
 
     public String printReceipt() {
-        //customerbasket.getttotal ger ju inte totalen om det finns en discount
-
         NumberFormat formatter = NumberFormat.getNumberInstance(
                 Locale.forLanguageTag("sv-SE")
         );

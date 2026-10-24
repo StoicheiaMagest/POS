@@ -64,9 +64,9 @@ class PurchaseOccasionTest {
     void applying_group_discount_should_change_total_cost_of_purchase() {
     }
 
-    private Item itemWithPrice(int priceInOre) {
+    private Item itemWithPrice(long priceInOre) {
         Item item = mock(Item.class);
-        when(item.getPrice()).thenReturn(priceInOre);
+        when(item.getInclusivePrice()).thenReturn(priceInOre);
         return item;
     }
 
