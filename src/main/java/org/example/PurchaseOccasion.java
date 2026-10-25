@@ -1,5 +1,6 @@
 package org.example;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class PurchaseOccasion {
@@ -7,8 +8,9 @@ public class PurchaseOccasion {
     private Account storeBankAccount;
     private Basket customerBasket;
     private Customer customer;
-    private Discount[] discounts;
+    private HashMap<String, Long> discounts = new HashMap<>();
     private long totalPrice; // cents
+    Discount discount = new Discount();
 
 
 
@@ -16,32 +18,26 @@ public class PurchaseOccasion {
             Basket basket,
             Customer customer,
             Account storeBankAccount,
-            Discount... discounts
+            HashMap<String, Long> discounts
     ) {
         this.customerBasket = basket;
         this.customer = customer;
         this.storeBankAccount = storeBankAccount;
-        this.discounts = discounts;
+        this.discounts = discount.getAllDiscounts(customerBasket.getItems());
         this.totalPrice = basket.getTotalPrice();
     }
 
-    // Returns the discounted price in cents.
-    public long applyDiscount(int discountPercent) {
-        if (discountPercent < 0 || discountPercent > 100) {
-            throw new IllegalArgumentException("Discount must be between 0 and 100");
+    public void applyDiscount(discounts) {
+        for(long discount : discounts.getValue()) {
+            if (discount < 0 || discount > 100) {
+                throw new IllegalArgumentException("Discount must be between 0 and 100");
+            }
+            // Add 50 before division to round to the nearest cent. Send new total back up.
+            totalPrice = (totalPrice * (100L - discount) + 50) / 100;
         }
-
-        long priceAfterDiscount =
-                (long) totalPrice * (100 - discountPercent);
-
-        // Add 50 before division to round to the nearest cent.
-        return (int) ((priceAfterDiscount + 50) / 100);
     }
 
-
     public String printReceipt() {
-        long totalCents = customerBasket.getTotalPrice();
-
         NumberFormat formatter = NumberFormat.getNumberInstance(
                 Locale.forLanguageTag("sv-SE")
         );
@@ -50,9 +46,12 @@ public class PurchaseOccasion {
 
         return "Kvitto\n"
                 + "Antal varor: " + customerBasket.getItems().size() + "\n"
-                + "Totalt: " + formatter.format(totalCents / 100.0) + " SEK";
+                + "Totalt: " + formatter.format(totalPrice / 100.0) + " SEK";
     }
 
+    public long getTotalPriceForPurchace() {
+        return totalPrice;
+    }
 
 }
 
