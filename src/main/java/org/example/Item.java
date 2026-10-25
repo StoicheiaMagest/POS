@@ -29,4 +29,9 @@ public abstract class Item {
     };
 
     public abstract long getInclusivePrice();
+
+    // Placeholder: no item carries a discount type yet.
+    public DiscountType getDiscountType() {
+        return DiscountType.NONE;
+    }
 }

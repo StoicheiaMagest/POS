@@ -19,7 +19,7 @@ public class PurchaseOccasionDiscountIntegrationTest {
     private Basket basketWithMilk() {
         Basket basket = new Basket();
         for (int i = 0; i < 3; i++) {
-            basket.addItem(new UnitPricedArticle("Milk", 400, Vat.STANDARD, 111)); // 500 incl
+            basket.addItem(new UnitPricedArticle("Milk", 400, Vat.STANDARD, 111, DiscountType.THREE_FOR_TWO)); // 500 incl
         }
         return addSoaps(basket);
     }

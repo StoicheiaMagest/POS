@@ -1,6 +1,7 @@
 package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 public class WeighedItemTest {
@@ -20,6 +21,36 @@ public class WeighedItemTest {
         assertEquals(Vat.FOOD, weighedItem.getVatRate(), "FOOD VAT rate was not set correctly");
         assertEquals(42, weighedItem.getArticleNumber(), "Article id was not set correctly");
         assertEquals(500, weighedItem.getWeight(), "Weight was not set correctly");
+    }
+
+    @Test
+    void discount_type_defaults_to_none() {
+        WeighedItem weighedItem = new WeighedItem("Pink Lady Apple", 100, Vat.FOOD, 500, 42);
+
+        assertEquals(DiscountType.NONE, weighedItem.getDiscountType(), "An article has no discount unless one is given");
+    }
+
+    @Test
+    void constructor_should_set_two_kr_off() {
+        WeighedItem weighedItem = new WeighedItem("Pink Lady Apple", 100, Vat.FOOD, 500, 42, DiscountType.TWO_KR_OFF);
+
+        assertEquals(DiscountType.TWO_KR_OFF, weighedItem.getDiscountType(), "2 kr off was not set correctly");
+    }
+
+    @Test
+    void three_for_two_is_not_allowed_on_a_weighed_item() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new WeighedItem("Pink Lady Apple", 100, Vat.FOOD, 500, 42, DiscountType.THREE_FOR_TWO));
+    }
+
+    @Test
+    void withWeight_keeps_the_discount_type() {
+        WeighedItem template = new WeighedItem("Pink Lady Apple", 100, Vat.FOOD, 0, 42, DiscountType.TWO_KR_OFF);
+
+        WeighedItem weighed = template.withWeight(750);
+
+        assertEquals(DiscountType.TWO_KR_OFF, weighed.getDiscountType(), "The weighed copy lost the discount type");
+        assertEquals(750, weighed.getWeight(), "Weight was not set correctly");
     }
 
     @Test

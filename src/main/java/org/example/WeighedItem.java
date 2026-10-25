@@ -14,6 +14,12 @@ public class WeighedItem extends Item {
         this.pricePerKg = pricePerKg;
     }
 
+    // Placeholder: the discount type is accepted but not stored or checked yet.
+    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId,
+                       DiscountType discountType) {
+        this(name, pricePerKg, vat, weightInGrams, articleId);
+    }
+
     @Override
     public Vat getVatRate() {
         return vat;

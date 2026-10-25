@@ -8,21 +8,23 @@ import java.util.Arrays;
 import static org.example.RegisterTestSupport.run;
 import static org.junit.jupiter.api.Assertions.*;
 
-// The tests that depend on the real discount rules, which are tied to article numbers 111 and 222.
-// The register is given its own registry with items under those numbers, and the expected output
-// comes from a real Receipt for the same order, so no names, prices or discount texts are hard-coded.
+// The tests that depend on the real discount rules. The register is given its own registry whose
+// items carry a discount type, and the expected output comes from a real Receipt for the same order,
+// so no names, prices or discount texts are hard-coded. The article numbers do not matter.
 // Everything else about the register is tested with literal text in RegisterSystemColourArticlesTest.
 public class RegisterSystemTest2 {
 
-    private static final int ARTICLE_A = 111;   // item discount for several of the same
-    private static final int ARTICLE_B = 222;   // item discount per item
+    private static final int ARTICLE_A = 10;   // 3 for 2
+    private static final int ARTICLE_B = 20;   // 2 kr off
 
     private final ArticleRegistry registry = discountedArticles();
 
     private ArticleRegistry discountedArticles() {
         ArticleRegistry registry = new ArticleRegistry();
-        registry.addItem(ARTICLE_A, new UnitPricedArticle("Red", 400, Vat.FOOD, ARTICLE_A));
-        registry.addItem(ARTICLE_B, new UnitPricedArticle("Blue", 150, Vat.FOOD, ARTICLE_B));
+        registry.addItem(ARTICLE_A,
+                new UnitPricedArticle("Red", 400, Vat.FOOD, ARTICLE_A, DiscountType.THREE_FOR_TWO));
+        registry.addItem(ARTICLE_B,
+                new UnitPricedArticle("Blue", 150, Vat.FOOD, ARTICLE_B, DiscountType.TWO_KR_OFF));
         return registry;
     }
 
@@ -79,6 +81,11 @@ public class RegisterSystemTest2 {
 
     @Test
     void listMatchesWhatPayPrintsOnTheReceipt() {
+        Item a = article(ARTICLE_A);
+        // a non-member only gets item discounts: make sure the scenario triggers them, otherwise
+        // LIST and PAY could agree on a receipt with nothing but the senior discount
+        assertFalse(occasionFor(null, a, a, a, article(ARTICLE_B)).getDiscounts().isEmpty());
+
         String[] order = {"NEW SENIOR", "SCAN " + ARTICLE_A, "SCAN " + ARTICLE_A, "SCAN " + ARTICLE_A,
                 "SCAN " + ARTICLE_B};
         String listed = run(registry, withCommand(order, "LIST"));
