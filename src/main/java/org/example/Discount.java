@@ -1,76 +1,42 @@
 package org.example;
-
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-/*
-    coupon, one per purchace
-    consumable
-    
-
-
-*/
-
-
 public class Discount {
-    //Map of discount name and value
-    HashMap<String, Long> discountsMap = new HashMap<>();
-    //Ex. [ 3 for 2 milk, 10], [3 for 2 juice, 5] 
-    // [ milk, 3 for 2]
-    ArrayList<Item> orderList = new ArrayList<>();
-
-    //takes list of all items and checks each item if there is any that have a discount
-    public HashMap<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
-        for (Item item : orderListen) {
-            if(getDiscountType(item).equals("2krOff")){
-                //if(discountsMap)
-                discountsMap.put("2 kr off on "+item.getName(), 2l);
-            } 
-            if(getDiscountType(item).equals("3for2")){
-                check3for2Discount(orderListen);
-                //discountsMap.put("3 for 2 "+item.getName(), (long)item.getPrice());
+    private static final int SENIOR_PERCENT = 10;
+    // description -> öre off (incl. VAT). Built fresh on every call.
+    public Map<String, Long> getAllDiscounts(Basket basket, Customer customer) {
+        Map<String, Long> discounts = new LinkedHashMap<>();
+        Map<Integer, List<Item>> byArticle = new LinkedHashMap<>();
+        for (Item item : basket.getItems()) {
+            byArticle.computeIfAbsent(item.getArticleNumber(), k -> new ArrayList<>()).add(item);
+        }
+        for (List<Item> group : byArticle.values()) {
+            Item first = group.get(0);
+            String type = getDiscountType(first);
+            if ("3for2".equals(type) && group.size() >= 3) {
+                discounts.put("3 for 2 " + first.getName(),
+                        (group.size() / 3) * first.getInclusivePrice());
+            } else if ("2krOff".equals(type)) {
+                discounts.put("2 kr off on " + first.getName(), 200L * group.size());
             }
-        }   
-        return discountsMap;
+        }
+        if (customer != null && customer.getSeniorStatus()) {
+            long itemOff = discounts.values().stream().mapToLong(Long::longValue).sum();
+            long after = basket.getTotalPrice() - itemOff;
+            discounts.put("Senior " + SENIOR_PERCENT + "%", (after * SENIOR_PERCENT + 50) / 100);
+        }
+        return discounts;
     }
-
-    public String getDiscountType(Item item){
+    public String getDiscountType(Item item) {
         switch (item.getArticleNumber()) {
-            case 111: //milk
-                return "3for2";
-            case 222: //bread
-                return "2krOff";
-            default:
-                return null;
+            case 111: return "3for2";   // milk
+            case 222: return "2krOff";  // bread
+            default:  return null;
         }
     }
-
-    //
-    public void check3for2Discount(ArrayList<Item> itemList){
-        ArrayList<Long> listof3for2 = new ArrayList<>();
-        for (Item item : itemList) {
-            if(getDiscountType(item).equals("2p")){
-                listof3for2.add((long)item.getArticleNumber());
-            }   
-        }
-
-        /*
-        Map<Long, Long> antal = new HashMap<>();
-        for (Item item : itemList) {
-            antal.merge((long)item.getArticleNumber(), 1l, Long::sum);
-        }
-
-        for (Map.Entry<Long, Long> e : antal.entrySet()) {
-            Long attTaBort = (e.getValue() / 3) * 3;   // heltalsdivision
-            Iterator<Item> it = orderList.iterator();
-            while (it.hasNext() && attTaBort > 0) {
-                if (it.next().getArticleNumber() == e.getKey()) {
-                    it.remove();
-                    attTaBort--;
-                }
-            }
-        } */
+    public int getSeniorDiscountProcent() {
+        return SENIOR_PERCENT;
     }
 }
