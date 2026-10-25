@@ -10,6 +10,7 @@ public class PurchaseOccasion {
     private Customer customer;
     private Account storeBankAccount;
     private Discount discount = new Discount();
+    private Coupon coupon; // the customer's first available coupon, redeemed on payment
     private boolean paid;
     //private long totalPrice; // cents
 
@@ -20,6 +21,8 @@ public class PurchaseOccasion {
         this.customer = customer;
         this.storeBankAccount = storeBankAccount;
         this.discount = discount;
+        this.coupon = customer != null && customer.getMembershipStatus()
+                ? customer.getFirstAvailableCoupon() : null;
     }
 
     public Basket getCustomerBasket() {
@@ -35,24 +38,31 @@ public class PurchaseOccasion {
     }
 
     public Map<String, Long> getDiscounts(){
-        return discount.getAllDiscounts(customerBasket, customer);
+        return discount.getAllDiscounts(customerBasket, customer, coupon);
     }
 
     public long getTotalPrice() {
-        long off = getDiscounts().values().stream().mapToLong(Long::longValue).sum();
-        return Math.max(0, getSubtotal() - off);
+        return Math.max(0, getSubtotal() - Discount.totalOff(getDiscounts())); // never negative
     }
 
     public boolean pay(Card card) {
-        if (paid || !card.pay(getTotalPriceForPurchace(), storeBankAccount)) {
+        if (paid || !card.pay(getTotalPrice(), storeBankAccount)) {
             return false;
         }
         paid = true;
+        redeemCouponIfUsed();
         return true;
     }
 
+    // A coupon is consumable: it is only used up when the payment succeeded.
+    private void redeemCouponIfUsed() {
+        if (coupon != null && getDiscounts().containsKey(Discount.couponKey(coupon))) {
+            coupon.redeem();
+        }
+    }
+
     public long getTotalPriceForPurchace() {
-        return getTotalPriceForPurchace();
+        return getTotalPrice();
     }
 
 }

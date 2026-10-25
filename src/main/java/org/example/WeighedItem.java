@@ -23,6 +23,14 @@ public class WeighedItem extends Item {
         return weightInGrams;
     }
 
+    // Copy of this item with a measured weight, so the registry can hold one template.
+    public WeighedItem withWeight(int grams) {
+        if (grams <= 0) {
+            throw new IllegalArgumentException("Weight must be positive.");
+        }
+        return new WeighedItem(name, pricePerKg, vat, grams, articleNumber);
+    }
+
     /**
      * Calculates the VAT amount for this weighed item in cents using integer math.
      */
