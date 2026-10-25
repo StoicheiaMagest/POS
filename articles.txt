@@ -5,18 +5,18 @@
 #   discount  optional: 3FOR2 or 2KR_OFF (3FOR2 is not allowed on WEIGHED)
 
 # Drinks
-111;UNIT;Coke;900;FOOD;3FOR2
+111;UNIT;Coke;1250;FOOD;3FOR2
 112;UNIT;Orange juice;1900;FOOD;3FOR2
 113;UNIT;Milk;1250;FOOD
 114;UNIT;Coffee;4900;FOOD
 
 # Bread and pastries
-222;UNIT;Bread;1000;FOOD;2KR_OFF
+222;UNIT;Bread;2500;FOOD;2KR_OFF
 223;UNIT;Crispbread;2200;FOOD;2KR_OFF
 224;UNIT;Cinnamon bun;1500;FOOD
 
 # Fruit, vegetables and deli, sold by weight (price per kg)
-333;WEIGHED;Apple;1500;FOOD
+333;WEIGHED;Apple;2500;FOOD
 334;WEIGHED;Banana;1800;FOOD
 335;WEIGHED;Tomato;3000;FOOD
 336;WEIGHED;Cheese;9500;FOOD;2KR_OFF
