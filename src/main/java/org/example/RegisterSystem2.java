@@ -163,8 +163,12 @@ public class RegisterSystem2 {
     }
 
     private void commandScan(String[] parts) {
-        if (basket == null || parts.length < 2) {
+        if (basket == null) {
             System.out.println("Error, start an order with NEW first!");
+            return;
+        }
+        if (parts.length < 2) {
+            System.out.println("Error, usage: SCAN <article number>");
             return;
         }
         try {
@@ -176,8 +180,12 @@ public class RegisterSystem2 {
     }
 
     private void commandWeigh(String[] parts) {
-        if (basket == null || parts.length < 3) {
+        if (basket == null) {
             System.out.println("Error, start an order with NEW first!");
+            return;
+        }
+        if (parts.length < 3) {
+            System.out.println("Error, usage: WEIGH <article number> <grams>");
             return;
         }
         try {
@@ -194,8 +202,12 @@ public class RegisterSystem2 {
     }
 
     private void commandRemove(String[] parts) {
-        if (basket == null || parts.length < 2) {
+        if (basket == null) {
             System.out.println("Error, start an order with NEW first!");
+            return;
+        }
+        if (parts.length < 2) {
+            System.out.println("Error, usage: REMOVE <article number>");
             return;
         }
         try {
