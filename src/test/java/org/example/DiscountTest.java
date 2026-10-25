@@ -1,9 +1,12 @@
 package org.example;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DiscountTest {
@@ -39,7 +42,7 @@ public class DiscountTest {
         Map<String, Long> expected = new HashMap<>();
         expected.put("2 kr off on Bread", 200L);
 
-        assertEquals(expected, discount.getAllDiscounts(basketOf(1, bread), null));
+        assertEquals(expected, discount.getAllDiscounts(basketOf(1, bread), customer(true, false)));
     }
 
     @Test
@@ -81,7 +84,7 @@ public class DiscountTest {
         Map<String, Long> expected = new HashMap<>();
         expected.put("2 kr off on Bread", 600L);
 
-        assertEquals(expected, discount.getAllDiscounts(basketOf(3, bread), null));
+        assertEquals(expected, discount.getAllDiscounts(basketOf(3, bread), customer(true, false)));
     }
 
     @Test
@@ -94,7 +97,7 @@ public class DiscountTest {
         Map<String, Long> expected = new HashMap<>();
         expected.put("2 kr off on Apple", 400L); // two weighings, not per kg
 
-        assertEquals(expected, discount.getAllDiscounts(basket, null));
+        assertEquals(expected, discount.getAllDiscounts(basket, customer(true, false)));
     }
 
     @Test
@@ -102,6 +105,142 @@ public class DiscountTest {
         Item soap = unit("Soap", 400, 333, DiscountType.NONE);
 
         assertEquals(new HashMap<String, Long>(), discount.getAllDiscounts(basketOf(5, soap), null));
+    }
+
+    //2 kr off is for members only, 3 for 2 is for everyone
+    private Customer customer(boolean member, boolean senior) {
+        return new Customer("Test", "19900101-1234", member, senior);
+    }
+
+    @Test
+    void anonymous_customer_gets_no_two_kr_off(){
+        Item bread = unit("Bread", 800, 222, DiscountType.TWO_KR_OFF);
+
+        assertEquals(new HashMap<String, Long>(), discount.getAllDiscounts(basketOf(2, bread), null));
+    }
+
+    @Test
+    void member_gets_two_kr_off(){
+        Item bread = unit("Bread", 800, 222, DiscountType.TWO_KR_OFF);
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("2 kr off on Bread", 400L);
+
+        assertEquals(expected, discount.getAllDiscounts(basketOf(2, bread), customer(true, false)));
+    }
+
+    @Test
+    void non_member_senior_gets_no_two_kr_off_and_no_senior_discount(){
+        Item bread = unit("Bread", 800, 222, DiscountType.TWO_KR_OFF);
+
+        assertEquals(new HashMap<String, Long>(), discount.getAllDiscounts(basketOf(2, bread), customer(false, true)));
+    }
+
+    @Test
+    void non_member_senior_still_gets_three_for_two(){
+        Item milk = unit("Milk", 400, 111, DiscountType.THREE_FOR_TWO);
+        Item bread = unit("Bread", 800, 222, DiscountType.TWO_KR_OFF);
+        Basket basket = basketOf(3, milk);
+        basket.addItem(bread);
+        basket.addItem(bread);
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("3 for 2 Milk", 500L);
+
+        assertEquals(expected, discount.getAllDiscounts(basket, customer(false, true)));
+    }
+
+    @Test
+    void member_gets_both_three_for_two_and_two_kr_off(){
+        Item milk = unit("Milk", 400, 111, DiscountType.THREE_FOR_TWO);
+        Item bread = unit("Bread", 800, 222, DiscountType.TWO_KR_OFF);
+        Basket basket = basketOf(3, milk);
+        basket.addItem(bread);
+        basket.addItem(bread);
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("3 for 2 Milk", 500L);
+        expected.put("2 kr off on Bread", 400L);
+
+        assertEquals(expected, discount.getAllDiscounts(basket, customer(true, false)));
+    }
+
+    //2 kr off is never more than the item costs
+    @Test
+    void two_kr_off_is_capped_at_the_price_of_an_item_that_costs_less(){
+        Item pencil = unit("Pencil", 120, 223, DiscountType.TWO_KR_OFF);    // 150 incl
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("2 kr off on Pencil", 300L); // 2 x 150, not 2 x 200
+
+        assertEquals(expected, discount.getAllDiscounts(basketOf(2, pencil), customer(true, false)));
+    }
+
+    @Test
+    void two_kr_off_on_an_item_that_costs_exactly_two_kr_takes_all_of_it(){
+        Item gum = unit("Gum", 160, 224, DiscountType.TWO_KR_OFF);          // 200 incl
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("2 kr off on Gum", 400L);
+
+        assertEquals(expected, discount.getAllDiscounts(basketOf(2, gum), customer(true, false)));
+    }
+
+    @Test
+    void two_kr_off_is_capped_for_each_article_on_its_own(){
+        Item pencil = unit("Pencil", 120, 223, DiscountType.TWO_KR_OFF);    // 150 incl
+        Item bread = unit("Bread", 800, 222, DiscountType.TWO_KR_OFF);      // 1000 incl
+        Basket basket = basketOf(1, pencil);
+        basket.addItem(bread);
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("2 kr off on Pencil", 150L);
+        expected.put("2 kr off on Bread", 200L);
+
+        assertEquals(expected, discount.getAllDiscounts(basket, customer(true, false)));
+    }
+
+    @Test
+    void two_kr_off_on_a_tiny_weighing_is_capped_at_its_price(){
+        WeighedItem apple = new WeighedItem("Apple", 3000, Vat.FOOD, 0, 333, DiscountType.TWO_KR_OFF);
+        WeighedItem oneGram = apple.withWeight(1);
+        Basket basket = basketOf(1, oneGram);
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("2 kr off on Apple", oneGram.getInclusivePrice());
+
+        assertEquals(expected, discount.getAllDiscounts(basket, customer(true, false)));
+        assertTrue(oneGram.getInclusivePrice() < 200); // the cap is what limits it
+    }
+
+    @Test
+    void a_senior_member_gets_every_discount_in_priority_order(){
+        Item milk = unit("Milk", 400, 111, DiscountType.THREE_FOR_TWO);          // 500 incl
+        Item bread = unit("Bread", 1000, 222, DiscountType.TWO_KR_OFF);          // 1250 incl
+        Basket basket = basketOf(3, milk);
+        basket.addItem(bread);
+        basket.addItem(bread);                                                    // 4000 in total
+        Customer seniorMember = customer(true, true);
+        seniorMember.addCoupon(Coupon.fixedCoupon("20 kr", 200, 2000));
+
+        Map<String, Long> discounts = discount.getAllDiscounts(basket, seniorMember);
+
+        // 3 for 2: 500, 2 kr off: 400, coupon on the remaining 3100: 200, senior 10 % of the remaining 2900: 290
+        assertEquals(List.of("3 for 2 Milk", "2 kr off on Bread", "Coupon 20 kr", "Senior 10%"),
+                new ArrayList<>(discounts.keySet()));
+        assertEquals(List.of(500L, 400L, 200L, 290L), new ArrayList<>(discounts.values()));
+    }
+
+    @Test
+    void senior_discount_is_rounded_half_up(){
+        Item item = mock(Item.class);
+        when(item.getArticleNumber()).thenReturn(333);
+        when(item.getDiscountType()).thenReturn(DiscountType.NONE);
+        when(item.getInclusivePrice()).thenReturn(1005L);
+
+        Map<String, Long> discounts = discount.getAllDiscounts(basketOf(1, item), customer(true, true));
+
+        assertEquals(101L, discounts.get("Senior 10%")); // 10 % of 1005 is 100,5
     }
 
     //getAllDiscounts tests
@@ -120,7 +259,8 @@ public class DiscountTest {
         Map<String, Long> expected = new HashMap<>();
         expected.put("2 kr off on " + bread.getName(), 400L);
 
-        assertEquals(expected, discount.getAllDiscounts(basket, null));
+        Customer member = new Customer("Anna", "19900101-1234", true, false);
+        assertEquals(expected, discount.getAllDiscounts(basket, member));
     }
 
     @Test

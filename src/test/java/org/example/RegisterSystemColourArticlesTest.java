@@ -56,6 +56,55 @@ public class RegisterSystemColourArticlesTest {
     }
 
     @Test
+    void newMemberStartsAnOrderForAMember() {
+        String output = run("NEW MEMBER");
+
+        assertTrue(output.contains("New order started for Member"), output);
+    }
+
+    @Test
+    void newSeniorMemberStartsAnOrderForASenior() {
+        String output = run("NEW SENIOR MEMBER");
+
+        assertTrue(output.contains("New order started for Senior"), output);
+    }
+
+    @Test
+    void newIgnoresCase() {
+        String output = run("new senior member", "SCAN 1", "SCAN 2", "LIST");
+
+        assertTrue(output.contains("Senior 10%  -4,25 SEK"), output);
+    }
+
+    // only NEW, NEW MEMBER and NEW SENIOR MEMBER exist: a senior is always a member
+    @ParameterizedTest
+    @ValueSource(strings = {"NEW SENIOR", "NEW MEMBER SENIOR", "NEW SENIOR GOLD", "NEW GOLD", "NEW MEMBER GOLD",
+            "NEW SENIOR MEMBER GOLD"})
+    void anyOtherNewCommandGivesErrorAndStartsNoOrder(String command) {
+        String output = run(command, "SCAN 1");
+
+        assertTrue(output.contains("Error, use NEW, NEW MEMBER or NEW SENIOR MEMBER!"), output);
+        assertFalse(output.contains("New order started"), output);
+        assertTrue(output.contains("Error, start an order with NEW first!"), output); // no order to scan into
+    }
+
+    @Test
+    void anInvalidNewCommandKeepsTheCurrentOrder() {
+        String output = run("NEW", "SCAN 1", "NEW SENIOR", "LIST");
+
+        assertTrue(output.contains("Error, use NEW, NEW MEMBER or NEW SENIOR MEMBER!"), output);
+        assertTrue(output.contains("Red  11,2 SEK\nTotalt  11,2 SEK"), output);
+    }
+
+    @Test
+    void theHelpTextExplainsTheThreeWaysToStartAnOrder() {
+        String output = run("EXIT");
+
+        assertTrue(output.contains("NEW SENIOR MEMBER"), output);
+        assertTrue(output.contains("NEW MEMBER"), output);
+    }
+
+    @Test
     void scanningWithoutNewGivesError() {
         String output = run("SCAN 1");
 
@@ -264,7 +313,7 @@ public class RegisterSystemColourArticlesTest {
     @Test
     void seniorGetsTenPercentOffTheColoursAndNothingElse() {
         // 11,2 + 31,25 = 42,45 kr, 10% rounded half-up is 4,25 kr
-        String output = run("NEW SENIOR", "SCAN 1", "SCAN 2", "LIST");
+        String output = run("NEW SENIOR MEMBER", "SCAN 1", "SCAN 2", "LIST");
 
         assertTrue(output.contains("Red  11,2 SEK\nBlue  31,25 SEK\nSenior 10%  -4,25 SEK\nTotalt  38,2 SEK"), output);
     }

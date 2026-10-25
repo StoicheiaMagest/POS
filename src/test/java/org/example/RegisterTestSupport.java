@@ -29,4 +29,21 @@ final class RegisterTestSupport {
         }
         return output.toString(StandardCharsets.UTF_8);
     }
+
+    // Runs RegisterSystem2.main with the given arguments, like starting the program from the command line.
+    static String runMain(String[] args, String... commands) {
+        InputStream originalIn = System.in;
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            String input = String.join("\n", commands) + "\nEXIT\n";
+            System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
+            System.setOut(new PrintStream(output, true, StandardCharsets.UTF_8));
+            RegisterSystem2.main(args);
+        } finally {
+            System.setIn(originalIn);
+            System.setOut(originalOut);
+        }
+        return output.toString(StandardCharsets.UTF_8);
+    }
 }

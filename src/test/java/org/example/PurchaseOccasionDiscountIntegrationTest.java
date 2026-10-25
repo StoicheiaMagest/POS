@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// One test per row (r1-r10) of the discount decision table.
+// One test per row (r1-r16) of the discount decision table.
 // Basket without milk: 7 soaps x 500 ore = 3500.
 // Basket with milk: 3 milks (3 for 2 -> 500 off) + 7 soaps = 5000, 4500 after item discount.
 // Coupon: if (p >= 2000) p -= 200. Senior: always 10 % of what remains.
@@ -123,6 +123,76 @@ public class PurchaseOccasionDiscountIntegrationTest {
         assertEquals(
                 List.of("3 for 2 Milk", "Coupon 20 kr", "Senior 10%"),
                 new java.util.ArrayList<>(discounts.keySet()));
+    }
+
+    // 2 kr off is a member discount. Two breads: 2 x 1000 incl = 2000.
+    private Basket basketWithBread() {
+        Basket basket = new Basket();
+        for (int i = 0; i < 2; i++) {
+            basket.addItem(new UnitPricedArticle("Bread", 800, Vat.STANDARD, 222, DiscountType.TWO_KR_OFF));
+        }
+        return basket;
+    }
+
+    // r11: no member, 2 kr off item -> nothing, the discount is for members only
+    @Test
+    void r11_nonMember_getsNoTwoKrOff() {
+        assertEquals(expected(), discount.getAllDiscounts(basketWithBread(), customer(false, false, false)));
+        assertEquals(expected(), discount.getAllDiscounts(basketWithBread(), null));
+    }
+
+    // r12: member, 2 kr off item -> 2 kr off per item
+    @Test
+    void r12_member_getsTwoKrOff() {
+        assertEquals(expected("2 kr off on Bread", 400),
+                discount.getAllDiscounts(basketWithBread(), customer(true, false, false)));
+    }
+
+    // r13: senior but no member, 2 kr off item -> nothing, neither 2 kr off nor the senior discount
+    @Test
+    void r13_seniorWithoutMembership_getsNoTwoKrOffAndNoSeniorDiscount() {
+        assertEquals(expected(), discount.getAllDiscounts(basketWithBread(), customer(false, true, false)));
+    }
+
+    // r14: member and senior, 2 kr off item -> 2 kr off, then 10 % on the remainder
+    @Test
+    void r14_memberSenior_getsTwoKrOffThenSeniorDiscount() {
+        assertEquals(expected("2 kr off on Bread", 400, "Senior 10%", 160),
+                discount.getAllDiscounts(basketWithBread(), customer(true, true, false)));
+    }
+
+    // r15: member, 2 kr off item that costs less than 2 kr -> the discount stops at the price, total 0
+    @Test
+    void r15_member_twoKrOffIsNeverMoreThanTheItemPrice() {
+        Basket basket = new Basket();
+        for (int i = 0; i < 2; i++) {
+            basket.addItem(new UnitPricedArticle("Pencil", 120, Vat.STANDARD, 223, DiscountType.TWO_KR_OFF)); // 150 incl
+        }
+
+        assertEquals(expected("2 kr off on Pencil", 300),
+                discount.getAllDiscounts(basket, customer(true, false, false)));
+        assertEquals(0, new PurchaseOccasion(basket, customer(true, false, false), new Account(0), discount)
+                .getTotalPrice());
+    }
+
+    // The 2 kr off cap must not let the discount on a cheap item lower the price of other items
+    @Test
+    void r16_member_cheapTwoKrOffItemDoesNotReduceTheOtherItems() {
+        Basket basket = new Basket();
+        basket.addItem(new UnitPricedArticle("Pencil", 120, Vat.STANDARD, 223, DiscountType.TWO_KR_OFF)); // 150 incl
+        basket.addItem(new UnitPricedArticle("Soap", 400, Vat.STANDARD, 333)); // 500 incl
+
+        assertEquals(500, new PurchaseOccasion(basket, customer(true, false, false), new Account(0), discount)
+                .getTotalPrice());
+    }
+
+    // The total of a non-member is not reduced by a member discount
+    @Test
+    void nonMemberPaysFullPriceForTwoKrOffItems() {
+        PurchaseOccasion occasion = new PurchaseOccasion(
+                basketWithBread(), customer(false, true, false), new Account(0), discount);
+
+        assertEquals(2000, occasion.getTotalPrice());
     }
 
     // The purchase total is subtotal minus all discount lines.

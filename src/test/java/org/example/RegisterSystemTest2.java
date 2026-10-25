@@ -80,13 +80,27 @@ public class RegisterSystemTest2 {
     }
 
     @Test
+    void listGivesAMemberTwoKrOffButNotAnAnonymousCustomer() {
+        Item b = article(ARTICLE_B);
+        Customer member = new Customer("Member", "19900101-1234", true, false);
+        // 2 kr off is a member discount: the two customers must get different results
+        assertNotEquals(previewFor(null, b, b), previewFor(member, b, b));
+
+        String anonymous = run(registry, "NEW", "SCAN " + ARTICLE_B, "SCAN " + ARTICLE_B, "LIST");
+        String asMember = run(registry, "NEW MEMBER", "SCAN " + ARTICLE_B, "SCAN " + ARTICLE_B, "LIST");
+
+        assertTrue(anonymous.contains(previewFor(null, b, b)), anonymous);
+        assertTrue(asMember.contains(previewFor(member, b, b)), asMember);
+    }
+
+    @Test
     void listMatchesWhatPayPrintsOnTheReceipt() {
         Item a = article(ARTICLE_A);
         // a non-member only gets item discounts: make sure the scenario triggers them, otherwise
         // LIST and PAY could agree on a receipt with nothing but the senior discount
         assertFalse(occasionFor(null, a, a, a, article(ARTICLE_B)).getDiscounts().isEmpty());
 
-        String[] order = {"NEW SENIOR", "SCAN " + ARTICLE_A, "SCAN " + ARTICLE_A, "SCAN " + ARTICLE_A,
+        String[] order = {"NEW SENIOR MEMBER", "SCAN " + ARTICLE_A, "SCAN " + ARTICLE_A, "SCAN " + ARTICLE_A,
                 "SCAN " + ARTICLE_B};
         String listed = run(registry, withCommand(order, "LIST"));
         String paid = run(registry, withCommand(order, "PAY"));
