@@ -37,7 +37,7 @@ public class DiscountTest {
 
     @Test
     void two_kr_off_comes_from_the_items_discount_type_not_the_article_number(){
-        Item bread = unit("Bread", 150, 8, DiscountType.TWO_KR_OFF);
+        Item bread = unit("Bread", 800, 8, DiscountType.TWO_KR_OFF);   // 1000 incl
 
         Map<String, Long> expected = new HashMap<>();
         expected.put("2 kr off on Bread", 200L);
@@ -79,7 +79,7 @@ public class DiscountTest {
 
     @Test
     void two_kr_off_is_given_per_item_in_the_basket(){
-        Item bread = unit("Bread", 150, 222, DiscountType.TWO_KR_OFF);
+        Item bread = unit("Bread", 800, 222, DiscountType.TWO_KR_OFF);   // 1000 incl
 
         Map<String, Long> expected = new HashMap<>();
         expected.put("2 kr off on Bread", 600L);

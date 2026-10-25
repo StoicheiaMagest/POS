@@ -104,6 +104,68 @@ public class RegisterSystemColourArticlesTest {
         assertTrue(output.contains("NEW MEMBER"), output);
     }
 
+    // a missing argument is a different mistake from a missing order and gets its own message
+    @Test
+    void weighWithoutGramsGivesUsageErrorWhenAnOrderIsStarted() {
+        String output = run("NEW", "WEIGH 3");
+
+        assertTrue(output.contains("Error, usage: WEIGH <article number> <grams>"), output);
+        assertFalse(output.contains("start an order"), output);
+    }
+
+    @Test
+    void weighWithoutArticleNumberGivesUsageErrorWhenAnOrderIsStarted() {
+        String output = run("NEW", "WEIGH");
+
+        assertTrue(output.contains("Error, usage: WEIGH <article number> <grams>"), output);
+        assertFalse(output.contains("start an order"), output);
+    }
+
+    @Test
+    void scanWithoutArticleNumberGivesUsageErrorWhenAnOrderIsStarted() {
+        String output = run("NEW", "SCAN");
+
+        assertTrue(output.contains("Error, usage: SCAN <article number>"), output);
+        assertFalse(output.contains("start an order"), output);
+    }
+
+    @Test
+    void removeWithoutArticleNumberGivesUsageErrorWhenAnOrderIsStarted() {
+        String output = run("NEW", "SCAN 1", "REMOVE");
+
+        assertTrue(output.contains("Error, usage: REMOVE <article number>"), output);
+        assertFalse(output.contains("start an order"), output);
+    }
+
+    @Test
+    void aMissingOrderIsReportedBeforeAMissingArgument() {
+        assertTrue(run("WEIGH 3").contains("Error, start an order with NEW first!"));
+        assertTrue(run("SCAN").contains("Error, start an order with NEW first!"));
+        assertTrue(run("REMOVE").contains("Error, start an order with NEW first!"));
+    }
+
+    @Test
+    void weighWithoutNewGivesError() {
+        String output = run("WEIGH 3 500");
+
+        assertTrue(output.contains("Error, start an order with NEW first!"), output);
+        assertFalse(output.contains("Weighed"), output);
+    }
+
+    @Test
+    void removeWithoutNewGivesError() {
+        String output = run("REMOVE 1");
+
+        assertTrue(output.contains("Error, start an order with NEW first!"), output);
+    }
+
+    @Test
+    void aFailedWeighLeavesTheBasketAlone() {
+        String output = run("NEW", "SCAN 1", "WEIGH 3", "LIST");
+
+        assertTrue(output.contains("Red  11,2 SEK\nTotalt  11,2 SEK"), output);
+    }
+
     @Test
     void scanningWithoutNewGivesError() {
         String output = run("SCAN 1");
