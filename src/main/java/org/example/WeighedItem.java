@@ -9,15 +9,22 @@ public class WeighedItem extends Item {
     private final int pricePerKg;
 
     public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
-        super(name, pricePerKg, vat, articleId);
+        this(name, pricePerKg, vat, weightInGrams, articleId, DiscountType.NONE);
+    }
+
+    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId,
+                       DiscountType discountType) {
+        super(name, pricePerKg, vat, articleId, allowedForWeighed(discountType));
         this.weightInGrams = weightInGrams;
         this.pricePerKg = pricePerKg;
     }
 
-    // Placeholder: the discount type is accepted but not stored or checked yet.
-    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId,
-                       DiscountType discountType) {
-        this(name, pricePerKg, vat, weightInGrams, articleId);
+    // 3 for 2 counts items, which makes no sense for something sold by weight.
+    private static DiscountType allowedForWeighed(DiscountType discountType) {
+        if (discountType == DiscountType.THREE_FOR_TWO) {
+            throw new IllegalArgumentException("3 for 2 cannot be used on a weighed item.");
+        }
+        return discountType;
     }
 
     @Override
@@ -34,7 +41,7 @@ public class WeighedItem extends Item {
         if (grams <= 0) {
             throw new IllegalArgumentException("Weight must be positive.");
         }
-        return new WeighedItem(name, pricePerKg, vat, grams, articleNumber);
+        return new WeighedItem(name, pricePerKg, vat, grams, articleNumber, discountType);
     }
 
     /**

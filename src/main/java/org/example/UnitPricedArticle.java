@@ -10,10 +10,9 @@ public class UnitPricedArticle extends Item {
         super(name, priceExclCents, vat, articleId);
     }
 
-    // Placeholder: the discount type is accepted but not stored yet.
     public UnitPricedArticle(String name, int priceExclCents,
                              Vat vat, int articleId, DiscountType discountType) {
-        this(name, priceExclCents, vat, articleId);
+        super(name, priceExclCents, vat, articleId, discountType);
     }
 
     @Override

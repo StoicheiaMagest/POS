@@ -1,5 +1,8 @@
 package org.example;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.Locale;
@@ -8,6 +11,7 @@ import java.util.Scanner;
 
 public class RegisterSystem2 {
     private static final String STORE_NAME = "Java Butiken";
+    static final String DEFAULT_ARTICLE_FILE = "articles.txt";
     Scanner input = new Scanner(System.in);
     private static final String NEW_ORDER_COMMAND = "NEW";
     private static final String SCAN_COMMAND = "SCAN";
@@ -30,27 +34,33 @@ public class RegisterSystem2 {
     private Account customerAccount;
     private int nextReceiptNo = 1;
 
-    // Demo setup, also used by tests.
-    public RegisterSystem2() {
-        this(createDemoRegistry(), new Account(0));
-    }
-
     public RegisterSystem2(ArticleRegistry registry, Account storeBankAccount) {
         this.registry = registry;
         this.scanner = new BarcodeScanner(registry);
         this.storeBankAccount = storeBankAccount;
     }
 
-    public static ArticleRegistry createDemoRegistry() {
-        ArticleRegistry registry = new ArticleRegistry();
-        registry.addItem(111, new UnitPricedArticle("Coke", 400, Vat.FOOD, 111));   // 3 for 2
-        registry.addItem(222, new UnitPricedArticle("Bread", 150, Vat.FOOD, 222));  // 2 kr off
-        registry.addItem(333, new WeighedItem("Apple", 3000, Vat.FOOD, 0, 333));    // template
-        return registry;
+    // The articles are read from the file in the first argument, or from articles.txt in the
+    // folder the program is started from. A missing or invalid file stops the program.
+    public static void main(String[] args) {
+        String path = args.length > 0 ? args[0] : DEFAULT_ARTICLE_FILE;
+        ArticleRegistry registry;
+        try {
+            registry = loadRegistry(path);
+        } catch (IOException e) {
+            System.out.println("Error, could not read article file '" + path + "'");
+            return;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error, article file '" + path + "' is invalid: " + e.getMessage());
+            return;
+        }
+        new RegisterSystem2(registry, new Account(0)).start();
     }
 
-    public static void main(String[] args) {
-        new RegisterSystem2().start();
+    private static ArticleRegistry loadRegistry(String path) throws IOException {
+        try (Scanner file = new Scanner(Path.of(path), StandardCharsets.UTF_8)) {
+            return ArticleRegistryLoader.load(file);
+        }
     }
 
     // Package-private so tests can run the register with their own registry.
@@ -67,7 +77,7 @@ public class RegisterSystem2 {
     }
 
     private void printCommands() {
-        System.out.println("* NEW [MEMBER|SENIOR] - start a new order, optionally a member or senior customer");
+        System.out.println("* NEW | NEW MEMBER | NEW SENIOR MEMBER - start a new order for an anonymous customer, a member or a senior member");
         System.out.println("* SCAN <article number> - add an item to the basket");
         System.out.println("* WEIGH <article number> <grams> - weigh and add an item");
         System.out.println("* REMOVE <article number> - remove the first item with that number");
@@ -124,6 +134,10 @@ public class RegisterSystem2 {
     }
 
     private void commandNewOrder(String[] parts) {
+        if (!isValidNewOrder(parts)) {
+            System.out.println("Error, use NEW, NEW MEMBER or NEW SENIOR MEMBER!");
+            return; // the current order, if any, is left as it is
+        }
         basket = new Basket();
         customer = createCustomer(parts);
         customerAccount = new Account(100000); // demo account, no bank integration
@@ -131,11 +145,18 @@ public class RegisterSystem2 {
                 + (customer == null ? "an anonymous customer" : customer.getName()));
     }
 
+    // Only NEW, NEW MEMBER and NEW SENIOR MEMBER exist: a senior is always a member.
+    private boolean isValidNewOrder(String[] parts) {
+        return parts.length == 1
+                || (parts.length == 2 && parts[1].equals("MEMBER"))
+                || (parts.length == 3 && parts[1].equals("SENIOR") && parts[2].equals("MEMBER"));
+    }
+
     private Customer createCustomer(String[] parts) {
-        if (parts.length > 1 && parts[1].equals("MEMBER")) {
+        if (parts.length == 2) {
             return new Customer("Member", "19900101-1234", true, false);
         }
-        if (parts.length > 1 && parts[1].equals("SENIOR")) {
+        if (parts.length == 3) {
             return new Customer("Senior", "19500101-1234", true, true);
         }
         return null;

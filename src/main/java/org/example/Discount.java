@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 // Discount priority (decision table):
-// 1) item discounts, store wide and for everyone
-// 2) membership gate - non-members stop here
+// 1) item discounts: 3 for 2 for everyone, 2 kr off for members only
+// 2) membership gate - non-members stop here, whether they are senior or not
 // 3) coupon on the remaining price
 // 4) senior percent, always last on top of everything
 public class Discount {
     private static final int SENIOR_PERCENT = 10;
+    private static final long TWO_KR_OFF_AMOUNT = 200; // öre
 
     // description -> öre off (incl. VAT). Built fresh on every call.
     public Map<String, Long> getAllDiscounts(Basket basket, Customer customer) {
@@ -21,10 +22,11 @@ public class Discount {
         // LinkedHashMap keeps the order we put things in, so the receipt shows
         // the discounts in priority order (a plain HashMap would not).
         Map<String, Long> discounts = new LinkedHashMap<>();
-        addItemDiscounts(basket, discounts);
+        boolean member = customer != null && customer.getMembershipStatus();
+        addItemDiscounts(basket, discounts, member);
 
-        // non-members only get the store wide item discounts
-        if (customer == null || !customer.getMembershipStatus()) {
+        // non-members only get 3 for 2
+        if (!member) {
             return discounts;
         }
 
@@ -57,19 +59,28 @@ public class Discount {
         }
     }
 
-    private void addItemDiscounts(Basket basket, Map<String, Long> discounts) {
+    private void addItemDiscounts(Basket basket, Map<String, Long> discounts, boolean member) {
         Map<Integer, List<Item>> byArticle = itemsByArticle(basket);
         for (List<Item> group : byArticle.values()) {
             Item first = group.get(0);
-            String type = getDiscountType(first);
-            if ("3for2".equals(type) && group.size() >= 3) {
+            DiscountType type = first.getDiscountType();
+            if (type == DiscountType.THREE_FOR_TWO && group.size() >= 3) {
                 // every third item is free
                 addOff(discounts, "3 for 2 " + first.getName(),
                         (group.size() / 3) * first.getInclusivePrice());
-            } else if ("2krOff".equals(type)) {
-                addOff(discounts, "2 kr off on " + first.getName(), 200L * group.size());
+            } else if (type == DiscountType.TWO_KR_OFF && member) {
+                addOff(discounts, "2 kr off on " + first.getName(), twoKrOff(group));
             }
         }
+    }
+
+    // 2 kr off each item, but never more than the item costs.
+    private long twoKrOff(List<Item> group) {
+        long off = 0;
+        for (Item item : group) {
+            off = off + Math.min(TWO_KR_OFF_AMOUNT, item.getInclusivePrice());
+        }
+        return off;
     }
 
     // Items grouped by article number, keeping the scan order.
@@ -96,14 +107,6 @@ public class Discount {
 
     public static String couponKey(Coupon coupon) {
         return "Coupon " + coupon.getName();
-    }
-
-    public String getDiscountType(Item item) {
-        switch (item.getArticleNumber()) {
-            case 111: return "3for2";   // milk
-            case 222: return "2krOff";  // bread
-            default:  return null;
-        }
     }
 
     public int getSeniorDiscountProcent() {

@@ -38,8 +38,8 @@ public class RegisterSystem {
 
     public static ArticleRegistry createDemoRegistry() {
         ArticleRegistry registry = new ArticleRegistry();
-        registry.addItem(111, new UnitPricedArticle("Milk", 400, Vat.FOOD, 111));   // 3 for 2
-        registry.addItem(222, new UnitPricedArticle("Bread", 150, Vat.FOOD, 222));  // 2 kr off
+        registry.addItem(111, new UnitPricedArticle("Milk", 400, Vat.FOOD, 111, DiscountType.THREE_FOR_TWO));   // 3 for 2
+        registry.addItem(222, new UnitPricedArticle("Bread", 150, Vat.FOOD, 222, DiscountType.TWO_KR_OFF));  // 2 kr off
         registry.addItem(333, new WeighedItem("Apple", 3000, Vat.FOOD, 0, 333));    // template
         return registry;
     }
