@@ -16,13 +16,13 @@ import java.util.Map;
 
 public class Discount {
     //Map of discount name and value
-    Map<String, Long> discountsMap = new HashMap<>();
+    HashMap<String, Long> discountsMap = new HashMap<>();
     //Ex. [ 3 for 2 milk, 10], [3 for 2 juice, 5] 
     // [ milk, 3 for 2]
     ArrayList<Item> orderList = new ArrayList<>();
 
     //takes list of all items and checks each item if there is any that have a discount
-    public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
+    public HashMap<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
         for (Item item : orderListen) {
             if(getDiscountType(item).equals("2krOff")){
                 //if(discountsMap)
