@@ -1,6 +1,9 @@
 package org.example;
 
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
 
 public class RegisterSystem2 {
@@ -10,6 +13,8 @@ public class RegisterSystem2 {
     private static final String SCAN_COMMAND = "SCAN";
     private static final String WEIGH_COMMAND = "WEIGH";
     private static final String REMOVE_COMMAND = "REMOVE";
+    private static final String LIST_COMMAND = "LIST";
+    private static final String ARTICLES_COMMAND = "ARTICLES";
     private static final String PAY_COMMAND = "PAY";
     private static final String EXIT_COMMAND = "EXIT";
     private String command;
@@ -38,7 +43,7 @@ public class RegisterSystem2 {
 
     public static ArticleRegistry createDemoRegistry() {
         ArticleRegistry registry = new ArticleRegistry();
-        registry.addItem(111, new UnitPricedArticle("Milk", 400, Vat.FOOD, 111));   // 3 for 2
+        registry.addItem(111, new UnitPricedArticle("Coke", 400, Vat.FOOD, 111));   // 3 for 2
         registry.addItem(222, new UnitPricedArticle("Bread", 150, Vat.FOOD, 222));  // 2 kr off
         registry.addItem(333, new WeighedItem("Apple", 3000, Vat.FOOD, 0, 333));    // template
         return registry;
@@ -48,7 +53,8 @@ public class RegisterSystem2 {
         new RegisterSystem2().start();
     }
 
-    private void start() {
+    // Package-private so tests can run the register with their own registry.
+    void start() {
         setUp();
         runCommandLoop();
         shutDown();
@@ -65,13 +71,15 @@ public class RegisterSystem2 {
         System.out.println("* SCAN <article number> - add an item to the basket");
         System.out.println("* WEIGH <article number> <grams> - weigh and add an item");
         System.out.println("* REMOVE <article number> - remove the first item with that number");
+        System.out.println("* LIST - preview the items, discounts and total before paying");
+        System.out.println("* ARTICLES - list all available articles with their prices");
         System.out.println("* PAY - pay with card and print the receipt");
         System.out.println("* EXIT");
     }
 
     private void runCommandLoop() {
         do {
-            command = input.nextLine().toUpperCase();
+            command = input.nextLine().trim().toUpperCase();
             executeCommand(command);
             System.out.println();
         } while (!command.equalsIgnoreCase(EXIT_COMMAND));
@@ -94,6 +102,14 @@ public class RegisterSystem2 {
 
             case REMOVE_COMMAND:
                 commandRemove(parts);
+                break;
+
+            case LIST_COMMAND:
+                commandList();
+                break;
+
+            case ARTICLES_COMMAND:
+                commandArticles();
                 break;
 
             case PAY_COMMAND:
@@ -176,6 +192,47 @@ public class RegisterSystem2 {
         }
     }
 
+    // Preview of the receipt: items, discounts and total, without paying.
+    private void commandList() {
+        if (basket == null) {
+            System.out.println("Error, start an order with NEW first!");
+            return;
+        }
+        PurchaseOccasion occasion =
+                new PurchaseOccasion(basket, customer, storeBankAccount, discount);
+        NumberFormat format = NumberFormat.getInstance(Locale.forLanguageTag("sv-SE"));
+        for (Item item : basket.getItems()) {
+            System.out.print(item.getName());
+            if (item instanceof WeighedItem weighed) {
+                System.out.print("  " + weighed.getWeight() + " g");
+            }
+            System.out.println("  " + formatOre(format, item.getInclusivePrice()));
+        }
+        for (Map.Entry<String, Long> line : occasion.getDiscounts().entrySet()) {
+            System.out.println(line.getKey() + "  -" + formatOre(format, line.getValue()));
+        }
+        System.out.println("Totalt  " + formatOre(format, occasion.getTotalPrice()));
+    }
+
+    // Prices include VAT; weighed items are priced per kg.
+    private void commandArticles() {
+        NumberFormat format = NumberFormat.getInstance(Locale.forLanguageTag("sv-SE"));
+        for (Item item : registry.getAllItems()) {
+            if (item instanceof WeighedItem weighed) {
+                long perKg = weighed.getVatRate().calculateInclusivePrice(weighed.getPricePerKg());
+                System.out.println(item.getArticleNumber() + "  " + item.getName()
+                        + "  " + formatOre(format, perKg) + "/kg");
+            } else {
+                System.out.println(item.getArticleNumber() + "  " + item.getName()
+                        + "  " + formatOre(format, item.getInclusivePrice()));
+            }
+        }
+    }
+
+    private String formatOre(NumberFormat format, long ore) {
+        return format.format(ore / 100.0) + " SEK";
+    }
+
     private void commandPay() {
         if (basket == null) {
             System.out.println("Error, start an order with NEW first!");
@@ -190,6 +247,7 @@ public class RegisterSystem2 {
         Receipt receipt =
                 new Receipt(nextReceiptNo++, LocalDateTime.now(), STORE_NAME, occasion);
         System.out.println(receipt.print());
+        basket = null; // the order is finished, a new one must be started with NEW
     }
 
     private void shutDown() {
