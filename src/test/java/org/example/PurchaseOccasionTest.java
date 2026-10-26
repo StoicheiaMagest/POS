@@ -1,11 +1,14 @@
 package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.Map;
 
 class PurchaseOccasionTest {
 
@@ -65,6 +68,30 @@ class PurchaseOccasionTest {
     }
 
     @Test
+    void getMembershipStatusShouldReturnTrueIfMember() {
+        Customer customer = mock(Customer.class);
+        when(customer.getMembershipStatus()).thenReturn(true);
+        Account account = mock(Account.class);
+        Discount discount = mock(Discount.class);
+        Basket basket = mock(Basket.class);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account, discount);
+        assertTrue(purchase.getMembershipStatus());
+    }
+
+    @Test 
+    void getSeniorStatusShouldReturnTrueIfSenior() {
+        Customer customer = mock(Customer.class);
+        when(customer.getSeniorStatus()).thenReturn(true);
+        Account account = mock(Account.class);
+        Basket basket = mock(Basket.class);
+        Map<String, Long> discMap = new Map<>();
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account, discMap);
+        assertTrue(purchase.getSeniorStatus());
+    }
+
+    @Test
     void applying_group_discount_should_change_total_cost_of_purchase() {
          Basket basket = new Basket();
         basket.addItem(itemWithPrice(10000));
@@ -72,7 +99,7 @@ class PurchaseOccasionTest {
         basket.addItem(itemWithPrice(10000));
 
         Discount discount = mock(Discount.class);
-        HashMap<String, Long> discMap = new HashMap<>();
+        Map<String, Long> discMap = new Map<>();
         when(discount.getAllDiscounts(basket.getItems())).thenReturn(discMap);
 
         PurchaseOccasion purchase = createPurchase(basket);
