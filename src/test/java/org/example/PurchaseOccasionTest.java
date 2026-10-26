@@ -2,13 +2,9 @@ package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
 
 class PurchaseOccasionTest {
 
@@ -29,6 +25,7 @@ class PurchaseOccasionTest {
         Basket basket = new Basket();
         basket.addItem(itemWithPrice(9999));
 
+        //misslyckas för item behöver hashcode?
         PurchaseOccasion purchase = createPurchase(basket);
 
         assertEquals(

@@ -1,5 +1,4 @@
 package org.example;
-import java.lang.reflect.Array;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -18,8 +17,7 @@ public class PurchaseOccasion {
     public PurchaseOccasion(
             Basket basket,
             Customer customer,
-            Account storeBankAccount
-            //HashMap<String, Long> discounts 
+            Account storeBankAccount 
     ) {
         this.customerBasket = basket;
         this.customer = customer;
@@ -28,19 +26,12 @@ public class PurchaseOccasion {
         this.totalPrice = basket.getTotalPrice();
     }
 
-    //
     public void applyDiscount() {
-        
-        //en metod som går igenom alla long i discounts mapen och suptraherar summan på totalbeloppet
-        //for long l : discounts.getValue() {totalprice =- l}
-
-        for(long discount : discounts.getValue()) {
-            if (discount < 0 || discount > 100) {
+        for(Map.Entry<String, Long> discount : discounts.entrySet()) {
+            if (discount.getValue() < 0 || discount.getValue() > 100) {
                 throw new IllegalArgumentException("Discount must be between 0 and 100");
             }
-            // Add 50 before division to round to the nearest cent. Send new total back up.
-            //totalPrice = (totalPrice * (100L - discount) + 50) / 100;
-            totalPrice -= discount;
+            totalPrice -= discount.getValue();
         }
     }
 
@@ -48,7 +39,8 @@ public class PurchaseOccasion {
         if(!customer.getSeniorStatus()) {
             throw new IllegalArgumentException("Error, not a senior");
         }
-        totalPrice = (totalPrice * (100L - discountHandler.getSeniorDiscount()) + 50) / 100;
+        // Add 50 before division to round to the nearest cent. Send new total back up.
+        totalPrice = (totalPrice * (100L - DiscountHandler.getSeniorDiscount()) + 50) / 100;
     }
 
     /* 
