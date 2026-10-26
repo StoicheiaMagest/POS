@@ -11,53 +11,43 @@ import static org.mockito.Mockito.when;
 class ScannerTest {
 
     @Test
-    void scanReturnsPriceOfRegisteredItem() {
+    void scanReturnsRegisteredItem() {
         // Arrange
-        Basket basket = new Basket();
         ArticleRegistry registry = mock(ArticleRegistry.class);
-        Scanner scanner = new Scanner(basket, registry);
+        BarcodeScanner scanner = new BarcodeScanner(registry);
 
         Item item = mock(Item.class);
-        when(item.getPrice()).thenReturn(100);
         when(registry.findByArticleNumber(1001)).thenReturn(item);
 
         // Act
-        int result = scanner.scan(1001);
+        Item result = scanner.scan(1001);
 
         // Assert
-        assertEquals(100, result);
+        assertEquals(item, result);
     }
 
     @Test
-    void scanReturnsDifferentPricesForDifferentItems() {
+    void scanReturnsDifferentItemsForDifferentArticles() {
         // Arrange
-        Basket basket = new Basket();
         ArticleRegistry registry = mock(ArticleRegistry.class);
-        Scanner scanner = new Scanner(basket, registry);
+        BarcodeScanner scanner = new BarcodeScanner(registry);
 
         Item firstItem = mock(Item.class);
-        when(firstItem.getPrice()).thenReturn(100);
         when(registry.findByArticleNumber(1001)).thenReturn(firstItem);
 
         Item secondItem = mock(Item.class);
-        when(secondItem.getPrice()).thenReturn(250);
         when(registry.findByArticleNumber(1002)).thenReturn(secondItem);
 
-        // Act
-        int firstResult = scanner.scan(1001);
-        int secondResult = scanner.scan(1002);
-
-        // Assert
-        assertEquals(100, firstResult);
-        assertEquals(250, secondResult);
+        // Act & Assert
+        assertEquals(firstItem, scanner.scan(1001));
+        assertEquals(secondItem, scanner.scan(1002));
     }
 
     @Test
     void scanThrowsExceptionWhenArticleDoesNotExist() {
         // Arrange
-        Basket basket = new Basket();
         ArticleRegistry registry = mock(ArticleRegistry.class);
-        Scanner scanner = new Scanner(basket, registry);
+        BarcodeScanner scanner = new BarcodeScanner(registry);
 
         when(registry.findByArticleNumber(9999)).thenReturn(null);
 

@@ -1,17 +1,16 @@
 
 package org.example;
 
-public class Scanner {
+public class BarcodeScanner {
 
-    private final Basket basket;
     private final ArticleRegistry registry;
 
-    public Scanner(Basket basket, ArticleRegistry registry) {
-        this.basket = basket;
+    public BarcodeScanner(ArticleRegistry registry) {
         this.registry = registry;
     }
 
-    public int scan(int articleNumber) {
+    // Returns the scanned item so it can be added to the current basket.
+    public Item scan(int articleNumber) {
         Item item = registry.findByArticleNumber(articleNumber);
 
         if (item == null) {
@@ -20,7 +19,6 @@ public class Scanner {
             );
         }
 
-        basket.addItem(item);
-        return item.getPrice();
+        return item;
     }
 }
