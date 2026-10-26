@@ -1,26 +1,18 @@
 package org.example;
-
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-
-
 public class DiscountHandler {
+    
     //Map of discount name and value
     Map<String, Long> discountsMap = new HashMap<>();
-    //Ex. [ 3 for 2 milk, 10], [3 for 2 juice, 5] 
-    // [ milk, 3 for 2]
-    ArrayList<Item> orderList = new ArrayList<>();
-
-    Map<Item, Integer> map3For2Counter = new HashMap<>();
+    Map<Item, Integer> item3For2Counter = new HashMap<>();
 
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
         for (Item item : orderListen) {
-              switch (item.getDiscountType()) {  
+            switch (item.getDiscountType()) {  
                 case "3FOR2": //implementera så att den räknar antal produkter korrekt
                     check3for2Discount(item);
                     break;
@@ -38,23 +30,28 @@ public class DiscountHandler {
         return discountsMap;
     }
 
+    public Map<Item, Integer> getItemCounterMap(){
+        return item3For2Counter;
+    }
+
     //temp
     public long getSeniorDiscount(){
         return 10;
     }
 
     public void check3for2Discount(Item item){
-        if(map3For2Counter.containsKey(item)){
-            if(map3For2Counter.get(item)==2){
-                map3For2Counter.remove(item);
+        if(item3For2Counter.containsKey(item)){
+            if(item3For2Counter.get(item)==2){
+                item3For2Counter.remove(item);
                 discountsMap.put(item.getDiscountType(),(long)item.getPrice());
             }
             else{
-                map3For2Counter.replace(item, 2);
+                item3For2Counter.replace(item, 2);
             }
         }
         else{
-            map3For2Counter.put(item, 1);
+            item3For2Counter.put(item, 1);
         }
     }
+
 }
