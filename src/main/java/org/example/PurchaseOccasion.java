@@ -11,31 +11,38 @@ public class PurchaseOccasion {
     private Customer customer;
     private Map<String, Long> discounts;
     private long totalPrice; // cents
-    Discount discount = new Discount();
+    DiscountHandler discounthandler = new DiscountHandler();
 
 
 
     public PurchaseOccasion(
             Basket basket,
             Customer customer,
-            Account storeBankAccount,
-            HashMap<String, Long> discounts
+            Account storeBankAccount
+            //HashMap<String, Long> discounts 
     ) {
         this.customerBasket = basket;
         this.customer = customer;
         this.storeBankAccount = storeBankAccount;
-        this.discounts = discount.getAllDiscounts(customerBasket.getItems());
+        this.discounts = discounthandler.getAllDiscounts(customerBasket.getItems());
         this.totalPrice = basket.getTotalPrice();
     }
 
-    public void applyDiscount(Discount discounts) {
-        for(long dis : discounts.getValue()) {
+    //
+    public void applyDiscount(DiscountHandler discounts) {
+        
+        //en metod som går igenom alla long i discounts mapen och suptraherar summan på totalbeloppet
+        //for long l : discounts.getValue() {totalprice =- l}
+
+
+
+        /*for(long dis : discounts.getValue()) {
             if (dis < 0 || dis > 100) {
                 throw new IllegalArgumentException("Discount must be between 0 and 100");
             }
             // Add 50 before division to round to the nearest cent. Send new total back up.
             totalPrice = (totalPrice * (100L - dis) + 50) / 100;
-        }
+        }*/
     }
 
     public void payPurchase() {
@@ -48,6 +55,8 @@ public class PurchaseOccasion {
         );
         formatter.setMinimumFractionDigits(2);
         formatter.setMaximumFractionDigits(2);
+
+        //printa även hela discountsmapen
 
         return "Kvitto\n"
                 + "Antal varor: " + customerBasket.getItems().size() + "\n"

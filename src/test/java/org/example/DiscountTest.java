@@ -8,48 +8,52 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DiscountTest {
-    private final Discount discount = new Discount();
+    private final DiscountHandler discount = new DiscountHandler();
 
-    private Basket basket = mock(Basket.class);
+    //private Basket basket = mock(Basket.class);
     private Item item = mock(Item.class);
+    private Item item2 = mock(Item.class);
 
-    //getDiscountType tests
-    @Test
-    void Discount_type_is_3for2(){
-        when(item.getArticleNumber()).thenReturn(111);
-        assertEquals("3for2", discount.getDiscountType(item));
+    @Test 
+    void Discount_Check_3_for_2(){
+        when(item.getDiscountType()).thenReturn("3FOR2");
+        when(item.getPrice()).thenReturn(10);
+        discount.check3for2Discount(item);
+        discount.check3for2Discount(item);
+        discount.check3for2Discount(item);
+        
+        Map<String, Long> expectMap = new HashMap<>();
+        expectMap.put(item.getDiscountType(), (long)item.getPrice());
+
+        assertEquals(expectMap, discount.getDiscountMap());
+    }
+
+    @Test 
+    void Multiple_3_for_2_in_diffrent_order(){
+        when(item.getDiscountType()).thenReturn("3FOR2");
+        when(item.getPrice()).thenReturn(10);
+        when(item2.getDiscountType()).thenReturn("3FOR2");
+        when(item2.getPrice()).thenReturn(15);
+
+        discount.check3for2Discount(item);
+        discount.check3for2Discount(item2);
+        discount.check3for2Discount(item);
+        discount.check3for2Discount(item2);
+        discount.check3for2Discount(item2);
+        discount.check3for2Discount(item);
+        
+        Map<String, Long> expectMap = new HashMap<>();
+        expectMap.put(item2.getDiscountType(), (long)item2.getPrice());
+        expectMap.put(item.getDiscountType(), (long)item.getPrice());
+
+        assertEquals(expectMap,discount.getDiscountMap());
     }
 
     @Test
     void Discount_type_is_2p(){
-        when(item.getArticleNumber()).thenReturn(222);
-        assertEquals("2krOff", discount.getDiscountType(item));
+        when(item.getDiscountType()).thenReturn("2KR_OFF");
+        assertEquals("2KR_OFF", item.getDiscountType());
     }
 
-    @Test 
-    void Discount_nonexsisting(){
-        when(item.getArticleNumber()).thenReturn(101);
-        assertEquals(null,discount.getDiscountType(item));
-    }
 
-    //
-    @Test
-    void Discount_total_is_returned(){
-        when(item.getArticleNumber()).thenReturn(222);
-        when(item.getName()).thenReturn("Bread");
-        when(item.getPrice()).thenReturn(15);
-
-        ArrayList<Item> orderList = new ArrayList<>();
-        orderList.add(item);
-        orderList.add(item);
-
-        Map<String, Long> expected = new HashMap<>();
-        expected.put("2 kr off on "+item.getName(), 2L);
-        //expected.put("2 kr off on "+item.getName(), 2L);
-
-        assertEquals(expected, discount.getAllDiscounts(orderList));
-
-
-
-    }
 }

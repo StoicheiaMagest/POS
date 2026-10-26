@@ -8,12 +8,21 @@ public abstract class Item {
     protected final String name;
     protected final int price;
     protected final Vat vat;
+    protected String discountType;
 
     public Item(String name, int price, Vat vat, int articleId) {
         this.name = name;
         this.price = price;
         this.vat = vat;
         this.articleNumber = articleId;
+    }
+
+    public Item(String name, int price, Vat vat, int articleId, String discountType) {
+        this.name = name;
+        this.price = price;
+        this.vat = vat;
+        this.articleNumber = articleId;
+        this.discountType = discountType;
     }
 
     public String getName() {
@@ -23,6 +32,10 @@ public abstract class Item {
     public abstract int getPrice();
 
     public abstract Vat getVatRate();
+
+    public String getDiscountType(){
+        return discountType;
+    }
 
     public int getArticleNumber() {
         return articleNumber;
