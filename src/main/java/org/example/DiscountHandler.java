@@ -38,6 +38,11 @@ public class DiscountHandler {
         return discountsMap;
     }
 
+    //temp
+    public long getSeniorDiscount(){
+        return 10;
+    }
+
     public void check3for2Discount(Item item){
         if(map3For2Counter.containsKey(item)){
             if(map3For2Counter.get(item)==2){
