@@ -10,11 +10,6 @@ public class UnitPricedArticle extends Item {
         super(name, priceExclCents, vat, articleId);
     }
 
-    public UnitPricedArticle(String name, int priceExclCents,
-                             Vat vat, int articleId, DiscountType discountType) {
-        super(name, priceExclCents, vat, articleId, discountType);
-    }
-
     @Override
     public int getPrice() {
         return price; // Returns the base price (exclusive of VAT) in cents
