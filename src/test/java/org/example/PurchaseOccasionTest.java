@@ -1,6 +1,8 @@
 package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -62,6 +64,29 @@ class PurchaseOccasionTest {
         }
 
         assertEquals(9000, purchase.getTotalPriceForPurchace(), 0.001, "Total price should adhere to discount");
+    }
+
+    @Test
+    void getMembershipStatusShouldReturnTrueIfMember() {
+        Customer customer = mock(Customer.class);
+        when(customer.getMembershipStatus()).thenReturn(true);
+        Account account = mock(Account.class);
+        Discount discount = mock(Discount.class);
+        Basket bakset = mock(Basket.class);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account, discount);
+        assertTrue(purchase.getMembershipStatus());
+    }
+
+    @Test getSeniorStatusShouldReturnTrueIfSenior() {
+        Customer customer = mock(Customer.class);
+        when(customer.getSeniorStatus()).thenReturn(true);
+        Account account = mock(Account.class);
+        Discount discount = mock(Discount.class);
+        Basket bakset = mock(Basket.class);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account, discount);
+        assertTrue(purchase.getSeniorStatus());
     }
 
     @Test

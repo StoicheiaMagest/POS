@@ -53,5 +53,13 @@ public class PurchaseOccasion {
         return totalPrice;
     }
 
+    public boolean getMembershipStatus() {
+        return customer.getMembershipStatus();
+    }
+
+    public boolean getSeniorStatus() {
+        return customer.getSeniorStatus();
+    }
+
 }
 
