@@ -38,7 +38,12 @@ public class PurchaseOccasion {
         }
     }
 
+    public void cuponblabal() {
+        //hämta customer och dess kupinger och applicera
+    }
+
     public void payPurchase() {
+        //hämta customer och dess kot för betalning
 
     }
 
