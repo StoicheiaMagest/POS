@@ -9,7 +9,7 @@ public class PurchaseOccasion {
     private Account storeBankAccount;
     private Basket customerBasket;
     private Customer customer;
-    private Map<String, Long> discounts;;
+    private Map<String, Long> discounts;
     private long totalPrice; // cents
     Discount discount = new Discount();
 
@@ -36,6 +36,10 @@ public class PurchaseOccasion {
             // Add 50 before division to round to the nearest cent. Send new total back up.
             totalPrice = (totalPrice * (100L - dis) + 50) / 100;
         }
+    }
+
+    public void payPurchase() {
+
     }
 
     public String printReceipt() {
