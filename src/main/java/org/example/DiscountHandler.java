@@ -1,9 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 
@@ -39,7 +37,7 @@ public class DiscountHandler {
     }
 
     //temp
-    public long getSeniorDiscount(){
+    public static long getSeniorDiscount(){
         return 10;
     }
 
