@@ -13,15 +13,17 @@ class BasketScannerIntegrationTest {
     void scanningItemAddsItToBasket() {
         Basket basket = new Basket();
         ArticleRegistry registry = new ArticleRegistry();
-        BarcodeScanner scanner = new BarcodeScanner(registry);
+        Scanner scanner = new Scanner(basket, registry);
 
         Item item = mock(Item.class);
+        when(item.getPrice()).thenReturn(100);
         when(item.getInclusivePrice()).thenReturn(100L);
 
         registry.addItem(1001, item);
 
-        basket.addItem(scanner.scan(1001));
+        int result = scanner.scan(1001);
 
+        assertEquals(100, result);
         assertTrue(basket.getItems().contains(item));
         assertEquals(100L, basket.getTotalPrice());
     }
@@ -30,19 +32,21 @@ class BasketScannerIntegrationTest {
     void scanningTwoItemsAddsBothPricesToBasket() {
         Basket basket = new Basket();
         ArticleRegistry registry = new ArticleRegistry();
-        BarcodeScanner scanner = new BarcodeScanner(registry);
+        Scanner scanner = new Scanner(basket, registry);
 
         Item firstItem = mock(Item.class);
+        when(firstItem.getPrice()).thenReturn(100);
         when(firstItem.getInclusivePrice()).thenReturn(100L);
 
         Item secondItem = mock(Item.class);
+        when(secondItem.getPrice()).thenReturn(250);
         when(secondItem.getInclusivePrice()).thenReturn(250L);
 
         registry.addItem(1001, firstItem);
         registry.addItem(1002, secondItem);
 
-        basket.addItem(scanner.scan(1001));
-        basket.addItem(scanner.scan(1002));
+        scanner.scan(1001);
+        scanner.scan(1002);
 
         assertEquals(2, basket.getItems().size());
         assertEquals(350L, basket.getTotalPrice());
@@ -52,7 +56,7 @@ class BasketScannerIntegrationTest {
     void scanningUnknownArticleThrowsException() {
         Basket basket = new Basket();
         ArticleRegistry registry = new ArticleRegistry();
-        BarcodeScanner scanner = new BarcodeScanner(registry);
+        Scanner scanner = new Scanner(basket, registry);
 
         assertThrows(
                 IllegalArgumentException.class,

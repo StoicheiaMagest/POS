@@ -1,10 +1,7 @@
 package org.example;
 
-import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.Map;
 
 public class Receipt {
 
@@ -59,32 +56,6 @@ public class Receipt {
 
     public String getFormattedDate() {
         return DATE_FORMAT.format(receiptDate);
-    }
-
-    // Prints the sale: header, item lines, discount lines (in priority order), total.
-    public String print() {
-        NumberFormat format = NumberFormat.getInstance(Locale.forLanguageTag("sv-SE"));
-        StringBuilder text = new StringBuilder();
-        text.append(storeName).append('\n');
-        text.append(getFormattedDate()).append("  kvitto ").append(receiptNumber).append('\n');
-        for (Item item : purchaseOccasion.getCustomerBasket().getItems()) {
-            text.append(item.getName());
-            if (item instanceof WeighedItem weighed) {
-                text.append("  ").append(weighed.getWeight()).append(" g");
-            }
-            text.append("  ").append(formatOre(format, item.getInclusivePrice())).append('\n');
-        }
-        for (Map.Entry<String, Long> line : purchaseOccasion.getDiscounts().entrySet()) {
-            text.append(line.getKey()).append("  -")
-                    .append(formatOre(format, line.getValue())).append('\n');
-        }
-        text.append("Totalt  ")
-                .append(formatOre(format, purchaseOccasion.getTotalPrice()));
-        return text.toString();
-    }
-
-    private String formatOre(NumberFormat format, long ore) {
-        return format.format(ore / 100.0) + " SEK";
     }
 
     @Override

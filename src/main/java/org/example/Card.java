@@ -10,7 +10,7 @@ public class Card {
     }
 
 
-    public boolean pay(long amount, Account recipient) {
+    public boolean pay(int amount, Account recipient) {
         return account.transfer(amount, recipient);
     }
 

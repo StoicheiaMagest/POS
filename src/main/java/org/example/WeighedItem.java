@@ -9,22 +9,9 @@ public class WeighedItem extends Item {
     private final int pricePerKg;
 
     public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
-        this(name, pricePerKg, vat, weightInGrams, articleId, DiscountType.NONE);
-    }
-
-    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId,
-                       DiscountType discountType) {
-        super(name, pricePerKg, vat, articleId, allowedForWeighed(discountType));
+        super(name, pricePerKg, vat, articleId);
         this.weightInGrams = weightInGrams;
         this.pricePerKg = pricePerKg;
-    }
-
-    // 3 for 2 counts items, which makes no sense for something sold by weight.
-    private static DiscountType allowedForWeighed(DiscountType discountType) {
-        if (discountType == DiscountType.THREE_FOR_TWO) {
-            throw new IllegalArgumentException("3 for 2 cannot be used on a weighed item.");
-        }
-        return discountType;
     }
 
     @Override
@@ -34,14 +21,6 @@ public class WeighedItem extends Item {
 
     public int getWeight() {
         return weightInGrams;
-    }
-
-    // Copy of this item with a measured weight, so the registry can hold one template.
-    public WeighedItem withWeight(int grams) {
-        if (grams <= 0) {
-            throw new IllegalArgumentException("Weight must be positive.");
-        }
-        return new WeighedItem(name, pricePerKg, vat, grams, articleNumber, discountType);
     }
 
     /**

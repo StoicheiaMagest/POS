@@ -2,17 +2,17 @@ package org.example;
 
 public class Account {
 
-    private long balance;
+    private int balance;
 
     public Account() {
         this(0);
     }
 
-    public Account(long amount) {
+    public Account(int amount) {
         this.balance = amount;
     }
 
-    public boolean transfer(long amount, Account recipient) {
+    public boolean transfer(int amount, Account recipient) {
         if (recipient == null || !checkCanTransfer(amount)) {
             return false;
         }
@@ -22,7 +22,7 @@ public class Account {
         return true;
     }
 
-    public void addToBalance(long amount) {
+    public void addToBalance(int amount) {
         balance += amount;
     }
 
@@ -30,7 +30,7 @@ public class Account {
         balance += money.getAmount();
     }
 
-    public boolean checkCanTransfer(long amount) {
+    public boolean checkCanTransfer(int amount) {
         return amount >= 0 && amount <= balance;
     }
 }
