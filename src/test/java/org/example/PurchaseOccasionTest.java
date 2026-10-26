@@ -56,12 +56,12 @@ class PurchaseOccasionTest {
         Basket basket = new Basket();
         basket.addItem(itemWithPrice(10000));
 
-        Discount discount = mock(Discount.class);
-        when(discount.getSeniorDiscountProcent()).thenReturn(10);
+        DiscountHandler discount = mock(DiscountHandler.class);
+        when(DiscountHandler.getSeniorDiscount()).thenReturn((long) 10);
 
-        PurchaseOccasion purchase = createPurchaseOfSenior(basket);
-        if(purchase.getCustomer().getSeniorStatus()) {
-            purchase.applyDiscount(discount.getSeniorDiscountProcent());
+        PurchaseOccasion purchase = createPurchase(basket);
+        if(purchase.getSeniorStatus()) {
+            purchase.applySeniorDiscount();
         }
 
         assertEquals(9000, purchase.getTotalPriceForPurchace(), 0.001, "Total price should adhere to discount");
@@ -72,10 +72,9 @@ class PurchaseOccasionTest {
         Customer customer = mock(Customer.class);
         when(customer.getMembershipStatus()).thenReturn(true);
         Account account = mock(Account.class);
-        Discount discount = mock(Discount.class);
         Basket basket = mock(Basket.class);
 
-        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account, discount);
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account);
         assertTrue(purchase.getMembershipStatus());
     }
 
@@ -85,27 +84,9 @@ class PurchaseOccasionTest {
         when(customer.getSeniorStatus()).thenReturn(true);
         Account account = mock(Account.class);
         Basket basket = mock(Basket.class);
-        Map<String, Long> discMap = new Map<>();
 
-        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account, discMap);
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account);
         assertTrue(purchase.getSeniorStatus());
-    }
-
-    @Test
-    void applying_group_discount_should_change_total_cost_of_purchase() {
-         Basket basket = new Basket();
-        basket.addItem(itemWithPrice(10000));
-        basket.addItem(itemWithPrice(10000));
-        basket.addItem(itemWithPrice(10000));
-
-        Discount discount = mock(Discount.class);
-        Map<String, Long> discMap = new Map<>();
-        when(discount.getAllDiscounts(basket.getItems())).thenReturn(discMap);
-
-        PurchaseOccasion purchase = createPurchase(basket);
-        //purchase.applyDiscount(discMap); detta kanske är med av en integrationtest
-
-        assertEquals(9000, purchase.getTotalPriceForPurchace(), 0.001, "Total price should adhere to discount");
     }
 
     private Item itemWithPrice(long priceInOre) {
@@ -118,17 +99,7 @@ class PurchaseOccasionTest {
         Customer customer =
                 new Customer("Test Customer", "19900101-1234", false, false);
         Account account = mock(Account.class);
-        Discount discount = mock(Discount.class);
 
-        return new PurchaseOccasion(basket, customer, account, discount);
-    }
-
-    private PurchaseOccasion createPurchaseOfSenior(Basket basket) {
-        Customer customer =
-                new Customer("Test Customer", "19900101-1234", false, true);
-        Account account = mock(Account.class);
-        Discount discount = mock(Discount.class);
-
-        return new PurchaseOccasion(basket, customer, account, discount);
+        return new PurchaseOccasion(basket, customer, account);
     }
 }
