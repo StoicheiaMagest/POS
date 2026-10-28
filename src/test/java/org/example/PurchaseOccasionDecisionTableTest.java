@@ -292,4 +292,22 @@ public class PurchaseOccasionDecisionTableTest {
         // 3 x 100 - 100 (3 for 2) - 20 (coupon) = 180, then -10% = 162
         assertEquals(162L, purchase.getTotalPriceForPurchase());
     }
+
+    // senior discount requires membership too: a non-member senior gets nothing
+    @Test
+    void seniorWithoutMembershipGetsNoSeniorDiscount() {
+        Store store = createStore();
+        Item bread = article("Bröd", 200L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer seniorNonMember = new Customer("Greta", "19500101-1234", false, true);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorNonMember, store);
+
+        purchase.applyDiscounts();
+
+        assertEquals(200L, purchase.getTotalPriceForPurchase());
+    }
 }
