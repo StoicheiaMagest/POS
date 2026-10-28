@@ -2,6 +2,7 @@ package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,13 @@ public class CouponTest {
         LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
         Coupon coupon = new Coupon("20krOff", 20, yesterday);
         assertTrue(coupon.isExpired());
+    }
+
+    @Test
+    public void couponWithExpiryDateInTheFutureIsNotExpired(){
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+        Coupon coupon = new Coupon("20krOff", 20, tomorrow);
+        assertFalse(coupon.isExpired());
     }
 
     @Test 
