@@ -81,4 +81,24 @@ public class PurchaseOccasionDecisionTableTest {
 
         assertEquals(150L, purchase.getTotalPriceForPurchase());
     }
+
+    // r4: multi-item discount plus membership -> only the 3 for 2, no extra member benefit
+    @Test
+    void r4MultiItemWithMemberGivesOnlyTheMultiItemDiscount() {
+        Store store = createStore();
+        Item milk = article("Mjölk", 100L, "3FOR2");
+
+        Basket basket = new Basket();
+        basket.addItem(milk);
+        basket.addItem(milk);
+        basket.addItem(milk);
+
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, store);
+
+        purchase.applyDiscounts();
+
+        // 3 x 100 ore with one free = 200, membership adds nothing
+        assertEquals(200L, purchase.getTotalPriceForPurchase());
+    }
 }
