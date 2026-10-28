@@ -9,7 +9,7 @@ public class PurchaseOccasion {
     private Account storeBankAccount;
     private Basket customerBasket;
     private Customer customer;
-    private Map<String, Long> discounts;
+    private Map<String, Long> discounts = new HashMap<>();
     private long totalPrice; // cents
     DiscountHandler discounthandler = new DiscountHandler();
 
