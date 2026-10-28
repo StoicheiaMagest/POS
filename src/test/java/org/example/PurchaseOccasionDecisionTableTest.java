@@ -64,4 +64,21 @@ public class PurchaseOccasionDecisionTableTest {
 
         assertEquals(150L, purchase.getTotalPriceForPurchase());
     }
+
+    // r3: membership alone gives no discount
+    @Test
+    void r3MembershipAloneGivesNoDiscount() {
+        Store store = createStore();
+        Item bread = article("Bröd", 150L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, store);
+
+        purchase.applyDiscounts();
+
+        assertEquals(150L, purchase.getTotalPriceForPurchase());
+    }
 }
