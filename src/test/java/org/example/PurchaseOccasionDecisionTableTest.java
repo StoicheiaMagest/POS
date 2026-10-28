@@ -270,4 +270,26 @@ public class PurchaseOccasionDecisionTableTest {
         // 200 - 20 (coupon) = 180, then -10% = 162
         assertEquals(162L, purchase.getTotalPriceForPurchase());
     }
+
+    // r10: all conditions -> 3 for 2, then coupon, then 10 percent senior discount
+    @Test
+    void r10AllDiscountsApplyInPriorityOrder() {
+        Store store = createStore();
+        Item milk = article("Mjölk", 100L, "3FOR2");
+
+        Basket basket = new Basket();
+        basket.addItem(milk);
+        basket.addItem(milk);
+        basket.addItem(milk);
+
+        Customer seniorMember = new Customer("Greta", "19500101-1234", true, true);
+        seniorMember.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, store);
+
+        purchase.applyDiscounts();
+
+        // 3 x 100 - 100 (3 for 2) - 20 (coupon) = 180, then -10% = 162
+        assertEquals(162L, purchase.getTotalPriceForPurchase());
+    }
 }
