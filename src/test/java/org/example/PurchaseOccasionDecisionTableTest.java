@@ -210,4 +210,23 @@ public class PurchaseOccasionDecisionTableTest {
         assertEquals(0L, purchase.getTotalPriceForPurchase());
         assertFalse(member.getCoupons().contains(bigCoupon));
     }
+
+    // r7: member and senior -> 10 percent off, nothing else applies
+    @Test
+    void r7SeniorMemberGetsTenPercentOff() {
+        Store store = createStore();
+        Item bread = article("Bröd", 200L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer seniorMember = new Customer("Greta", "19500101-1234", true, true);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, store);
+
+        purchase.applyDiscounts();
+
+        // 200 - 10% = 180
+        assertEquals(180L, purchase.getTotalPriceForPurchase());
+    }
 }

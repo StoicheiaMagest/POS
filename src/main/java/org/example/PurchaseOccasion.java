@@ -59,6 +59,13 @@ public class PurchaseOccasion {
             }
         }
 
+        // 4. senior discount last, on whatever is left of the total,
+        // only for members who are also seniors
+        if (customer.getMembershipStatus() && customer.getSeniorStatus()) {
+            long seniorOff = Math.round(totalPrice * DiscountHandler.getSeniorDiscount() / 100.0);
+            totalPrice -= seniorOff;
+        }
+
         usedDiscount = true;
     }
 
@@ -73,14 +80,6 @@ public class PurchaseOccasion {
             }
             totalPrice -= discount.getValue();
         }
-        usedDiscount = true;
-    }
-
-    public void applySeniorDiscount() {
-        if(!customer.getSeniorStatus()) {
-            throw new IllegalArgumentException("Error, not a senior");
-        }
-        totalPrice = Math.round(totalPrice * (100 - DiscountHandler.getSeniorDiscount()));
         usedDiscount = true;
     }
 
