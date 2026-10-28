@@ -28,4 +28,12 @@ public class CheckOut {
     public Basket getBasket() {
         return basket;
     }
+
+    /*
+     * Ends the checkout: the scanned basket, the customer and the store are
+     * handed over to a new PurchaseOccasion, which does the pricing and payment.
+     */
+    public PurchaseOccasion pay(Customer customer) {
+        return new PurchaseOccasion(basket, customer, store);
+    }
 }

@@ -36,4 +36,17 @@ public class CheckOutTest {
         assertEquals(2, checkOut.getBasket().getItems().size());
         assertEquals(250L, checkOut.getBasket().getTotalPrice());
     }
+
+    @Test
+    public void payCreatesPurchaseOccasionFromThisCheckoutsBasketAndStore(){
+        Store store = createStoreWithTwoArticles();
+        CheckOut checkOut = new CheckOut(store);
+        checkOut.scanGoods(1001, 1002);
+        Customer customer = new Customer("Alex", "19900101-1234", false, false);
+
+        PurchaseOccasion purchase = checkOut.pay(customer);
+
+        assertEquals(250L, purchase.getTotalPriceForPurchase());
+        assertEquals(store, purchase.getStore());
+    }
 }
