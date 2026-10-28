@@ -62,4 +62,20 @@ public class PurchaseOccasionPaymentTest {
         assertEquals(0L, store.getStoreBankAccount().getBalance());
         assertEquals(100L, poorAccount.getBalance());
     }
+
+    @Test
+    void payPurchaseFailsWhenCustomerHasNoCard() {
+        Store store = createStoreWithBalance(0);
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(250));
+
+        Customer customerWithoutCard = new Customer("Stig", "19900101-1234", false, false);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customerWithoutCard, store);
+
+        boolean paid = purchase.payPurchase();
+
+        assertFalse(paid);
+        assertEquals(0L, store.getStoreBankAccount().getBalance());
+    }
 }
