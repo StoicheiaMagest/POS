@@ -8,7 +8,7 @@ public class DiscountHandler {
     //Map of discount name and value
     private Map<String, Long> discountsMap = new HashMap<>();
     private Map<Item, Long> item3For2Counter = new HashMap<>();
-    private long seniorDiscountProcentage = 10;
+    private static final long SENIOR_DISCOUNT_PROCENTAGE= 10;
 
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
@@ -36,8 +36,8 @@ public class DiscountHandler {
     }
 
     //temp
-    public long getSeniorDiscount(){
-        return seniorDiscountProcentage;
+    public static long getSeniorDiscount(){
+        return SENIOR_DISCOUNT_PROCENTAGE;
     }
 
     public void check3for2Discount(Item item){
