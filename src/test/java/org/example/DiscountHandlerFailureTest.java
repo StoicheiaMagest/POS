@@ -59,4 +59,27 @@ class DiscountHandlerFailureTest {
 
         assertEquals(2000, totalDiscount);
     }
+
+    // Failure mode 3: the handler keeps its maps between getAllDiscounts calls,
+    // so a second occasion re-adds the first occasion's discounts and leftover
+    // partial groups leak from one customer's basket into the next.
+    @Test
+    void getAllDiscountsDoesNotAccumulateAcrossCalls() {
+        DiscountHandler handler = new DiscountHandler();
+
+        Item milk = mock(Item.class);
+        when(milk.getDiscountType()).thenReturn("3FOR2");
+        when(milk.getPrice()).thenReturn(1000L);
+        when(milk.getInclusivePrice()).thenReturn(1000L);
+        when(milk.getName()).thenReturn("milk");
+
+        ArrayList<Item> threeMilks = new ArrayList<>(
+                Arrays.asList(milk, milk, milk));
+
+        handler.getAllDiscounts(threeMilks);
+        Map<String, Long> secondCall = handler.getAllDiscounts(threeMilks);
+
+        // the second call must report only its own basket: one free milk
+        assertEquals(1000L, secondCall.get("3FOR2 on milk"));
+    }
 }

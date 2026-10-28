@@ -12,6 +12,11 @@ public class DiscountHandler {
 
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
+        //every call computes one purchase from scratch: an old stateful map or
+        //leftover partial groups must not leak into the next occasion
+        discountsMap = new HashMap<>();
+        itemCounter = new HashMap<>();
+
         for (Item item : orderListen) {
             //items without a discount type have null here, switch(null) would crash
             String discountType = item.getDiscountType();
