@@ -97,4 +97,16 @@ class CustomerTest {
         assertEquals(1, customer.getCoupons().size());
         assertTrue(customer.getCoupons().contains(expiredCoupon));
     }
+
+    @Test
+    void validCouponIsUsedAndConsumed(){
+        Coupon coupon = new Coupon("20krOff", 20, LocalDateTime.now().plusDays(1));
+        Customer customer = new Customer("", "", true, false);
+        customer.addCoupon(coupon);
+
+        long reduction = customer.useCouponMethod(coupon);
+
+        assertEquals(20, reduction);
+        assertEquals(0, customer.getCoupons().size());
+    }
 }
