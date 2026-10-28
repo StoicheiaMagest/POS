@@ -9,6 +9,7 @@ public class Customer {
     private String personId;
     private boolean member;
     private boolean senior;
+    private Card card;
     private LinkedList<Coupon> coupons = new LinkedList<>();
 
     public Customer(String name, String personId, boolean member, boolean senior){
@@ -21,6 +22,14 @@ public class Customer {
 
     public void addCoupon(Coupon coupon){
         coupons.add(coupon);
+    }
+
+    public void setCard(Card card){
+        this.card = card;
+    }
+
+    public Card getCard(){
+        return card;
     }
 
     public LinkedList<Coupon> getCoupons(){

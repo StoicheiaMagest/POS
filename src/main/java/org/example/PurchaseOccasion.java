@@ -82,9 +82,17 @@ public class PurchaseOccasion {
         totalPrice -= seniorOff;
     }
 
-    public void payPurchase() {
-        //customer.getCard();
-        //totalPrice och nolla den för att "betala"
+    /*
+     * Pays the total price from the customer's card into the store's bank
+     * account. Returns false when the customer has no card or the transfer
+     * fails, for example when the card account does not cover the total.
+     */
+    public boolean payPurchase() {
+        Card card = customer.getCard();
+        if (card == null) {
+            return false;
+        }
+        return card.pay(totalPrice, storeBankAccount);
     }
 
     public long getTotalPriceForPurchase() {
