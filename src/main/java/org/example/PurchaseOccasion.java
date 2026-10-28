@@ -33,6 +33,18 @@ public class PurchaseOccasion {
         return store;
     }
 
+    /*
+     * Applies the store's multi-item discounts to the total price.
+     * The DiscountHandler is stateful, so getAllDiscounts is called exactly once.
+     */
+    public void applyDiscounts() {
+        discounts = store.getDiscountHandler().getAllDiscounts(customerBasket.getItems());
+        for(Map.Entry<String, Long> discount : discounts.entrySet()) {
+            totalPrice -= discount.getValue();
+        }
+        usedDiscount = true;
+    }
+
     public void applyDiscount() {
         if(customerBasket.getItems() == null || customerBasket.getItems().isEmpty()) {
             throw new IllegalArgumentException("Basket can't be empty");
