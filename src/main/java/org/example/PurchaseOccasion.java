@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class PurchaseOccasion {
 
-    private Account storeBankAccount;
+    private Account storeBankAccount; //behövs denna?
     private Basket customerBasket;
     private Customer customer;
     private Map<String, Long> discounts;
