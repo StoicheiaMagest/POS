@@ -3,15 +3,15 @@ package org.example;
 
 public class BarcodeScanner {
 
-    private final Basket basket;
     private final ArticleRegistry registry;
 
-    public BarcodeScanner(Basket basket, ArticleRegistry registry) {
-        this.basket = basket;
+    public BarcodeScanner(ArticleRegistry registry) {
         this.registry = registry;
     }
 
-    public long scan(int articleNumber) {
+    //Scans a barcode and returns the matching item from the registry.
+    //The scanner does not know any basket, adding to a basket is done by the caller.
+    public Item scan(int articleNumber) {
         Item item = registry.findByArticleNumber(articleNumber);
 
         if (item == null) {
@@ -20,7 +20,6 @@ public class BarcodeScanner {
             );
         }
 
-        basket.addItem(item);
-        return item.getPrice();
+        return item;
     }
 }
