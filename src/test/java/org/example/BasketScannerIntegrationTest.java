@@ -19,7 +19,7 @@ class BasketScannerIntegrationTest {
         when(item.getPrice()).thenReturn(100);
         when(item.getInclusivePrice()).thenReturn(100L);
 
-        registry.addItem(1001, item);
+        registry.registerItem(1001, item);
 
         int result = scanner.scan(1001);
 
@@ -42,8 +42,8 @@ class BasketScannerIntegrationTest {
         when(secondItem.getPrice()).thenReturn(250);
         when(secondItem.getInclusivePrice()).thenReturn(250L);
 
-        registry.addItem(1001, firstItem);
-        registry.addItem(1002, secondItem);
+        registry.registerItem(1001, firstItem);
+        registry.registerItem(1002, secondItem);
 
         scanner.scan(1001);
         scanner.scan(1002);
