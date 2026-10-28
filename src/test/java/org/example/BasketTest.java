@@ -107,11 +107,12 @@ class BasketTest {
         Basket basket = new Basket();
         Item item = mock(Item.class);
 
-        when(item.getPrice()).thenReturn(1000);
+        when(item.getPrice()).thenReturn(1000L);
         when(item.getInclusivePrice()).thenReturn(1250L);
 
         basket.addItem(item);
 
         assertEquals(1250L, basket.getTotalPrice());
     }
+
 }

@@ -30,27 +30,25 @@ class ScannerTest {
 
     @Test
     void scanReturnsDifferentPricesForDifferentItems() {
-        // Arrange
         Basket basket = new Basket();
         ArticleRegistry registry = mock(ArticleRegistry.class);
         Scanner scanner = new Scanner(basket, registry);
 
         Item firstItem = mock(Item.class);
-        when(firstItem.getPrice()).thenReturn(100l);
+        when(firstItem.getPrice()).thenReturn(100L);
         when(registry.findByArticleNumber(1001)).thenReturn(firstItem);
 
         Item secondItem = mock(Item.class);
-        when(secondItem.getPrice()).thenReturn(250l);
+        when(secondItem.getPrice()).thenReturn(250L);
         when(registry.findByArticleNumber(1002)).thenReturn(secondItem);
 
-        // Act
-        long firstResult = scanner.scan(100);
+        long firstResult = scanner.scan(1001);
         long secondResult = scanner.scan(1002);
 
-        // Assert
-        assertEquals(100, firstResult);
-        assertEquals(250, secondResult);
+        assertEquals(100L, firstResult);
+        assertEquals(250L, secondResult);
     }
+
 
     @Test
     void scanThrowsExceptionWhenArticleDoesNotExist() {

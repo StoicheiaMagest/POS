@@ -1,70 +1,79 @@
 package org.example;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DiscountTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class DiscountTest {
     private final DiscountHandler discount = new DiscountHandler();
-    private Item milk = mock(Item.class);
-    private Item bread = mock(Item.class);
-    private Item oboy = mock(Item.class);
-    private int seniorDiscountProcentage = 10;
-    Map<String, Long> expectedMap = new HashMap<>();
-    Map<Item, Integer> expectedCounterMap = new HashMap<>();
-    
+    private final Item milk = mock(Item.class);
+    private final Item bread = mock(Item.class);
+    private final Item oboy = mock(Item.class);
+    private final int seniorDiscountPercentage = 10;
+
+    private final Map<String, Long> expectedMap = new HashMap<>();
+    private final Map<Item, Long> expectedCounterMap = new HashMap<>();
+
     @BeforeEach
-    void setUp(){
+    void setUp() {
+        expectedMap.clear();
+        expectedCounterMap.clear();
+
         when(milk.getDiscountType()).thenReturn("3FOR2");
-        when(milk.getPrice()).thenReturn(1000l);
+        when(milk.getPrice()).thenReturn(1000L);
         when(milk.getName()).thenReturn("milk");
+
         when(bread.getDiscountType()).thenReturn("3FOR2");
-        when(bread.getPrice()).thenReturn(1500l);
+        when(bread.getPrice()).thenReturn(1500L);
         when(bread.getName()).thenReturn("bread");
+
         when(oboy.getDiscountType()).thenReturn("2KR_OFF");
-        when(oboy.getPrice()).thenReturn(2000l);
+        when(oboy.getPrice()).thenReturn(2000L);
         when(oboy.getName()).thenReturn("oboy");
     }
 
-    @Test 
-    void Discount_check_3_for_2(){
+    @Test
+    void discountCheck3For2() {
         discount.check3for2Discount(milk);
         discount.check3for2Discount(milk);
         discount.check3for2Discount(milk);
-        
-        expectedMap.put(milk.getDiscountType() +" on "+milk.getName(), (long)milk.getPrice());
+
+        expectedMap.put("3FOR2 on milk", 1000L);
+
         assertEquals(expectedMap, discount.getDiscountMap());
-        //System.err.println(discount.getDiscountMap());
-    }
-
-    @Test 
-    void Multiple_3_for_2_in_diffrent_order(){
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(bread);
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(bread);
-        discount.check3for2Discount(bread);
-        discount.check3for2Discount(milk);
-        
-        expectedMap.put(bread.getDiscountType() +" on "+bread.getName(), (long)bread.getPrice());
-        expectedMap.put(milk.getDiscountType() +" on "+milk.getName(), (long)milk.getPrice());
-
-        assertEquals(expectedMap,discount.getDiscountMap());
-        //System.err.println(discount.getDiscountMap());
     }
 
     @Test
-    void Discount_type_is_2p(){
+    void multiple3For2DiscountsInDifferentOrder() {
+        discount.check3for2Discount(milk);
+        discount.check3for2Discount(bread);
+        discount.check3for2Discount(milk);
+        discount.check3for2Discount(bread);
+        discount.check3for2Discount(bread);
+        discount.check3for2Discount(milk);
+
+        expectedMap.put("3FOR2 on bread", 1500L);
+        expectedMap.put("3FOR2 on milk", 1000L);
+
+        assertEquals(expectedMap, discount.getDiscountMap());
+    }
+
+    @Test
+    void discountTypeIs2KrOff() {
         assertEquals("2KR_OFF", oboy.getDiscountType());
     }
 
-    @Test 
-    void Removed_item_from_counter_after_complete(){
+    @Test
+    void removesItemFromCounterAfterCompletingThreeForTwo() {
         discount.check3for2Discount(milk);
         discount.check3for2Discount(milk);
         discount.check3for2Discount(milk);
@@ -73,37 +82,35 @@ public class DiscountTest {
     }
 
     @Test
-    void Unused_item_left_in_counter(){
+    void unusedItemsRemainInCounter() {
         discount.check3for2Discount(milk);
         discount.check3for2Discount(milk);
         discount.check3for2Discount(milk);
         discount.check3for2Discount(milk);
         discount.check3for2Discount(milk);
 
-        expectedCounterMap.put(milk,2);
+        expectedCounterMap.put(milk, 2L);
 
         assertTrue(discount.getItemCounterMap().containsKey(milk));
         assertEquals(expectedCounterMap, discount.getItemCounterMap());
     }
-    
-    @Test 
-    void Get_Senior_Discount(){
-        assertEquals(discount.getSeniorDiscount(), seniorDiscountProcentage);
+
+    @Test
+    void returnsSeniorDiscount() {
+        assertEquals(seniorDiscountPercentage, discount.getSeniorDiscount());
     }
 
-    @Test 
-    void getAllDiscounts_called_with_orderlist(){
-        //make big orderlist and send to getAllDiscounts check if list is correct
-        ArrayList<Item> orderListen = new ArrayList<>(Arrays.asList(milk,bread,bread,milk,oboy,bread,milk,bread,bread,milk,milk,milk));
-    
-        expectedMap.put(bread.getDiscountType() +" on "+bread.getName(), (long)bread.getPrice());
-        expectedMap.put(oboy.getDiscountType() +" on "+oboy.getName(), 2l);
-        expectedMap.put(milk.getDiscountType() +" on "+milk.getName(), (long)milk.getPrice());
-        expectedMap.put(milk.getDiscountType() +" on "+milk.getName(), (long)milk.getPrice());
-        //System.out.println("test 6 "+expectedMap +"  "+ discount.getAllDiscounts(orderListen));
-        
-        
-        assertEquals(expectedMap, discount.getAllDiscounts(orderListen));
-        System.err.println(discount.getAllDiscounts(orderListen));
+    @Test
+    void getAllDiscountsWithOrderList() {
+        ArrayList<Item> orderList = new ArrayList<>(Arrays.asList(
+                milk, bread, bread, milk, oboy, bread,
+                milk, bread, bread, milk, milk, milk
+        ));
+
+        expectedMap.put("3FOR2 on bread", 1500L);
+        expectedMap.put("2KR_OFF on oboy", 2L);
+        expectedMap.put("3FOR2 on milk", 1000L);
+
+        assertEquals(expectedMap, discount.getAllDiscounts(orderList));
     }
 }
