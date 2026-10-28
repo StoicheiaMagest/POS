@@ -35,38 +35,55 @@ public class PurchaseOccasion {
     }
 
     /*
-     * Applies the store's multi-item discounts to the total price.
-     * The DiscountHandler is stateful, so getAllDiscounts is called exactly once.
+     * Applies all discounts in the decision table's priority order:
+     * 1. flertartikelsrabatt, 2. membership check, 3. coupons, 4. senior discount.
      */
     public void applyDiscounts() {
-        // 1. flertartikelsrabatt, applies to everyone
+        applyMultiItemDiscounts();
+        applyCouponsIfMember();
+        applySeniorDiscountIfMemberAndSenior();
+        usedDiscount = true;
+    }
+
+    // Step 1: the store's multi-item discounts, these apply to everyone.
+    // The DiscountHandler is stateful, so getAllDiscounts is called exactly once.
+    private void applyMultiItemDiscounts() {
         discounts = store.getDiscountHandler().getAllDiscounts(customerBasket.getItems());
-        for(Map.Entry<String, Long> discount : discounts.entrySet()) {
+        for (Map.Entry<String, Long> discount : discounts.entrySet()) {
             totalPrice -= discount.getValue();
         }
+    }
 
-        // 2. membership check and 3. coupons: only members may use coupons,
-        // as many valid ones as they want, the total never goes below zero.
-        if (customer.getMembershipStatus()) {
-            LinkedList<Coupon> couponsToUse = new LinkedList<>(customer.getCoupons());
-            for (Coupon coupon : couponsToUse) {
-                if (!coupon.isExpired()) {
-                    totalPrice -= customer.useCouponMethod(coupon);
-                    if (totalPrice < 0) {
-                        totalPrice = 0;
-                    }
-                }
-            }
+    // Steps 2 and 3: only members may use coupons, as many valid ones as they want.
+    private void applyCouponsIfMember() {
+        if (!customer.getMembershipStatus()) {
+            return;
         }
-
-        // 4. senior discount last, on whatever is left of the total,
-        // only for members who are also seniors
-        if (customer.getMembershipStatus() && customer.getSeniorStatus()) {
-            long seniorOff = Math.round(totalPrice * DiscountHandler.getSeniorDiscount() / 100.0);
-            totalPrice -= seniorOff;
+        LinkedList<Coupon> couponsToUse = new LinkedList<>(customer.getCoupons());
+        for (Coupon coupon : couponsToUse) {
+            useCouponIfValid(coupon);
         }
+    }
 
-        usedDiscount = true;
+    // Expired coupons are skipped and stay with the customer.
+    private void useCouponIfValid(Coupon coupon) {
+        if (coupon.isExpired()) {
+            return;
+        }
+        totalPrice -= customer.useCouponMethod(coupon);
+        if (totalPrice < 0) {
+            totalPrice = 0;
+        }
+    }
+
+    // Step 4: senior discount last, on whatever is left of the total,
+    // only for members who are also seniors.
+    private void applySeniorDiscountIfMemberAndSenior() {
+        if (!customer.getMembershipStatus() || !customer.getSeniorStatus()) {
+            return;
+        }
+        long seniorOff = Math.round(totalPrice * DiscountHandler.getSeniorDiscount() / 100.0);
+        totalPrice -= seniorOff;
     }
 
     public void applyDiscount() {
