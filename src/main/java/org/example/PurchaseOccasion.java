@@ -53,6 +53,7 @@ public class PurchaseOccasion {
     }
 
     public void useCoupon() {
+        //kuponger får endast användas av medlemmar, icke medlemmar får ha kumponger med inte använda
         /*ArrayList<Coupon>() coupons = customer.getCoupons();
         for (Coupon coupon : coupons) {
             totalPrice = Math.max(0, (totalPrice - coupon));
