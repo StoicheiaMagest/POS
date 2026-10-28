@@ -166,4 +166,25 @@ public class PurchaseOccasionDecisionTableTest {
         assertEquals(150L, purchase.getTotalPriceForPurchase());
         assertTrue(nonMember.getCoupons().contains(coupon));
     }
+
+    // a member may use as many valid coupons as they want
+    @Test
+    void allValidCouponsOfMemberAreUsed() {
+        Store store = createStore();
+        Item bread = article("Bröd", 150L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        member.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+        member.addCoupon(new Coupon("30krOff", 30L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, store);
+
+        purchase.applyDiscounts();
+
+        // 150 - 20 - 30 = 100
+        assertEquals(100L, purchase.getTotalPriceForPurchase());
+    }
 }
