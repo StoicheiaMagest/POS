@@ -310,4 +310,23 @@ public class PurchaseOccasionDecisionTableTest {
 
         assertEquals(200L, purchase.getTotalPriceForPurchase());
     }
+
+    // the senior discount is rounded with Math.round: 10% of 205 is 20.5,
+    // which rounds to 21 ore off
+    @Test
+    void seniorDiscountRoundsWithMathRound() {
+        Store store = createStore();
+        Item bread = article("Bröd", 205L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer seniorMember = new Customer("Greta", "19500101-1234", true, true);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, store);
+
+        purchase.applyDiscounts();
+
+        assertEquals(184L, purchase.getTotalPriceForPurchase());
+    }
 }
