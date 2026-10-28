@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.Test;
 
 /*
@@ -100,5 +102,24 @@ public class PurchaseOccasionDecisionTableTest {
 
         // 3 x 100 ore with one free = 200, membership adds nothing
         assertEquals(200L, purchase.getTotalPriceForPurchase());
+    }
+
+    // r5: member with a valid coupon -> the coupon reduction comes off
+    @Test
+    void r5MemberCouponReducesTotal() {
+        Store store = createStore();
+        Item bread = article("Bröd", 150L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        member.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, store);
+
+        purchase.applyDiscounts();
+
+        assertEquals(130L, purchase.getTotalPriceForPurchase());
     }
 }

@@ -1,6 +1,7 @@
 package org.example;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 
@@ -38,10 +39,26 @@ public class PurchaseOccasion {
      * The DiscountHandler is stateful, so getAllDiscounts is called exactly once.
      */
     public void applyDiscounts() {
+        // 1. flertartikelsrabatt, applies to everyone
         discounts = store.getDiscountHandler().getAllDiscounts(customerBasket.getItems());
         for(Map.Entry<String, Long> discount : discounts.entrySet()) {
             totalPrice -= discount.getValue();
         }
+
+        // 2. membership check and 3. coupons: only members may use coupons,
+        // as many valid ones as they want, the total never goes below zero.
+        if (customer.getMembershipStatus()) {
+            LinkedList<Coupon> couponsToUse = new LinkedList<>(customer.getCoupons());
+            for (Coupon coupon : couponsToUse) {
+                if (!coupon.isExpired()) {
+                    totalPrice -= customer.useCouponMethod(coupon);
+                    if (totalPrice < 0) {
+                        totalPrice = 0;
+                    }
+                }
+            }
+        }
+
         usedDiscount = true;
     }
 
