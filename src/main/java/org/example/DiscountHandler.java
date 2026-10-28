@@ -13,7 +13,13 @@ public class DiscountHandler {
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
         for (Item item : orderListen) {
-            switch (item.getDiscountType()) {  
+            //items without a discount type have null here, switch(null) would crash
+            String discountType = item.getDiscountType();
+            if (discountType == null) {
+                continue;
+            }
+
+            switch (discountType) {  
                 case "3FOR2": //implementera så att den räknar antal produkter korrekt
                     checkMultiItemDiscount(item, 3);
                     break;
@@ -34,6 +40,17 @@ public class DiscountHandler {
         return discountsMap;
     }
 
+    //Adds a discount amount to the map. The same article can complete several
+    //discount groups (for example six milks give two 3-for-2 discounts), so an
+    //already existing entry is increased instead of overwritten.
+    protected void addDiscount(String key, long amount){
+        long alreadyFound = 0;
+        if(discountsMap.containsKey(key)){
+            alreadyFound = discountsMap.get(key);
+        }
+        discountsMap.put(key, alreadyFound + amount);
+    }
+
     public Map<String, Long> getDiscountMap(){
         return discountsMap;
     }
@@ -51,7 +68,7 @@ public class DiscountHandler {
         if(itemCounter.containsKey(item)){
             if(itemCounter.get(item)==neededNumberOfItem-1){
                 itemCounter.remove(item);
-                discountsMap.put(item.getDiscountType() +" on "+item.getName(),item.getPrice());
+                addDiscount(item.getDiscountType() +" on "+item.getName(), item.getPrice());
             }
             else{
                 itemCounter.replace(item, itemCounter.get(item)+1);

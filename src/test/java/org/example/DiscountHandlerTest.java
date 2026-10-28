@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class DiscountTest {
+class DiscountHandlerTest {
     private final DiscountHandler discount = new DiscountHandler();
     private final Item milk = mock(Item.class);
     private final Item bread = mock(Item.class);
@@ -108,9 +108,10 @@ class DiscountTest {
                 milk, oboy, bread, bread, milk, oboy, oboy, milk, milk, oboy
         ));
 
+        //6 milks complete TWO 3-for-2 groups, so the milk discount is 2 x 1000
         expectedMap.put("4FOR3 on bread", 1500L);
         expectedMap.put("5FOR4 on oboy", 2000L);
-        expectedMap.put("3FOR2 on milk", 1000L);
+        expectedMap.put("3FOR2 on milk", 2000L);
 
         assertEquals(expectedMap, discount.getAllDiscounts(orderList));
     }
