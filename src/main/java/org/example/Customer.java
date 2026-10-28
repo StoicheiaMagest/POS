@@ -31,6 +31,9 @@ public class Customer {
         if(!coupons.contains(coupon)){
             throw new NullPointerException();
         }
+        if(coupon.isExpired()){
+            throw new IllegalArgumentException("Coupon has expired");
+        }
         coupons.remove(coupon);
         return coupon.getReduction();
     }

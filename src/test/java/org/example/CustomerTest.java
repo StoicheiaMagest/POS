@@ -71,4 +71,14 @@ class CustomerTest {
 
         assertEquals(coupons, customer.getCoupons());
     }
+
+    @Test
+    void useCouponMethodWithExpiredCouponFails(){
+        Coupon expiredCoupon = new Coupon("20krOff", 20, LocalDateTime.now().minusDays(1));
+        Customer customer = new Customer("", "", true, false);
+        customer.addCoupon(expiredCoupon);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> customer.useCouponMethod(expiredCoupon));
+    }
 }
