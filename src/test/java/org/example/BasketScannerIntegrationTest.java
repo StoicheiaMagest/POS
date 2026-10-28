@@ -12,7 +12,7 @@ class BasketScannerIntegrationTest {
     void scanningItemAddsItToBasket() {
         Basket basket = new Basket();
         ArticleRegistry registry = new ArticleRegistry();
-        Scanner scanner = new Scanner(basket, registry);
+        BarcodeScanner scanner = new BarcodeScanner(basket, registry);
 
         Item item = mock(Item.class);
         when(item.getPrice()).thenReturn(100L);
@@ -31,7 +31,7 @@ class BasketScannerIntegrationTest {
     void scanningTwoItemsAddsBothPricesToBasket() {
         Basket basket = new Basket();
         ArticleRegistry registry = new ArticleRegistry();
-        Scanner scanner = new Scanner(basket, registry);
+        BarcodeScanner scanner = new BarcodeScanner(basket, registry);
 
         Item firstItem = mock(Item.class);
         when(firstItem.getPrice()).thenReturn(100L);
@@ -55,7 +55,7 @@ class BasketScannerIntegrationTest {
     void scanningUnknownArticleThrowsException() {
         Basket basket = new Basket();
         ArticleRegistry registry = new ArticleRegistry();
-        Scanner scanner = new Scanner(basket, registry);
+        BarcodeScanner scanner = new BarcodeScanner(basket, registry);
 
         assertThrows(
                 IllegalArgumentException.class,

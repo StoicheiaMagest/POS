@@ -1,12 +1,12 @@
 
 package org.example;
 
-public class Scanner {
+public class BarcodeScanner {
 
     private final Basket basket;
     private final ArticleRegistry registry;
 
-    public Scanner(Basket basket, ArticleRegistry registry) {
+    public BarcodeScanner(Basket basket, ArticleRegistry registry) {
         this.basket = basket;
         this.registry = registry;
     }
