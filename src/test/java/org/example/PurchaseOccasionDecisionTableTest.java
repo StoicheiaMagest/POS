@@ -47,4 +47,21 @@ public class PurchaseOccasionDecisionTableTest {
         // 3 x 100 ore with one free = 200
         assertEquals(200L, purchase.getTotalPriceForPurchase());
     }
+
+    // r1: nothing applies -> total stays the same
+    @Test
+    void r1NoDiscountConditionsKeepsTotalUnchanged() {
+        Store store = createStore();
+        Item bread = article("Bröd", 150L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer nonMember = new Customer("Stig", "19900101-1234", false, false);
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, nonMember, store);
+
+        purchase.applyDiscounts();
+
+        assertEquals(150L, purchase.getTotalPriceForPurchase());
+    }
 }
