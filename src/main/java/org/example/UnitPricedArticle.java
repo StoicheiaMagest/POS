@@ -5,13 +5,13 @@ package org.example;
 
 public class UnitPricedArticle extends Item {
 
-    public UnitPricedArticle(String name, int priceExclCents,
+    public UnitPricedArticle(String name, long priceExclCents,
                              Vat vat, int articleId) {
         super(name, priceExclCents, vat, articleId);
     }
 
     @Override
-    public int getPrice() {
+    public long getPrice() {
         return price; // Returns the base price (exclusive of VAT) in cents
     }
 

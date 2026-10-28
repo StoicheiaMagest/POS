@@ -5,10 +5,10 @@ package org.example;
 
 public class WeighedItem extends Item {
 
-    private final int weightInGrams;
-    private final int pricePerKg;
+    private final long weightInGrams;
+    private final long pricePerKg;
 
-    public WeighedItem(String name, int pricePerKg, Vat vat, int weightInGrams, int articleId) {
+    public WeighedItem(String name, long pricePerKg, Vat vat, long weightInGrams, int articleId) {
         super(name, pricePerKg, vat, articleId);
         this.weightInGrams = weightInGrams;
         this.pricePerKg = pricePerKg;
@@ -19,7 +19,7 @@ public class WeighedItem extends Item {
         return vat;
     }
 
-    public int getWeight() {
+    public long getWeight() {
         return weightInGrams;
     }
 
@@ -31,12 +31,12 @@ public class WeighedItem extends Item {
     }
 
     @Override
-    public int getPrice() {
+    public long getPrice() {
         // Calculate the base price in cents using weight in grams.
         return (int) ((long) pricePerKg * weightInGrams / 1000);
     }
 
-    public int getPricePerKg() {
+    public long getPricePerKg() {
         return pricePerKg;
     }
 

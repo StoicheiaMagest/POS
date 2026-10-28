@@ -18,11 +18,11 @@ class ScannerTest {
         Scanner scanner = new Scanner(basket, registry);
 
         Item item = mock(Item.class);
-        when(item.getPrice()).thenReturn(100);
+        when(item.getPrice()).thenReturn(100l);
         when(registry.findByArticleNumber(1001)).thenReturn(item);
 
         // Act
-        int result = scanner.scan(1001);
+        long result = scanner.scan(1001);
 
         // Assert
         assertEquals(100, result);
@@ -36,16 +36,16 @@ class ScannerTest {
         Scanner scanner = new Scanner(basket, registry);
 
         Item firstItem = mock(Item.class);
-        when(firstItem.getPrice()).thenReturn(100);
+        when(firstItem.getPrice()).thenReturn(100l);
         when(registry.findByArticleNumber(1001)).thenReturn(firstItem);
 
         Item secondItem = mock(Item.class);
-        when(secondItem.getPrice()).thenReturn(250);
+        when(secondItem.getPrice()).thenReturn(250l);
         when(registry.findByArticleNumber(1002)).thenReturn(secondItem);
 
         // Act
-        int firstResult = scanner.scan(1001);
-        int secondResult = scanner.scan(1002);
+        long firstResult = scanner.scan(100);
+        long secondResult = scanner.scan(1002);
 
         // Assert
         assertEquals(100, firstResult);

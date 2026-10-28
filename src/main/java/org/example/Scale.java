@@ -6,7 +6,7 @@ public class Scale {
 
     }
 
-    public int weightPrice(WeighedItem item) {
+    public long weightPrice(WeighedItem item) {
         return item.getPrice();
     }
 }
