@@ -81,4 +81,20 @@ class CustomerTest {
         assertThrows(IllegalArgumentException.class,
                 () -> customer.useCouponMethod(expiredCoupon));
     }
+
+    @Test
+    void expiredCouponIsNotConsumedByFailedUse(){
+        Coupon expiredCoupon = new Coupon("20krOff", 20, LocalDateTime.now().minusDays(1));
+        Customer customer = new Customer("", "", true, false);
+        customer.addCoupon(expiredCoupon);
+
+        try {
+            customer.useCouponMethod(expiredCoupon);
+        } catch (IllegalArgumentException e) {
+            // expected, the coupon must still be kept below
+        }
+
+        assertEquals(1, customer.getCoupons().size());
+        assertTrue(customer.getCoupons().contains(expiredCoupon));
+    }
 }
