@@ -33,7 +33,7 @@ public class PurchaseOccasionPaymentTest {
 
         Customer customer = new Customer("Stig", "19900101-1234", false, false);
         Account customerBankAccount = new Account(1000);
-        customer.setCard(new Card(customerBankAccount));
+        customer.setCard(new Card(5555L, customerBankAccount));
 
         PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
 
@@ -52,7 +52,7 @@ public class PurchaseOccasionPaymentTest {
 
         Customer customer = new Customer("Stig", "19900101-1234", false, false);
         Account poorAccount = new Account(100);
-        customer.setCard(new Card(poorAccount));
+        customer.setCard(new Card(5555L, poorAccount));
 
         PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
 
@@ -89,7 +89,7 @@ public class PurchaseOccasionPaymentTest {
 
         Customer customer = new Customer("Stig", "19900101-1234", false, false);
         Account customerBankAccount = new Account(1000);
-        customer.setCard(new Card(customerBankAccount));
+        customer.setCard(new Card(5555L, customerBankAccount));
 
         PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
 
