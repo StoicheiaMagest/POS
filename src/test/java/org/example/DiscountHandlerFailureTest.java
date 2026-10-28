@@ -82,4 +82,30 @@ class DiscountHandlerFailureTest {
         // the second call must report only its own basket: one free milk
         assertEquals(1000L, secondCall.get("3FOR2 on milk"));
     }
+
+    // Failure mode 4: the item counter is keyed by object identity, so three
+    // SEPARATE Item instances that represent the same article (same article
+    // number) never form a discount group. Keying on article number instead
+    // makes counting independent of how the instances were created.
+    @Test
+    void separateInstancesOfSameArticleFormOneDiscountGroup() {
+        DiscountHandler handler = new DiscountHandler();
+
+        ArrayList<Item> threeSeparateMilks = new ArrayList<>(Arrays.asList(
+                milkInstance(), milkInstance(), milkInstance()));
+
+        Map<String, Long> result = handler.getAllDiscounts(threeSeparateMilks);
+
+        assertEquals(1000L, result.get("3FOR2 on milk"));
+    }
+
+    private Item milkInstance() {
+        Item milk = mock(Item.class);
+        when(milk.getArticleNumber()).thenReturn(1001);
+        when(milk.getDiscountType()).thenReturn("3FOR2");
+        when(milk.getPrice()).thenReturn(1000L);
+        when(milk.getInclusivePrice()).thenReturn(1000L);
+        when(milk.getName()).thenReturn("milk");
+        return milk;
+    }
 }
