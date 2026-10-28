@@ -1,6 +1,7 @@
 package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -143,5 +144,26 @@ public class PurchaseOccasionDecisionTableTest {
 
         // 3 x 100 - 100 (3 for 2) - 20 (coupon) = 180
         assertEquals(180L, purchase.getTotalPriceForPurchase());
+    }
+
+    // non-members may keep coupons but never get a coupon discount (table: n/a)
+    @Test
+    void nonMemberCouponHasNoEffectAndStaysUnused() {
+        Store store = createStore();
+        Item bread = article("Bröd", 150L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer nonMember = new Customer("Stig", "19900101-1234", false, false);
+        Coupon coupon = new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1));
+        nonMember.addCoupon(coupon);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, nonMember, store);
+
+        purchase.applyDiscounts();
+
+        assertEquals(150L, purchase.getTotalPriceForPurchase());
+        assertTrue(nonMember.getCoupons().contains(coupon));
     }
 }
