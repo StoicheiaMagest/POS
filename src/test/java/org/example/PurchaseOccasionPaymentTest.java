@@ -1,6 +1,7 @@
 package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,5 +41,25 @@ public class PurchaseOccasionPaymentTest {
         assertTrue(paid);
         assertEquals(250L, store.getStoreBankAccount().getBalance());
         assertEquals(750L, customerBankAccount.getBalance());
+    }
+
+    @Test
+    void payPurchaseFailsWhenCardAccountDoesNotCoverTotal() {
+        Store store = createStoreWithBalance(0);
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(250));
+
+        Customer customer = new Customer("Stig", "19900101-1234", false, false);
+        Account poorAccount = new Account(100);
+        customer.setCard(new Card(poorAccount));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
+
+        boolean paid = purchase.payPurchase();
+
+        assertFalse(paid);
+        // nothing moved: the failed transfer leaves both accounts untouched
+        assertEquals(0L, store.getStoreBankAccount().getBalance());
+        assertEquals(100L, poorAccount.getBalance());
     }
 }
