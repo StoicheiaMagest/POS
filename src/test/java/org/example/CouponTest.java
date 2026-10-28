@@ -1,12 +1,12 @@
 package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class CouponTest {
@@ -25,12 +25,14 @@ public class CouponTest {
         assertFalse(coupon.isExpired());
     }
 
-    @Test 
+    @Test
+    @Disabled("TODO: constructor does not validate the name yet - needs a RED test when implemented")
     public void createCouponWithoutNameIsInvalid(){
 
     }
 
-    @Test 
+    @Test
+    @Disabled("TODO: constructor does not validate the reduction yet - needs a RED test when implemented")
     public void createCouponWithNegativeReducitonIsInvalid(){
         //Coupon coupon = new Coupon("20krOff", -20);
     }
