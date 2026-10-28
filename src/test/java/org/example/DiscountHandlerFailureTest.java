@@ -45,6 +45,7 @@ class DiscountHandlerFailureTest {
         Item milk = mock(Item.class);
         when(milk.getDiscountType()).thenReturn("3FOR2");
         when(milk.getPrice()).thenReturn(1000L);
+        when(milk.getInclusivePrice()).thenReturn(1000L);
         when(milk.getName()).thenReturn("milk");
 
         ArrayList<Item> orderList = new ArrayList<>(
@@ -107,5 +108,27 @@ class DiscountHandlerFailureTest {
         when(milk.getInclusivePrice()).thenReturn(1000L);
         when(milk.getName()).thenReturn("milk");
         return milk;
+    }
+
+    // Failure mode 5: the basket total is summed from inclusive prices, but
+    // the completed discount group refunds the EXCLUSIVE price. A free item
+    // must be worth what the customer would have paid for it: the sales
+    // (inclusive) price.
+    @Test
+    void freeItemIsRefundedAtItsInclusiveSalesPrice() {
+        DiscountHandler handler = new DiscountHandler();
+
+        Item milk = mock(Item.class);
+        when(milk.getArticleNumber()).thenReturn(1001);
+        when(milk.getDiscountType()).thenReturn("3FOR2");
+        when(milk.getPrice()).thenReturn(800L);          // excl. VAT
+        when(milk.getInclusivePrice()).thenReturn(1000L); // what the customer pays
+        when(milk.getName()).thenReturn("milk");
+
+        ArrayList<Item> threeMilks = new ArrayList<>(Arrays.asList(milk, milk, milk));
+
+        Map<String, Long> result = handler.getAllDiscounts(threeMilks);
+
+        assertEquals(1000L, result.get("3FOR2 on milk"));
     }
 }

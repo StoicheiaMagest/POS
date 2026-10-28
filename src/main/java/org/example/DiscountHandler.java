@@ -76,7 +76,9 @@ public class DiscountHandler {
         if(itemCounter.containsKey(articleNumber)){
             if(itemCounter.get(articleNumber)==neededNumberOfItem-1){
                 itemCounter.remove(articleNumber);
-                addDiscount(item.getDiscountType() +" on "+item.getName(), item.getPrice());
+                //the free item is worth its sales price, since that is what
+                //the basket total (inclusive prices) charged for it
+                addDiscount(item.getDiscountType() +" on "+item.getName(), item.getInclusivePrice());
             }
             else{
                 itemCounter.replace(articleNumber, itemCounter.get(articleNumber)+1);

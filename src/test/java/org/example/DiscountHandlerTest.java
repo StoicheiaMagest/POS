@@ -31,16 +31,19 @@ class DiscountHandlerTest {
         when(milk.getArticleNumber()).thenReturn(1001);
         when(milk.getDiscountType()).thenReturn("3FOR2");
         when(milk.getPrice()).thenReturn(1000L);
+        when(milk.getInclusivePrice()).thenReturn(1000L);
         when(milk.getName()).thenReturn("milk");
 
         when(bread.getArticleNumber()).thenReturn(1002);
         when(bread.getDiscountType()).thenReturn("4FOR3");
         when(bread.getPrice()).thenReturn(1500L);
+        when(bread.getInclusivePrice()).thenReturn(1500L);
         when(bread.getName()).thenReturn("bread");
 
         when(oboy.getArticleNumber()).thenReturn(1003);
         when(oboy.getDiscountType()).thenReturn("5FOR4");
         when(oboy.getPrice()).thenReturn(2000L);
+        when(oboy.getInclusivePrice()).thenReturn(2000L);
         when(oboy.getName()).thenReturn("oboy");
     }
 
