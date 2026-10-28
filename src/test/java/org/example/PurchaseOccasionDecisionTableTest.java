@@ -1,6 +1,7 @@
 package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -186,5 +187,27 @@ public class PurchaseOccasionDecisionTableTest {
 
         // 150 - 20 - 30 = 100
         assertEquals(100L, purchase.getTotalPriceForPurchase());
+    }
+
+    // the total never goes below zero: a coupon bigger than the balance
+    // is still used up and the total lands on exactly zero
+    @Test
+    void couponBiggerThanBalanceBringsTotalToZero() {
+        Store store = createStore();
+        Item gum = article("Tuggummi", 16L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(gum);
+
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        Coupon bigCoupon = new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1));
+        member.addCoupon(bigCoupon);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, store);
+
+        purchase.applyDiscounts();
+
+        assertEquals(0L, purchase.getTotalPriceForPurchase());
+        assertFalse(member.getCoupons().contains(bigCoupon));
     }
 }
