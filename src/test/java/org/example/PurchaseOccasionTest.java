@@ -33,7 +33,7 @@ class PurchaseOccasionTest {
         PurchaseOccasion purchase = createPurchase(basket, customer_regular);
 
         assertEquals(
-                "Kvitto\nAntal varor: 0\nTotalt: 0,00 SEK",
+                "Kvitto\nAntal varor: 0\n Rabatter: None\nTotalt: 0,00 SEK",
                 purchase.printReceipt()
         );
     }
