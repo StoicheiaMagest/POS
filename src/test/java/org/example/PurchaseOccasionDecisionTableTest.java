@@ -122,4 +122,26 @@ public class PurchaseOccasionDecisionTableTest {
 
         assertEquals(130L, purchase.getTotalPriceForPurchase());
     }
+
+    // r6: multi-item discount and coupon -> both apply, multi item first
+    @Test
+    void r6MultiItemAndCouponBothApply() {
+        Store store = createStore();
+        Item milk = article("Mjölk", 100L, "3FOR2");
+
+        Basket basket = new Basket();
+        basket.addItem(milk);
+        basket.addItem(milk);
+        basket.addItem(milk);
+
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        member.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, store);
+
+        purchase.applyDiscounts();
+
+        // 3 x 100 - 100 (3 for 2) - 20 (coupon) = 180
+        assertEquals(180L, purchase.getTotalPriceForPurchase());
+    }
 }
