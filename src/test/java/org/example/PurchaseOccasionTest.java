@@ -2,6 +2,7 @@ package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
@@ -63,6 +64,15 @@ class PurchaseOccasionTest {
                 "Kvitto\nAntal varor: 2\nTotalt: 15,00 SEK",
                 purchase.printReceipt()
         );
+    }
+
+    @Test
+    void constructureShouldThrowExceptionWhenCustomerIsNull() {
+        Basket basket = new Basket();
+        
+        assertThrows(IllegalArgumentException.class, () -> {
+            PurchaseOccasion purchase = createPurchase(basket, null);
+        });
     }
 
     @Test
