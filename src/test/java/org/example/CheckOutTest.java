@@ -47,6 +47,5 @@ public class CheckOutTest {
         PurchaseOccasion purchase = checkOut.pay(customer);
 
         assertEquals(250L, purchase.getTotalPriceForPurchase());
-        assertEquals(store, purchase.getStore());
     }
 }

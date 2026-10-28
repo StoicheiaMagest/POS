@@ -1,13 +1,12 @@
 package org.example;
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Map;
 
 public class PurchaseOccasion {
 
-    private Store store;
+    private Account storeBankAccount;
+    private DiscountHandler discountHandler;
     private Basket customerBasket;
     private Customer customer;
     private long totalPrice; // cents
@@ -26,12 +25,9 @@ public class PurchaseOccasion {
             throw new IllegalArgumentException("Customer can't be null!");
         }
         this.customer = customer;
-        this.store = store;
+        this.storeBankAccount = store.getStoreBankAccount();
+        this.discountHandler = store.getDiscountHandler();
         this.totalPrice = basket.getTotalPrice();
-    }
-
-    public Store getStore() {
-        return store;
     }
 
     /*
@@ -48,7 +44,7 @@ public class PurchaseOccasion {
     // Step 1: the store's multi-item discounts, these apply to everyone.
     // The DiscountHandler is stateful, so getAllDiscounts is called exactly once.
     private void applyMultiItemDiscounts() {
-        discounts = store.getDiscountHandler().getAllDiscounts(customerBasket.getItems());
+        discounts = discountHandler.getAllDiscounts(customerBasket.getItems());
         for (Map.Entry<String, Long> discount : discounts.entrySet()) {
             totalPrice -= discount.getValue();
         }
@@ -86,58 +82,10 @@ public class PurchaseOccasion {
         totalPrice -= seniorOff;
     }
 
-    public void applyDiscount() {
-        if(customerBasket.getItems() == null || customerBasket.getItems().isEmpty()) {
-            throw new IllegalArgumentException("Basket can't be empty");
-        }
-
-        for(Map.Entry<String, Long> discount : discounts.entrySet()) {
-            if (discount.getValue() < 0 || discount.getValue() > 100) {
-                throw new IllegalArgumentException("Discount must be between 0 and 100");
-            }
-            totalPrice -= discount.getValue();
-        }
-        usedDiscount = true;
-    }
-
-    public void useCoupon() {
-        //kuponger får endast användas av medlemmar, icke medlemmar får ha kumponger med inte använda
-        /*ArrayList<Coupon>() coupons = customer.getCoupons();
-        for (Coupon coupon : coupons) {
-            totalPrice = Math.max(0, (totalPrice - coupon));
-        }*/
-    }
-
     public void payPurchase() {
         //customer.getCard();
         //totalPrice och nolla den för att "betala"
     }
-//
-//    public String printReceipt() {
-//        NumberFormat formatter = NumberFormat.getNumberInstance(
-//                Locale.forLanguageTag("sv-SE")
-//        );
-//        formatter.setMinimumFractionDigits(2);
-//        formatter.setMaximumFractionDigits(2);
-//
-//        StringBuilder sb = new StringBuilder();
-//        if(usedDiscount) {
-//            for(Map.Entry<String, Long> discount : discounts.entrySet()) {
-//                sb.append(discount.getKey());
-//                sb.append("\t");
-//                sb.append("- ");
-//                sb.append(discount.getValue() / 100.0);
-//                sb.append(" kr");
-//            }
-//        }
-//        sb.append("None");
-//
-//        //Ändra till engelska?
-//        return "Kvitto\n"
-//                + "Antal varor: " + customerBasket.getItems().size() + "\n"
-//                + "Rabatter: " + sb + "\n"
-//                + "Totalt: " + formatter.format(totalPrice / 100.0) + " SEK";
-//    }
 
     public long getTotalPriceForPurchase() {
         return totalPrice;

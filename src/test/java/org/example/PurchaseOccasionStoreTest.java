@@ -30,7 +30,6 @@ public class PurchaseOccasionStoreTest {
 
         PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
 
-        assertEquals(store, purchase.getStore());
         assertEquals(1000L, purchase.getTotalPriceForPurchase());
     }
 }
