@@ -21,13 +21,13 @@ public class DiscountTest {
     @BeforeEach
     void setUp(){
         when(milk.getDiscountType()).thenReturn("3FOR2");
-        when(milk.getPrice()).thenReturn(1000);
+        when(milk.getPrice()).thenReturn(1000l);
         when(milk.getName()).thenReturn("milk");
         when(bread.getDiscountType()).thenReturn("3FOR2");
-        when(bread.getPrice()).thenReturn(1500);
+        when(bread.getPrice()).thenReturn(1500l);
         when(bread.getName()).thenReturn("bread");
         when(oboy.getDiscountType()).thenReturn("2KR_OFF");
-        when(oboy.getPrice()).thenReturn(2000);
+        when(oboy.getPrice()).thenReturn(2000l);
         when(oboy.getName()).thenReturn("oboy");
     }
 
@@ -94,14 +94,16 @@ public class DiscountTest {
     @Test 
     void getAllDiscounts_called_with_orderlist(){
         //make big orderlist and send to getAllDiscounts check if list is correct
-        ArrayList<Item> orderListen = new ArrayList<>(Arrays.asList(milk,bread,bread,milk,bread,milk,bread,bread,milk,milk,milk));
+        ArrayList<Item> orderListen = new ArrayList<>(Arrays.asList(milk,bread,bread,milk,oboy,bread,milk,bread,bread,milk,milk,milk));
     
         expectedMap.put(bread.getDiscountType() +" on "+bread.getName(), (long)bread.getPrice());
+        expectedMap.put(oboy.getDiscountType() +" on "+oboy.getName(), 2l);
         expectedMap.put(milk.getDiscountType() +" on "+milk.getName(), (long)milk.getPrice());
         expectedMap.put(milk.getDiscountType() +" on "+milk.getName(), (long)milk.getPrice());
         //System.out.println("test 6 "+expectedMap +"  "+ discount.getAllDiscounts(orderListen));
         
+        
         assertEquals(expectedMap, discount.getAllDiscounts(orderListen));
-        //System.err.println(discount.getAllDiscounts(orderListen));
+        System.err.println(discount.getAllDiscounts(orderListen));
     }
 }

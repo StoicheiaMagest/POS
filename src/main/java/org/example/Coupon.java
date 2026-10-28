@@ -1,8 +1,10 @@
 package org.example;
 
-import java.util.ArrayList;
-
 public class Coupon {
+
+//OBS LÅG PRIORITET 
+//KANSKE INTE ÖVERLEVER 
+
 
     /*
     coupon, one per purchace
@@ -12,11 +14,13 @@ public class Coupon {
     everywhere there is a "Discount[] discount" should instead be this coupon
     */
 
-    String name;
-    int reduction;
+
+
+    private final String name;
+    private final long reduction;
     //dateTime experationDate;
 
-    public Coupon(String name, int reduciton){
+    public Coupon(String name, long reduciton){
         this.name = name;
         this.reduction = reduciton;
     }

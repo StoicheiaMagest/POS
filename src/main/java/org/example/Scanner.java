@@ -11,7 +11,7 @@ public class Scanner {
         this.registry = registry;
     }
 
-    public int scan(int articleNumber) {
+    public long scan(int articleNumber) {
         Item item = registry.findByArticleNumber(articleNumber);
 
         if (item == null) {

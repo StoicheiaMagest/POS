@@ -7,7 +7,7 @@ public class DiscountHandler {
     
     //Map of discount name and value
     private Map<String, Long> discountsMap = new HashMap<>();
-    private Map<Item, Integer> item3For2Counter = new HashMap<>();
+    private Map<Item, Long> item3For2Counter = new HashMap<>();
     private long seniorDiscountProcentage = 10;
 
     //takes list of all items and checks each item if there is any that have a discount
@@ -31,7 +31,7 @@ public class DiscountHandler {
         return discountsMap;
     }
 
-    public Map<Item, Integer> getItemCounterMap(){
+    public Map<Item, Long> getItemCounterMap(){
         return item3For2Counter;
     }
 
@@ -44,14 +44,14 @@ public class DiscountHandler {
         if(item3For2Counter.containsKey(item)){
             if(item3For2Counter.get(item)==2){
                 item3For2Counter.remove(item);
-                discountsMap.put(item.getDiscountType() +" on "+item.getName(),(long)item.getPrice());
+                discountsMap.put(item.getDiscountType() +" on "+item.getName(),item.getPrice());
             }
             else{
-                item3For2Counter.replace(item, 2);
+                item3For2Counter.replace(item, 2l);
             }
         }
         else{
-            item3For2Counter.put(item, 1);
+            item3For2Counter.put(item, 1l);
         }
     }
 

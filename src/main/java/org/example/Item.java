@@ -6,18 +6,18 @@ package org.example;
 public abstract class Item {
     protected final int articleNumber;
     protected final String name;
-    protected final int price;
+    protected final long price;
     protected final Vat vat;
     protected String discountType;
 
-    public Item(String name, int price, Vat vat, int articleId) {
+    public Item(String name, long price, Vat vat, int articleId) {
         this.name = name;
         this.price = price;
         this.vat = vat;
         this.articleNumber = articleId;
     }
 
-    public Item(String name, int price, Vat vat, int articleId, String discountType) {
+    public Item(String name, long price, Vat vat, int articleId, String discountType) {
         this.name = name;
         this.price = price;
         this.vat = vat;
@@ -29,7 +29,7 @@ public abstract class Item {
         return name;
     };
 
-    public abstract int getPrice();
+    public abstract long getPrice();
 
     public abstract Vat getVatRate();
 
