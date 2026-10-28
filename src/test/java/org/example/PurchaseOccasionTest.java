@@ -7,12 +7,15 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+
 class PurchaseOccasionTest {
 
     private final Account account = mock(Account.class);
     private final Customer customer_member = mock(Customer.class);
     private final Customer customer_senior = mock(Customer.class);
     private final Customer customer_regular = mock(Customer.class);
+    private Coupon coupon = mock(Coupon.class);
 
     private Item itemWithPrice(long priceInOre) {
         Item item = mock(Item.class);
@@ -97,7 +100,7 @@ class PurchaseOccasionTest {
     }
 
     @Test
-    void a_senior_discount_should_change_total_cost_of_purchase() {
+    void aSeniorDiscountShouldChangeTotalCostOfPurchase() {
         Basket basket = new Basket();
         basket.addItem(itemWithPrice(10000));
 
@@ -109,5 +112,18 @@ class PurchaseOccasionTest {
         }
 
         assertEquals(9000, purchase.getTotalPriceForPurchace(), 0.001, "Total price should adhere to discount");
+    }
+
+    @Test
+    void usedCouponShouldChangeTotalCostOfPurchase() {
+        ArrayList<Coupon> coupons;
+        when(customer_regular.getCoupons()).thenReturn(coupons = new ArrayList<>(5));
+
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(10000));
+
+        PurchaseOccasion purchase = createPurchase(basket, customer_regular);
+
+        purchase.useCoupon();
     }
 }

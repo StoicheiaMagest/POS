@@ -52,14 +52,12 @@ public class PurchaseOccasion {
         usedDiscount = true;
     }
 
-    /* 
-    public void useCupon() {
-        ArrayList<Coupon>() coupons = customer.getCoupons();
+    public void useCoupon() {
+        /*ArrayList<Coupon>() coupons = customer.getCoupons();
         for (Coupon coupon : coupons) {
             totalPrice = Math.max(0, (totalPrice - coupon));
-        }
+        }*/
     }
-    */
 
     public void payPurchase() {
         //customer.getCard();
