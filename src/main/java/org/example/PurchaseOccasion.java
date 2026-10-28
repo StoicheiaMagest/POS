@@ -10,6 +10,7 @@ public class PurchaseOccasion {
     private Customer customer;
     private Map<String, Long> discounts;
     private long totalPrice; // cents
+    private boolean usedDiscount;
     DiscountHandler discountHandler = new DiscountHandler();
 
 
@@ -20,6 +21,9 @@ public class PurchaseOccasion {
             Account storeBankAccount 
     ) {
         this.customerBasket = basket;
+        if(customer == null) {
+            throw new IllegalArgumentException("Customer can't be null!");
+        }
         this.customer = customer;
         this.storeBankAccount = storeBankAccount;
         this.discounts = discountHandler.getAllDiscounts(customerBasket.getItems());
@@ -27,20 +31,25 @@ public class PurchaseOccasion {
     }
 
     public void applyDiscount() {
+        if(customerBasket.getItems() == null || customerBasket.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Basket can't be empty");
+        }
+
         for(Map.Entry<String, Long> discount : discounts.entrySet()) {
             if (discount.getValue() < 0 || discount.getValue() > 100) {
                 throw new IllegalArgumentException("Discount must be between 0 and 100");
             }
             totalPrice -= discount.getValue();
         }
+        usedDiscount = true;
     }
 
     public void applySeniorDiscount() {
         if(!customer.getSeniorStatus()) {
             throw new IllegalArgumentException("Error, not a senior");
         }
-        // Add 50 before division to round to the nearest cent. Send new total back up.
-        totalPrice = (totalPrice * (100L - DiscountHandler.getSeniorDiscount()) + 50) / 100;
+        totalPrice = Math.round(totalPrice * (100 - DiscountHandler.getSeniorDiscount()));
+        usedDiscount = true;
     }
 
     /* 
@@ -64,10 +73,22 @@ public class PurchaseOccasion {
         formatter.setMinimumFractionDigits(2);
         formatter.setMaximumFractionDigits(2);
 
-        //printa även hela discountsmapen
-
+        StringBuilder sb = new StringBuilder();
+        if(usedDiscount) {
+            for(Map.Entry<String, Long> discount : discounts.entrySet()) {
+                sb.append(discount.getKey());
+                sb.append("\t");
+                sb.append("- ");
+                sb.append(discount.getValue() / 100.0);
+                sb.append(" kr");
+            }
+        }
+        sb.append("None");
+        
+        //Ändra till engelska?
         return "Kvitto\n"
                 + "Antal varor: " + customerBasket.getItems().size() + "\n"
+                + "Rabatter: " + sb + "\n"
                 + "Totalt: " + formatter.format(totalPrice / 100.0) + " SEK";
     }
 

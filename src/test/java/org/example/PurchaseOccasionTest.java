@@ -1,6 +1,7 @@
 package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
@@ -8,11 +9,26 @@ import static org.mockito.Mockito.when;
 
 class PurchaseOccasionTest {
 
+    private final Account account = mock(Account.class);
+    private final Customer customer_member = mock(Customer.class);
+    private final Customer customer_senior = mock(Customer.class);
+    private final Customer customer_regular = mock(Customer.class);
+
+    private Item itemWithPrice(long priceInOre) {
+        Item item = mock(Item.class);
+        when(item.getPrice()).thenReturn(priceInOre);
+        return item;
+    }
+
+    private PurchaseOccasion createPurchase(Basket basket, Customer customer) {
+        return new PurchaseOccasion(basket, customer, account);
+    }
+
     @Test
     void receiptShowsZeroTotalForEmptyBasket() {
         Basket basket = new Basket();
 
-        PurchaseOccasion purchase = createPurchase(basket);
+        PurchaseOccasion purchase = createPurchase(basket, customer_regular);
 
         assertEquals(
                 "Kvitto\nAntal varor: 0\nTotalt: 0,00 SEK",
@@ -26,7 +42,7 @@ class PurchaseOccasionTest {
         basket.addItem(itemWithPrice(9999));
 
         //misslyckas för item behöver hashcode?
-        PurchaseOccasion purchase = createPurchase(basket);
+        PurchaseOccasion purchase = createPurchase(basket, customer_regular);
 
         assertEquals(
                 "Kvitto\nAntal varor: 1\nTotalt: 99,99 SEK",
@@ -40,7 +56,7 @@ class PurchaseOccasionTest {
         basket.addItem(itemWithPrice(1250));
         basket.addItem(itemWithPrice(250));
 
-        PurchaseOccasion purchase = createPurchase(basket);
+        PurchaseOccasion purchase = createPurchase(basket, customer_regular);
 
         assertEquals(
                 "Kvitto\nAntal varor: 2\nTotalt: 15,00 SEK",
@@ -49,54 +65,49 @@ class PurchaseOccasionTest {
     }
 
     @Test
-    void a_senior_discount_should_change_total_cost_of_purchase() {
-        Basket basket = new Basket();
-        basket.addItem(itemWithPrice(10000));
-
-        DiscountHandler discount = mock(DiscountHandler.class);
-        when(DiscountHandler.getSeniorDiscount()).thenReturn((long) 10);
-
-        PurchaseOccasion purchase = createPurchase(basket);
-        if(purchase.getSeniorStatus()) {
-            purchase.applySeniorDiscount();
-        }
-
-        assertEquals(9000, purchase.getTotalPriceForPurchace(), 0.001, "Total price should adhere to discount");
-    }
-
-    @Test
     void getMembershipStatusShouldReturnTrueIfMember() {
-        Customer customer = mock(Customer.class);
-        when(customer.getMembershipStatus()).thenReturn(true);
-        Account account = mock(Account.class);
         Basket basket = mock(Basket.class);
 
-        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account);
+        when(customer_member.getMembershipStatus()).thenReturn(true);
+
+        PurchaseOccasion purchase = createPurchase(basket, customer_member);
         assertTrue(purchase.getMembershipStatus());
     }
 
     @Test 
     void getSeniorStatusShouldReturnTrueIfSenior() {
-        Customer customer = mock(Customer.class);
-        when(customer.getSeniorStatus()).thenReturn(true);
-        Account account = mock(Account.class);
         Basket basket = mock(Basket.class);
 
-        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, account);
+        when(customer_senior.getSeniorStatus()).thenReturn(true);
+
+        PurchaseOccasion purchase = createPurchase(basket, customer_senior);
         assertTrue(purchase.getSeniorStatus());
     }
 
-    private Item itemWithPrice(long priceInOre) {
-        Item item = mock(Item.class);
-        when(item.getInclusivePrice()).thenReturn(priceInOre);
-        return item;
+    @Test
+    void getMemberAndSeniorShouldReturnFalseIfRegularCustomer() {
+        Basket basket = mock(Basket.class);
+
+        when(customer_regular.getMembershipStatus()).thenReturn(false);
+        when(customer_regular.getSeniorStatus()).thenReturn(false);
+
+        PurchaseOccasion purchase = createPurchase(basket, customer_regular);
+        assertFalse(purchase.getMembershipStatus());
+        assertFalse(purchase.getSeniorStatus());
     }
 
-    private PurchaseOccasion createPurchase(Basket basket) {
-        Customer customer =
-                new Customer("Test Customer", "19900101-1234", false, false);
-        Account account = mock(Account.class);
+    @Test
+    void a_senior_discount_should_change_total_cost_of_purchase() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(10000));
 
-        return new PurchaseOccasion(basket, customer, account);
+        when(DiscountHandler.getSeniorDiscount()).thenReturn((long) 10);
+
+        PurchaseOccasion purchase = createPurchase(basket, customer_senior);
+        if(purchase.getSeniorStatus()) {
+            purchase.applySeniorDiscount();
+        }
+
+        assertEquals(9000, purchase.getTotalPriceForPurchace(), 0.001, "Total price should adhere to discount");
     }
 }
