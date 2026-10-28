@@ -1,4 +1,3 @@
-
 package org.example;
 
 import org.junit.jupiter.api.Test;
@@ -16,14 +15,14 @@ class BasketScannerIntegrationTest {
         Scanner scanner = new Scanner(basket, registry);
 
         Item item = mock(Item.class);
-        when(item.getPrice()).thenReturn(100);
+        when(item.getPrice()).thenReturn(100L);
         when(item.getInclusivePrice()).thenReturn(100L);
 
-        registry.addItem(1001, item);
+        registry.registerItem(1001, item);
 
-        int result = scanner.scan(1001);
+        long result = scanner.scan(1001);
 
-        assertEquals(100, result);
+        assertEquals(100L, result);
         assertTrue(basket.getItems().contains(item));
         assertEquals(100L, basket.getTotalPrice());
     }
@@ -35,15 +34,15 @@ class BasketScannerIntegrationTest {
         Scanner scanner = new Scanner(basket, registry);
 
         Item firstItem = mock(Item.class);
-        when(firstItem.getPrice()).thenReturn(100);
+        when(firstItem.getPrice()).thenReturn(100L);
         when(firstItem.getInclusivePrice()).thenReturn(100L);
 
         Item secondItem = mock(Item.class);
-        when(secondItem.getPrice()).thenReturn(250);
+        when(secondItem.getPrice()).thenReturn(250L);
         when(secondItem.getInclusivePrice()).thenReturn(250L);
 
-        registry.addItem(1001, firstItem);
-        registry.addItem(1002, secondItem);
+        registry.registerItem(1001, firstItem);
+        registry.registerItem(1002, secondItem);
 
         scanner.scan(1001);
         scanner.scan(1002);
