@@ -26,6 +26,14 @@ public class Customer {
     public LinkedList<Coupon> getCoupons(){
         return coupons;
     }
+    
+    public long useCouponMethod(Coupon coupon){
+        if(!coupons.contains(coupon)){
+            throw new NullPointerException();
+        }
+        coupons.remove(coupon);
+        return coupon.getReduction();
+    }
 
     public String getName(){
         return this.name;

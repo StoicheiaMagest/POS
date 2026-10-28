@@ -20,9 +20,10 @@ public class Coupon {
     private final long reduction;
     //dateTime experationDate;
 
-    public Coupon(String name, long reduciton){
+    public Coupon(String name, long reduction){
+        //throw exeption if null or negetive value
         this.name = name;
-        this.reduction = reduciton;
+        this.reduction = reduction;
     }
 
     public String getName(){

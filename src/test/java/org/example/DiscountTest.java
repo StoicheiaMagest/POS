@@ -32,20 +32,20 @@ class DiscountTest {
         when(milk.getPrice()).thenReturn(1000L);
         when(milk.getName()).thenReturn("milk");
 
-        when(bread.getDiscountType()).thenReturn("3FOR2");
+        when(bread.getDiscountType()).thenReturn("4FOR3");
         when(bread.getPrice()).thenReturn(1500L);
         when(bread.getName()).thenReturn("bread");
 
-        when(oboy.getDiscountType()).thenReturn("2KR_OFF");
+        when(oboy.getDiscountType()).thenReturn("5FOR4");
         when(oboy.getPrice()).thenReturn(2000L);
         when(oboy.getName()).thenReturn("oboy");
     }
 
     @Test
     void discountCheck3For2() {
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(milk);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(milk, 3);
 
         expectedMap.put("3FOR2 on milk", 1000L);
 
@@ -53,41 +53,42 @@ class DiscountTest {
     }
 
     @Test
-    void multiple3For2DiscountsInDifferentOrder() {
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(bread);
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(bread);
-        discount.check3for2Discount(bread);
-        discount.check3for2Discount(milk);
+    void multipleMulitItemDiscountsInDifferentOrder() {
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(bread, 4);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(bread, 4);
+        discount.checkMultiItemDiscount(bread, 4);
+        discount.checkMultiItemDiscount(bread, 4);
+        discount.checkMultiItemDiscount(milk, 3);
 
-        expectedMap.put("3FOR2 on bread", 1500L);
+        expectedMap.put("4FOR3 on bread", 1500L);
         expectedMap.put("3FOR2 on milk", 1000L);
 
         assertEquals(expectedMap, discount.getDiscountMap());
     }
 
-    @Test
+    /*@Test
     void discountTypeIs2KrOff() {
         assertEquals("2KR_OFF", oboy.getDiscountType());
-    }
+    }*/
 
     @Test
     void removesItemFromCounterAfterCompletingThreeForTwo() {
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(milk);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(milk, 3);
 
         assertTrue(discount.getItemCounterMap().isEmpty());
     }
 
     @Test
     void unusedItemsRemainInCounter() {
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(milk);
-        discount.check3for2Discount(milk);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(milk, 3);
+        discount.checkMultiItemDiscount(milk, 3);
 
         expectedCounterMap.put(milk, 2L);
 
@@ -104,11 +105,11 @@ class DiscountTest {
     void getAllDiscountsWithOrderList() {
         ArrayList<Item> orderList = new ArrayList<>(Arrays.asList(
                 milk, bread, bread, milk, oboy, bread,
-                milk, bread, bread, milk, milk, milk
+                milk, oboy, bread, bread, milk, oboy, oboy, milk, milk, oboy
         ));
 
-        expectedMap.put("3FOR2 on bread", 1500L);
-        expectedMap.put("2KR_OFF on oboy", 2L);
+        expectedMap.put("4FOR3 on bread", 1500L);
+        expectedMap.put("5FOR4 on oboy", 2000L);
         expectedMap.put("3FOR2 on milk", 1000L);
 
         assertEquals(expectedMap, discount.getAllDiscounts(orderList));
