@@ -1,52 +1,68 @@
 package org.example;
 import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 public class PurchaseOccasion {
 
-    private Account storeBankAccount;
+    private Account storeBankAccount; //behövs denna?
     private Basket customerBasket;
     private Customer customer;
     private Map<String, Long> discounts = new HashMap<>();
     private long totalPrice; // cents
-    DiscountHandler discounthandler = new DiscountHandler();
+    private boolean usedDiscount;
+    DiscountHandler discountHandler = new DiscountHandler();
 
 
 
     public PurchaseOccasion(
             Basket basket,
             Customer customer,
-            Account storeBankAccount
-            //HashMap<String, Long> discounts 
+            Account storeBankAccount 
     ) {
         this.customerBasket = basket;
+        if(customer == null) {
+            throw new IllegalArgumentException("Customer can't be null!");
+        }
         this.customer = customer;
         this.storeBankAccount = storeBankAccount;
-        this.discounts = discounthandler.getAllDiscounts(customerBasket.getItems());
+        this.discounts = discountHandler.getAllDiscounts(customerBasket.getItems());
         this.totalPrice = basket.getTotalPrice();
     }
 
-    //
-    public void applyDiscount(DiscountHandler discounts) {
-        
-        //en metod som går igenom alla long i discounts mapen och suptraherar summan på totalbeloppet
-        //for long l : discounts.getValue() {totalprice =- l}
+    public void applyDiscount() {
+        if(customerBasket.getItems() == null || customerBasket.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Basket can't be empty");
+        }
 
-
-
-        /*for(long dis : discounts.getValue()) {
-            if (dis < 0 || dis > 100) {
+        for(Map.Entry<String, Long> discount : discounts.entrySet()) {
+            if (discount.getValue() < 0 || discount.getValue() > 100) {
                 throw new IllegalArgumentException("Discount must be between 0 and 100");
             }
-            // Add 50 before division to round to the nearest cent. Send new total back up.
-            totalPrice = (totalPrice * (100L - dis) + 50) / 100;
+            totalPrice -= discount.getValue();
+        }
+        usedDiscount = true;
+    }
+
+    public void applySeniorDiscount() {
+        if(!customer.getSeniorStatus()) {
+            throw new IllegalArgumentException("Error, not a senior");
+        }
+        totalPrice = Math.round(totalPrice * (100 - DiscountHandler.getSeniorDiscount()));
+        usedDiscount = true;
+    }
+
+    public void useCoupon() {
+        //kuponger får endast användas av medlemmar, icke medlemmar får ha kumponger med inte använda
+        /*ArrayList<Coupon>() coupons = customer.getCoupons();
+        for (Coupon coupon : coupons) {
+            totalPrice = Math.max(0, (totalPrice - coupon));
         }*/
     }
 
     public void payPurchase() {
-
+        //customer.getCard();
+        //totalPrice och nolla den för att "betala"
     }
 
     public String printReceipt() {
@@ -56,10 +72,22 @@ public class PurchaseOccasion {
         formatter.setMinimumFractionDigits(2);
         formatter.setMaximumFractionDigits(2);
 
-        //printa även hela discountsmapen
-
+        StringBuilder sb = new StringBuilder();
+        if(usedDiscount) {
+            for(Map.Entry<String, Long> discount : discounts.entrySet()) {
+                sb.append(discount.getKey());
+                sb.append("\t");
+                sb.append("- ");
+                sb.append(discount.getValue() / 100.0);
+                sb.append(" kr");
+            }
+        }
+        sb.append("None");
+        
+        //Ändra till engelska?
         return "Kvitto\n"
                 + "Antal varor: " + customerBasket.getItems().size() + "\n"
+                + "Rabatter: " + sb + "\n"
                 + "Totalt: " + formatter.format(totalPrice / 100.0) + " SEK";
     }
 
