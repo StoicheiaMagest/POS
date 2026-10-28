@@ -2,6 +2,7 @@ package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -77,5 +78,26 @@ public class PurchaseOccasionPaymentTest {
 
         assertFalse(paid);
         assertEquals(0L, store.getStoreBankAccount().getBalance());
+    }
+
+    // an occasion that is already paid must never take money a second time
+    @Test
+    void payingTwiceFails() {
+        Store store = createStoreWithBalance(0);
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(250));
+
+        Customer customer = new Customer("Stig", "19900101-1234", false, false);
+        Account customerBankAccount = new Account(1000);
+        customer.setCard(new Card(customerBankAccount));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
+
+        assertTrue(purchase.payPurchase());
+
+        assertThrows(IllegalStateException.class, () -> purchase.payPurchase());
+        // the refused second attempt moved no money
+        assertEquals(250L, store.getStoreBankAccount().getBalance());
+        assertEquals(750L, customerBankAccount.getBalance());
     }
 }

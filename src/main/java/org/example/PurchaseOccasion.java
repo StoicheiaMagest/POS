@@ -12,6 +12,7 @@ public class PurchaseOccasion {
     private long totalPrice; // cents
     private boolean usedDiscount;
     private boolean discountsApplied;
+    private boolean paid;
     private Map<String, Long> discounts = new HashMap<>();
 
 
@@ -93,13 +94,21 @@ public class PurchaseOccasion {
      * Pays the total price from the customer's card into the store's bank
      * account. Returns false when the customer has no card or the transfer
      * fails, for example when the card account does not cover the total.
+     * Once paid, the occasion can never be paid again.
      */
     public boolean payPurchase() {
+        if (paid) {
+            throw new IllegalStateException("This purchase has already been paid");
+        }
         Card card = customer.getCard();
         if (card == null) {
             return false;
         }
-        return card.pay(totalPrice, storeBankAccount);
+        boolean transferDone = card.pay(totalPrice, storeBankAccount);
+        if (transferDone) {
+            paid = true;
+        }
+        return transferDone;
     }
 
     public long getTotalPriceForPurchase() {
