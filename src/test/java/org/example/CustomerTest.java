@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 
 class CustomerTest {
@@ -45,7 +46,7 @@ class CustomerTest {
 
     @Test 
     void addNewCoupon(){
-        Coupon coupon = new Coupon("20krOff", 20);
+        Coupon coupon = new Coupon("20krOff", 20, LocalDateTime.now().plusDays(1));
         LinkedList<Coupon> coupons = new LinkedList<>();
         coupons.add(coupon);
         
@@ -57,8 +58,8 @@ class CustomerTest {
     }
     @Test 
     void addMultipleCoupons(){
-        Coupon coupon1 = new Coupon("20krOff", 20);
-        Coupon coupon2 = new Coupon("30krOff", 30);
+        Coupon coupon1 = new Coupon("20krOff", 20, LocalDateTime.now().plusDays(1));
+        Coupon coupon2 = new Coupon("30krOff", 30, LocalDateTime.now().plusDays(1));
         LinkedList<Coupon> coupons = new LinkedList<>();
         coupons.add(coupon1);
         coupons.add(coupon2);
