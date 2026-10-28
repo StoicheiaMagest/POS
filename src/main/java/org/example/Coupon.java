@@ -25,5 +25,11 @@ public class Coupon {
         this.reduction = reduciton;
     }
 
+    public String getName(){
+        return name;
+    }
+    public long getReduction(){
+        return reduction;
+    }
 
 }

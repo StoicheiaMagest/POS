@@ -3,6 +3,9 @@ package org.example;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+
+import java.util.LinkedList;
 
 class CustomerTest {
 
@@ -38,5 +41,33 @@ class CustomerTest {
 
         assertEquals("", customer.getName());
         assertEquals("", customer.getPersonId());
+    }
+
+    @Test 
+    void addNewCoupon(){
+        Coupon coupon = new Coupon("20krOff", 20);
+        LinkedList<Coupon> coupons = new LinkedList<>();
+        coupons.add(coupon);
+        
+        
+        Customer customer = new Customer("", "", false, false);
+        customer.addCoupon(coupon);
+
+        assertEquals(coupons, customer.getCoupons());
+    }
+    @Test 
+    void addMultipleCoupons(){
+        Coupon coupon1 = new Coupon("20krOff", 20);
+        Coupon coupon2 = new Coupon("30krOff", 30);
+        LinkedList<Coupon> coupons = new LinkedList<>();
+        coupons.add(coupon1);
+        coupons.add(coupon2);
+        
+        
+        Customer customer = new Customer("", "", false, false);
+        customer.addCoupon(coupon1);
+        customer.addCoupon(coupon2);
+
+        assertEquals(coupons, customer.getCoupons());
     }
 }

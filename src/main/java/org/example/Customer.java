@@ -1,6 +1,6 @@
 package org.example;
 
-import javax.xml.namespace.QName;
+import java.util.LinkedList;
 
 // Bra utöka personnr, address, email, telefonnr
 public class Customer {
@@ -9,12 +9,22 @@ public class Customer {
     private String personId;
     private boolean member;
     private boolean senior;
+    private LinkedList<Coupon> coupons = new LinkedList<>();
 
     public Customer(String name, String personId, boolean member, boolean senior){
         this.name = name;
         this.personId = personId;
         this.member = member;
         this.senior = senior;
+        
+    }
+
+    public void addCoupon(Coupon coupon){
+        coupons.add(coupon);
+    }
+
+    public LinkedList<Coupon> getCoupons(){
+        return coupons;
     }
 
     public String getName(){
@@ -32,5 +42,4 @@ public class Customer {
     public boolean getSeniorStatus(){
         return this.senior;
     }
-
 }
