@@ -2,14 +2,14 @@ package org.example;
 
 public class PaymentCard {
 
-    private int cardId;
+    private long cardId;
 
-    public PaymentCard(int cardId){
+    public PaymentCard(long cardId){
         this.cardId = cardId;
 
     }
 
-    public int getCardId(){
+    public long getCardId(){
         return cardId;
 
     }
