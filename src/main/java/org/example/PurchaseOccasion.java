@@ -11,6 +11,7 @@ public class PurchaseOccasion {
     private Customer customer;
     private long totalPrice; // cents
     private boolean usedDiscount;
+    private boolean discountsApplied;
     private Map<String, Long> discounts = new HashMap<>();
 
 
@@ -33,12 +34,18 @@ public class PurchaseOccasion {
     /*
      * Applies all discounts in the decision table's priority order:
      * 1. flertartikelsrabatt, 2. membership check, 3. coupons, 4. senior discount.
+     * Can only be done once per occasion, a second call would subtract
+     * every discount a second time.
      */
     public void applyDiscounts() {
+        if (discountsApplied) {
+            throw new IllegalStateException("Discounts have already been applied");
+        }
         applyMultiItemDiscounts();
         applyCouponsIfMember();
         applySeniorDiscountIfMemberAndSenior();
         usedDiscount = true;
+        discountsApplied = true;
     }
 
     // Step 1: the store's multi-item discounts, these apply to everyone.
