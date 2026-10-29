@@ -20,6 +20,10 @@ public enum Vat {
      * Uses integer arithmetic with standard half-up rounding.
      */
     public long calculateVatAmount(long priceWithoutVat) {
+        if (priceWithoutVat < 0) {
+            throw new IllegalArgumentException("Reject negative prices in Vat.calculateVatAmount: " + priceWithoutVat
+            );
+        }
         long numerator = priceWithoutVat * basisPoints;
         // Adding 5000 before dividing by 10000 ensures standard rounding (round half-up)
         return (numerator + 5000) / 10000;
