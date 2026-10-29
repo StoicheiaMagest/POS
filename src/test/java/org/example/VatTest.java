@@ -29,4 +29,19 @@ class VatTest {
     void calculateVatAmount_rounds_to_nearest_cent(long priceInCents, Vat vat, long expected, String description) {
         assertEquals(expected, vat.calculateVatAmount(priceInCents));
     }
+
+    @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
+    @CsvSource({
+            "1000, STANDARD, 1250, exact amount adds whole VAT",
+            "149,  STANDARD, 186, VAT rounded down is added",
+            "150,  STANDARD, 188,  VAT rounded up is added",
+            "999,  FOOD, 1119, food rate",
+            "25,   BOOK, 27, 999 , book rate",
+            "0,    STANDARD, 0, zero price stays zero (standard rate)",
+            "0,    FOOD, 0, zero price stays zero (food rate)",
+            "0,    BOOK, 0, zero price stays zero (book rate)"
+    })
+    void calculateInclusivePrice_adds_vat_to_price(long priceInCents, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculateInclusivePrice(priceInCents));
+    }
 }
