@@ -1,4 +1,4 @@
-package PACKAGE_NAME;
+package org.example;
 
 public class ItemTest {
 }

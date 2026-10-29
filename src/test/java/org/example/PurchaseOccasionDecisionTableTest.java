@@ -1,14 +1,14 @@
 package org.example;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /*
  * One test per row of the decision table (r1-r10).
@@ -329,4 +329,51 @@ public class PurchaseOccasionDecisionTableTest {
 
         assertEquals(184L, purchase.getTotalPriceForPurchase());
     }
+
+    @Test
+    void customerCannotBeNullInConstructor() {
+        Store store = createStore();
+        Basket basket = mock(Basket.class);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            new PurchaseOccasion(basket, null, store);
+        });
+    }
+
+    @Test
+    void getMemberShouldReturnFalseIfRegularCustomer() {
+        Store store = createStore();
+        Basket basket = mock(Basket.class);
+        Customer customer_regular = mock(Customer.class);
+
+        when(customer_regular.getMembershipStatus()).thenReturn(false);
+    
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer_regular, store);
+        assertFalse(purchase.getMembershipStatus());
+    }
+
+    @Test
+    void expiredCouponShouldNotBeUsed() {
+        Store store = createStore();
+        Item bread = article("Bröd", 150L, null);
+
+        Basket basket = new Basket();
+        basket.addItem(bread);
+
+        Customer customer_member = new Customer("Greta", "19500101-1234", true, true);
+
+        Coupon expiredCoupon = mock(Coupon.class);
+        when(expiredCoupon.isExpired()).thenReturn(true);
+
+        customer_member.addCoupon(expiredCoupon);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer_member, store);
+
+        purchase.applyDiscounts();
+
+        assertTrue(expiredCoupon.isExpired());
+        assertEquals(150L, purchase.getTotalPriceForPurchase(), "Total price for purchase shouldn't change");
+    }
+
 }
