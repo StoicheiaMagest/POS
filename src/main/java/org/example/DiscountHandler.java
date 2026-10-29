@@ -7,13 +7,26 @@ public class DiscountHandler {
     
     //Map of discount name and value
     private Map<String, Long> discountsMap = new HashMap<>();
-    private Map<Item, Long> itemCounter = new HashMap<>();
+    //counts items per article number, not per object instance: separate
+    //instances of the same article must land in the same counter slot
+    private Map<Integer, Long> itemCounter = new HashMap<>();
     private static final long SENIOR_DISCOUNT_PROCENTAGE= 10;
 
     //takes list of all items and checks each item if there is any that have a discount
     public Map<String, Long>  getAllDiscounts(ArrayList<Item> orderListen){
+        //every call computes one purchase from scratch: an old stateful map or
+        //leftover partial groups must not leak into the next occasion
+        discountsMap = new HashMap<>();
+        itemCounter = new HashMap<>();
+
         for (Item item : orderListen) {
-            switch (item.getDiscountType()) {  
+            //items without a discount type have null here, switch(null) would crash
+            String discountType = item.getDiscountType();
+            if (discountType == null) {
+                continue;
+            }
+
+            switch (discountType) {  
                 case "3FOR2": //implementera så att den räknar antal produkter korrekt
                     checkMultiItemDiscount(item, 3);
                     break;
@@ -34,11 +47,22 @@ public class DiscountHandler {
         return discountsMap;
     }
 
+    //Adds a discount amount to the map. The same article can complete several
+    //discount groups (for example six milks give two 3-for-2 discounts), so an
+    //already existing entry is increased instead of overwritten.
+    protected void addDiscount(String key, long amount){
+        long alreadyFound = 0;
+        if(discountsMap.containsKey(key)){
+            alreadyFound = discountsMap.get(key);
+        }
+        discountsMap.put(key, alreadyFound + amount);
+    }
+
     public Map<String, Long> getDiscountMap(){
         return discountsMap;
     }
 
-    public Map<Item, Long> getItemCounterMap(){
+    public Map<Integer, Long> getItemCounterMap(){
         return itemCounter;
     }
 
@@ -48,17 +72,20 @@ public class DiscountHandler {
     }
 
     protected  void checkMultiItemDiscount(Item item, long neededNumberOfItem){
-        if(itemCounter.containsKey(item)){
-            if(itemCounter.get(item)==neededNumberOfItem-1){
-                itemCounter.remove(item);
-                discountsMap.put(item.getDiscountType() +" on "+item.getName(),item.getPrice());
+        int articleNumber = item.getArticleNumber();
+        if(itemCounter.containsKey(articleNumber)){
+            if(itemCounter.get(articleNumber)==neededNumberOfItem-1){
+                itemCounter.remove(articleNumber);
+                //the free item is worth its sales price, since that is what
+                //the basket total (inclusive prices) charged for it
+                addDiscount(item.getDiscountType() +" on "+item.getName(), item.getInclusivePrice());
             }
             else{
-                itemCounter.replace(item, itemCounter.get(item)+1);
+                itemCounter.replace(articleNumber, itemCounter.get(articleNumber)+1);
             }
         }
         else{
-            itemCounter.put(item, 1l);
+            itemCounter.put(articleNumber, 1l);
         }
     }
 

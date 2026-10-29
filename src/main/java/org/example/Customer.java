@@ -9,6 +9,7 @@ public class Customer {
     private String personId;
     private boolean member;
     private boolean senior;
+    private Card card;
     private LinkedList<Coupon> coupons = new LinkedList<>();
 
     public Customer(String name, String personId, boolean member, boolean senior){
@@ -23,6 +24,14 @@ public class Customer {
         coupons.add(coupon);
     }
 
+    public void setCard(Card card){
+        this.card = card;
+    }
+
+    public Card getCard(){
+        return card;
+    }
+
     public LinkedList<Coupon> getCoupons(){
         return coupons;
     }
@@ -30,6 +39,9 @@ public class Customer {
     public long useCouponMethod(Coupon coupon){
         if(!coupons.contains(coupon)){
             throw new NullPointerException();
+        }
+        if(coupon.isExpired()){
+            throw new IllegalArgumentException("Coupon has expired");
         }
         coupons.remove(coupon);
         return coupon.getReduction();

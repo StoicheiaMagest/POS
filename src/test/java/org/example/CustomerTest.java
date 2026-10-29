@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 
 class CustomerTest {
@@ -45,7 +46,7 @@ class CustomerTest {
 
     @Test 
     void addNewCoupon(){
-        Coupon coupon = new Coupon("20krOff", 20);
+        Coupon coupon = new Coupon("20krOff", 20, LocalDateTime.now().plusDays(1));
         LinkedList<Coupon> coupons = new LinkedList<>();
         coupons.add(coupon);
         
@@ -57,8 +58,8 @@ class CustomerTest {
     }
     @Test 
     void addMultipleCoupons(){
-        Coupon coupon1 = new Coupon("20krOff", 20);
-        Coupon coupon2 = new Coupon("30krOff", 30);
+        Coupon coupon1 = new Coupon("20krOff", 20, LocalDateTime.now().plusDays(1));
+        Coupon coupon2 = new Coupon("30krOff", 30, LocalDateTime.now().plusDays(1));
         LinkedList<Coupon> coupons = new LinkedList<>();
         coupons.add(coupon1);
         coupons.add(coupon2);
@@ -69,5 +70,43 @@ class CustomerTest {
         customer.addCoupon(coupon2);
 
         assertEquals(coupons, customer.getCoupons());
+    }
+
+    @Test
+    void useCouponMethodWithExpiredCouponFails(){
+        Coupon expiredCoupon = new Coupon("20krOff", 20, LocalDateTime.now().minusDays(1));
+        Customer customer = new Customer("", "", true, false);
+        customer.addCoupon(expiredCoupon);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> customer.useCouponMethod(expiredCoupon));
+    }
+
+    @Test
+    void expiredCouponIsNotConsumedByFailedUse(){
+        Coupon expiredCoupon = new Coupon("20krOff", 20, LocalDateTime.now().minusDays(1));
+        Customer customer = new Customer("", "", true, false);
+        customer.addCoupon(expiredCoupon);
+
+        try {
+            customer.useCouponMethod(expiredCoupon);
+        } catch (IllegalArgumentException e) {
+            // expected, the coupon must still be kept below
+        }
+
+        assertEquals(1, customer.getCoupons().size());
+        assertTrue(customer.getCoupons().contains(expiredCoupon));
+    }
+
+    @Test
+    void validCouponIsUsedAndConsumed(){
+        Coupon coupon = new Coupon("20krOff", 20, LocalDateTime.now().plusDays(1));
+        Customer customer = new Customer("", "", true, false);
+        customer.addCoupon(coupon);
+
+        long reduction = customer.useCouponMethod(coupon);
+
+        assertEquals(20, reduction);
+        assertEquals(0, customer.getCoupons().size());
     }
 }
