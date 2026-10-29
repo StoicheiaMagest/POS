@@ -11,9 +11,10 @@ public enum Vat {
         this.basisPoints = basisPoints;
     }
 
-    public int getBasisPoints() {
-        return basisPoints;
-    }
+//    Never used this, can uncomment if we ever want to
+//    public int getBasisPoints() {
+//        return basisPoints;
+//    }
 
     public long calculateVatAmount(long priceWithoutVat) {
         if (priceWithoutVat < 0) {
