@@ -180,4 +180,86 @@ public class PurchaseOccasionReceiptDataTest {
         assertEquals(150L, purchase.getCouponDiscountTotal());
         assertEquals(0L, purchase.getTotalPriceForPurchase());
     }
+
+    // getSeniorDiscountAmount
+
+    @Test
+    void seniorDiscountAmountIsZeroBeforeDiscountsAreApplied() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer seniorMember = new Customer("Greta", "19400101-1234", true, true);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, createStore());
+
+        assertEquals(0L, purchase.getSeniorDiscountAmount());
+    }
+
+    @Test
+    void seniorDiscountAmountIsTenPercentForSeniorMember() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer seniorMember = new Customer("Greta", "19400101-1234", true, true);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(15L, purchase.getSeniorDiscountAmount());
+        assertEquals(135L, purchase.getTotalPriceForPurchase());
+    }
+
+    @Test
+    void seniorDiscountAmountIsZeroForSeniorWhoIsNotAMember() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer seniorNonMember = new Customer("Greta", "19400101-1234", false, true);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorNonMember, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(0L, purchase.getSeniorDiscountAmount());
+        assertEquals(150L, purchase.getTotalPriceForPurchase());
+    }
+
+    @Test
+    void seniorDiscountAmountIsZeroForMemberWhoIsNotASenior() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(0L, purchase.getSeniorDiscountAmount());
+        assertEquals(150L, purchase.getTotalPriceForPurchase());
+    }
+
+    // the senior discount comes last, on what is left after the coupon
+    @Test
+    void seniorDiscountAmountIsCalculatedAfterCoupons() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer seniorMember = new Customer("Greta", "19400101-1234", true, true);
+        seniorMember.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, createStore());
+        purchase.applyDiscounts();
+
+        // 150 - 20 = 130, and 10% of 130 = 13
+        assertEquals(13L, purchase.getSeniorDiscountAmount());
+        assertEquals(117L, purchase.getTotalPriceForPurchase());
+    }
+
+    @Test
+    void seniorDiscountAmountIsRoundedHalfUp() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(155L));
+        Customer seniorMember = new Customer("Greta", "19400101-1234", true, true);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, createStore());
+        purchase.applyDiscounts();
+
+        // 10% of 155 = 15.5, rounded up to 16
+        assertEquals(16L, purchase.getSeniorDiscountAmount());
+        assertEquals(139L, purchase.getTotalPriceForPurchase());
+    }
 }
