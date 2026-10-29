@@ -90,5 +90,26 @@ class ArticleCatalogLoaderTest {
                 exception.getCause());
     }
 
+    @Test
+    void throws_exception_when_pricing_type_is_unknown() {
+        String csv = """
+            articleNumber;name;pricingType;price;vatType
+            102;Tofu;UNKNOWN;1500;FOOD
+            """;
+
+        InputStream input = new java.io.ByteArrayInputStream(
+                csv.getBytes(java.nio.charset.StandardCharsets.UTF_8)
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new ArticleCatalogLoader(input)
+        );
+
+        assertEquals("Unknown pricing type: UNKNOWN", exception.getMessage());
+    }
+
+
+
 
 }
