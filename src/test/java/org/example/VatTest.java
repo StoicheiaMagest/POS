@@ -61,4 +61,17 @@ class VatTest {
         assertEquals(expected, vat.calculateExclusivePrice(priceWithVat));
     }
 
+    @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
+    @CsvSource({
+            "1, STANDARD, 0, last price with no VAT (0.25)",
+            "2, STANDARD, 1, first price with VAT (0.50)",
+            "4, FOOD,     0, last price with no VAT (0.48)",
+            "5, FOOD,     1, first price with VAT (0.60)",
+            "8, BOOK,     0, last price with no VAT (0.48)",
+            "9, BOOK,     1, first price with VAT (0.54)"
+    })
+    void calculateVatAmount_rounding_flips_at_boundary_price(long priceInCents, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculateVatAmount(priceInCents));
+    }
+
 }
