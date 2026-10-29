@@ -100,4 +100,58 @@ public class PurchaseOccasionPaymentTest {
         assertEquals(250L, store.getStoreBankAccount().getBalance());
         assertEquals(750L, customerBankAccount.getBalance());
     }
+
+    @Test
+    void isPaidIsFalseBeforePayPurchaseIsCalled() {
+        Store store = createStoreWithBalance(0);
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(250));
+        Customer customer = new Customer("Stig", "19900101-1234", false, false);
+        customer.setCard(new Card(5555L, new Account(1000)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
+
+        assertFalse(purchase.isPaid());
+    }
+
+    @Test
+    void isPaidIsTrueAfterSuccessfulPayment() {
+        Store store = createStoreWithBalance(0);
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(250));
+        Customer customer = new Customer("Stig", "19900101-1234", false, false);
+        customer.setCard(new Card(5555L, new Account(1000)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
+        purchase.payPurchase();
+
+        assertTrue(purchase.isPaid());
+    }
+
+    @Test
+    void isPaidIsFalseWhenCardAccountDoesNotCoverTotal() {
+        Store store = createStoreWithBalance(0);
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(250));
+        Customer customer = new Customer("Stig", "19900101-1234", false, false);
+        customer.setCard(new Card(5555L, new Account(100)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, store);
+        purchase.payPurchase();
+
+        assertFalse(purchase.isPaid());
+    }
+
+    @Test
+    void isPaidIsFalseWhenCustomerHasNoCard() {
+        Store store = createStoreWithBalance(0);
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(250));
+        Customer customerWithoutCard = new Customer("Stig", "19900101-1234", false, false);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customerWithoutCard, store);
+        purchase.payPurchase();
+
+        assertFalse(purchase.isPaid());
+    }
 }
