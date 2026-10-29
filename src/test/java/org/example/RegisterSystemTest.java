@@ -7,7 +7,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RegisterSystemTest {
@@ -39,9 +41,42 @@ class RegisterSystemTest {
         assertTrue(!output.contains("Error, try again!"));
     }
 
+    @Test
+    void runs_demo_when_user_enters_demo() {
+        boolean[] demoRan = {false};
+
+        String output = runRegisterSystem("DEMO\nEXIT\n", scanner -> demoRan[0] = true);
+
+        assertTrue(demoRan[0]);
+        assertTrue(output.contains("* Demo"));
+        assertTrue(!output.contains("Error, try again!"));
+    }
+
+    @Test
+    void demo_reads_its_input_from_the_registers_scanner() {
+        String[] line = {null};
+
+        String output = runRegisterSystem("DEMO\nhello\nEXIT\n", scanner -> line[0] = scanner.nextLine());
+
+        assertEquals("hello", line[0]);
+        assertTrue(output.contains("Register shutting down"));
+    }
+
+    @Test
+    void demo_is_unknown_command_without_demo() {
+        String output = runRegisterSystem("DEMO\nEXIT\n");
+
+        assertTrue(output.contains("Error, try again!"));
+        assertTrue(!output.contains("* Demo"));
+    }
+
     private String runRegisterSystem(String commands) {
+        return runRegisterSystem(commands, null);
+    }
+
+    private String runRegisterSystem(String commands, Consumer<Scanner> demo) {
         Scanner input = new Scanner(commands);
-        RegisterSystem register = new RegisterSystem(input);
+        RegisterSystem register = new RegisterSystem(input, demo);
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         PrintStream originalOut = System.out;

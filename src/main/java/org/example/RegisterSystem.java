@@ -2,13 +2,19 @@
 package org.example;
 
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public class RegisterSystem {
 
     private final Scanner input;
 
     private static final String NEW_ORDER_COMMAND = "SCAN ITEM";
+    private static final String DEMO_COMMAND = "DEMO";
     private static final String EXIT_COMMAND = "EXIT";
+
+    // Optional, only set when started from the demo launcher. Null in production.
+    // It gets the register's Scanner so a demo menu can read input without opening a second Scanner on System.in.
+    private final Consumer<Scanner> demo;
 
     private String command;
 
@@ -17,7 +23,12 @@ public class RegisterSystem {
     }
 
     RegisterSystem(Scanner input) {
+        this(input, null);
+    }
+
+    RegisterSystem(Scanner input, Consumer<Scanner> demo) {
         this.input = input;
+        this.demo = demo;
     }
 
     public static void main(String[] args) {
@@ -37,6 +48,9 @@ public class RegisterSystem {
     }
 
     private void printCommands() {
+        if (demo != null) {
+            System.out.println("* Demo");
+        }
         System.out.println("* Exit");
     }
 
@@ -52,6 +66,14 @@ public class RegisterSystem {
         switch (command) {
             case NEW_ORDER_COMMAND:
                 commandNewOrder();
+                break;
+
+            case DEMO_COMMAND:
+                if (demo == null) {
+                    System.out.println("Error, try again!");
+                } else {
+                    demo.accept(input);
+                }
                 break;
 
             case EXIT_COMMAND:

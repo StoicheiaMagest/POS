@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /*
  * Prints example receipts for two real purchases, to see what a Receipt looks like.
  * It goes through the real flow: basket, discounts, payment, and only then the receipt.
- * Run it with: java -cp target/classes org.example.ReceiptDemo
+ * Run it with: java -cp target/classes:target/test-classes org.example.ReceiptDemo
  */
 public class ReceiptDemo {
 
