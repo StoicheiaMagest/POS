@@ -262,4 +262,61 @@ public class PurchaseOccasionReceiptDataTest {
         assertEquals(16L, purchase.getSeniorDiscountAmount());
         assertEquals(139L, purchase.getTotalPriceForPurchase());
     }
+
+    // getSubtotal
+
+    @Test
+    void subtotalIsTheSumOfTheItemPrices() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        basket.addItem(itemWithPrice(250L));
+        Customer customer = new Customer("Stig", "19900101-1234", false, false);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, customer, createStore());
+
+        assertEquals(400L, purchase.getSubtotal());
+    }
+
+    @Test
+    void subtotalIsZeroForAnEmptyBasket() {
+        Customer customer = new Customer("Stig", "19900101-1234", false, false);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(new Basket(), customer, createStore());
+
+        assertEquals(0L, purchase.getSubtotal());
+    }
+
+    @Test
+    void subtotalIsNotChangedByDiscounts() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer seniorMember = new Customer("Greta", "19400101-1234", true, true);
+        seniorMember.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(150L, purchase.getSubtotal());
+        assertEquals(117L, purchase.getTotalPriceForPurchase());
+    }
+
+    // the receipt lines have to add up: subtotal minus every discount is the total
+    @Test
+    void subtotalMinusAllDiscountsIsTheTotal() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer seniorMember = new Customer("Greta", "19400101-1234", true, true);
+        seniorMember.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, seniorMember, createStore());
+        purchase.applyDiscounts();
+
+        long multiItemDiscounts = purchase.getDiscounts().values().stream()
+                .mapToLong(Long::longValue).sum();
+        assertEquals(purchase.getTotalPriceForPurchase(),
+                purchase.getSubtotal()
+                        - multiItemDiscounts
+                        - purchase.getCouponDiscountTotal()
+                        - purchase.getSeniorDiscountAmount());
+    }
 }
