@@ -10,7 +10,6 @@ public class PurchaseOccasion {
     private Basket customerBasket;
     private Customer customer;
     private long totalPrice; // cents
-    private boolean usedDiscount;
     private boolean discountsApplied;
     private boolean paid;
     private Map<String, Long> discounts = new HashMap<>();
@@ -45,7 +44,6 @@ public class PurchaseOccasion {
         applyMultiItemDiscounts();
         applyCouponsIfMember();
         applySeniorDiscountIfMemberAndSenior();
-        usedDiscount = true;
         discountsApplied = true;
     }
 

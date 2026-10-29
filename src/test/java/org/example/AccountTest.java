@@ -73,5 +73,69 @@ class AccountTest {
         assertTrue(recipient.checkCanTransfer(30));
     }
 
+    @Test
+    void checkCanTransfer_returnsFalseForNegativeAmount() {
+        Account account = new Account(10);
+
+        assertFalse(account.checkCanTransfer(-1));
+    }
+
+    @Test
+    void transfer_failsWhenRecipientIsNull() {
+        Account sender = new Account(30);
+
+        assertFalse(sender.transfer(10, null));
+
+        // A failed transfer should leave the sender's balance unchanged.
+        assertTrue(sender.checkCanTransfer(30));
+        assertFalse(sender.checkCanTransfer(31));
+    }
+
+    @Test
+    void transfer_failsWhenAmountIsNegative() {
+        Account sender = new Account(30);
+        Account recipient = new Account(20);
+
+        assertFalse(sender.transfer(-1, recipient));
+
+        // A failed transfer should leave both balances unchanged.
+        assertTrue(sender.checkCanTransfer(30));
+        assertTrue(recipient.checkCanTransfer(20));
+    }
+
+    @Test
+    void transfer_zeroAmount_succeeds() {
+        Account sender = new Account(30);
+        Account recipient = new Account(20);
+
+        assertTrue(sender.transfer(0, recipient));
+
+        // The balances should remain unchanged.
+        assertTrue(sender.checkCanTransfer(30));
+        assertTrue(recipient.checkCanTransfer(20));
+    }
+
+
+    @Test
+    void addToBalance_addsMoneyAmountToExistingBalance() {
+        Account account = new Account(20);
+
+        account.addToBalance(new Money(15));
+
+        assertTrue(account.checkCanTransfer(35));
+        assertFalse(account.checkCanTransfer(36));
+    }
+
+    @Test
+    void addToBalance_addsMoneyToZeroBalance() {
+        Account account = new Account();
+
+        account.addToBalance(new Money(7));
+
+        assertTrue(account.checkCanTransfer(7));
+        assertFalse(account.checkCanTransfer(8));
+    }
+
+
 
 }

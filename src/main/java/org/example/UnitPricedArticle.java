@@ -33,6 +33,6 @@ public class UnitPricedArticle extends Item {
     
     @Override
     public long getInclusivePrice() {
-        return vat.calculateInclusivePrice(price);
+        return vat.calculatePriceWithVat(price);
     }
 }
