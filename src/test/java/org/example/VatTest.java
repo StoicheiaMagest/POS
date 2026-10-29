@@ -111,4 +111,44 @@ class VatTest {
         assertThrows(IllegalArgumentException.class, () -> vat.calculateExclusivePrice(priceWithVat));
     }
 
+    @ParameterizedTest(name = "{2} [{1}: {0} cents]")
+    @CsvSource({
+            "9223372036854775807, STANDARD, Long.MAX_VALUE",
+            "9223372036854775807, BOOK,     Long.MAX_VALUE (book rate)",
+            "1000000000000000000, FOOD,     10^18 cents"
+    })
+    void calculateVatAmount_rejects_price_that_overflows(long priceInCents, Vat vat, String description) {
+        assertThrows(ArithmeticException.class, () -> vat.calculateVatAmount(priceInCents));
+    }
+
+    @ParameterizedTest(name = "{2} [{1}: {0} cents]")
+    @CsvSource({
+            "9223372036854775807, STANDARD, Long.MAX_VALUE",
+            "9223372036854775807, BOOK,     Long.MAX_VALUE (book rate)",
+            "1000000000000000000, FOOD,     10^18 cents"
+    })
+    void calculateInclusivePrice_rejects_price_that_overflows(long priceInCents, Vat vat, String description) {
+        assertThrows(ArithmeticException.class, () -> vat.calculateInclusivePrice(priceInCents));
+    }
+
+    @ParameterizedTest(name = "{2} [{1}: {0} cents]")
+    @CsvSource({
+            "9223372036854775807, STANDARD, Long.MAX_VALUE",
+            "9223372036854775807, BOOK,     Long.MAX_VALUE (book rate)",
+            "1000000000000000000, FOOD,     10^18 cents"
+    })
+    void calculateExclusivePrice_rejects_price_that_overflows(long priceWithVat, Vat vat, String description) {
+        assertThrows(ArithmeticException.class, () -> vat.calculateExclusivePrice(priceWithVat));
+    }
+
+    @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
+    @CsvSource({
+            "1000000000000000, STANDARD, 250000000000000, 10^15 cents is still valid",
+            "1000000000000000, FOOD,     120000000000000, 10^15 cents is still valid (food rate)",
+            "1000000000000000, BOOK,     60000000000000,  10^15 cents is still valid (book rate)"
+    })
+    void calculateVatAmount_handles_large_price_without_overflow(long priceInCents, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculateVatAmount(priceInCents));
+    }
+
 }
