@@ -16,7 +16,7 @@ class CardTest {
     void setUp() {
         sender = mock(Account.class);
         recipient = mock(Account.class);
-        card = new Card(sender);
+        card = new Card(1234L, sender);
     }
 
     @Test
@@ -27,6 +27,14 @@ class CardTest {
 
         assertTrue(result);
         verify(sender).transfer(40, recipient);
+    }
+
+    @Test
+    void cardExposesItsCardId() {
+        Account account = mock(Account.class);
+        Card identifiedCard = new Card(5555L, account);
+
+        assertEquals(5555L, identifiedCard.getCardId());
     }
 
     @Test

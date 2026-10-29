@@ -107,11 +107,45 @@ class BasketTest {
         Basket basket = new Basket();
         Item item = mock(Item.class);
 
-        when(item.getPrice()).thenReturn(1000);
+        when(item.getPrice()).thenReturn(1000L);
         when(item.getInclusivePrice()).thenReturn(1250L);
 
         basket.addItem(item);
 
         assertEquals(1250L, basket.getTotalPrice());
     }
+
+    @Test
+    void addingRemovingAndAddingItemsAgainUpdatesBasketCorrectly() {
+        Basket basket = new Basket();
+        Item tofu = mock(Item.class);
+
+        when(tofu.getInclusivePrice()).thenReturn(2500L);
+
+        // Add Tofu: Basket becomes non-empty.
+        basket.addItem(tofu);
+
+        assertEquals(2500L, basket.getTotalPrice());
+        assertEquals(1, basket.getItems().size());
+
+        // Remove the last Tofu: Basket becomes empty.
+        basket.removeItem(tofu);
+
+        assertEquals(0L, basket.getTotalPrice());
+        assertTrue(basket.getItems().isEmpty());
+
+        // Add Tofu again: Basket becomes non-empty.
+        basket.addItem(tofu);
+
+        assertEquals(2500L, basket.getTotalPrice());
+        assertEquals(1, basket.getItems().size());
+
+        // Add Tofu once more: Total price doubles.
+        basket.addItem(tofu);
+
+        assertEquals(5000L, basket.getTotalPrice());
+        assertEquals(2, basket.getItems().size());
+    }
+
+
 }
