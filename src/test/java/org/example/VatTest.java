@@ -151,4 +151,24 @@ class VatTest {
         assertEquals(expected, vat.calculateVatAmount(priceInCents));
     }
 
+    @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
+    @CsvSource({
+            "1000000000000000, STANDARD, 1250000000000000, 10^15 cents is still valid",
+            "1000000000000000, FOOD,     1120000000000000, 10^15 cents is still valid (food rate)",
+            "1000000000000000, BOOK,     1060000000000000, 10^15 cents is still valid (book rate)"
+    })
+    void calculateInclusivePrice_handles_large_price_without_overflow(long priceInCents, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculateInclusivePrice(priceInCents));
+    }
+
+    @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
+    @CsvSource({
+            "100000000000000, STANDARD, 80000000000000, 10^14 cents is still valid",
+            "100000000000000, FOOD,     89285714285714, 10^14 cents is still valid (food rate)",
+            "100000000000000, BOOK,     94339622641509, 10^14 cents is still valid (book rate)"
+    })
+    void calculateExclusivePrice_handles_large_price_without_overflow(long priceWithVat, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculateExclusivePrice(priceWithVat));
+    }
+
 }
