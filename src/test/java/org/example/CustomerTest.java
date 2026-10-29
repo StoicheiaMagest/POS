@@ -4,11 +4,53 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 
 class CustomerTest {
+
+
+
+    @Test
+    void useCouponMethod_throwsWhenCouponIsNotInCustomerList() {
+        Customer customer = new Customer("Alex", "123", false, false);
+        Coupon coupon = mock(Coupon.class);
+
+        assertThrows(NullPointerException.class,
+                () -> customer.useCouponMethod(coupon));
+    }
+
+    @Test
+    void useCouponMethod_throwsWhenCouponIsExpired() {
+        Customer customer = new Customer("Alex", "123", false, false);
+        Coupon coupon = mock(Coupon.class);
+        when(coupon.isExpired()).thenReturn(true);
+        customer.addCoupon(coupon);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> customer.useCouponMethod(coupon)
+        );
+
+        assertEquals("Coupon has expired", exception.getMessage());
+        assertTrue(customer.getCoupons().contains(coupon));
+    }
+
+    @Test
+    void useCouponMethod_returnsReductionAndRemovesValidCoupon() {
+        Customer customer = new Customer("Alex", "123", false, false);
+        Coupon coupon = mock(Coupon.class);
+        when(coupon.isExpired()).thenReturn(false);
+        when(coupon.getReduction()).thenReturn(25L);
+        customer.addCoupon(coupon);
+
+        long reduction = customer.useCouponMethod(coupon);
+
+        assertEquals(25L, reduction);
+        assertFalse(customer.getCoupons().contains(coupon));
+    }
 
     @Test
     void gettersReturnConstructorValues() {
