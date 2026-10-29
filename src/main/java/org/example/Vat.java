@@ -15,23 +15,16 @@ public enum Vat {
         return basisPoints;
     }
 
-    /**
-     * Calculates the VAT amount given a base price (exclusive of VAT) in cents.
-     * Uses integer arithmetic with standard half-up rounding.
-     */
     public long calculateVatAmount(long priceWithoutVat) {
         if (priceWithoutVat < 0) {
             throw new IllegalArgumentException("priceWithoutVat cannot be negative"
             );
         }
-        long numerator = priceWithoutVat * basisPoints;
         // Adding 5000 before dividing by 10000 ensures standard rounding (round half-up)
-        return (numerator + 5000) / 10000;
+        long numerator = Math.addExact(Math.multiplyExact(priceWithoutVat, this.basisPoints), 5000);
+        return numerator / 10000;
     }
 
-    /**
-     * Calculates the total price including VAT, given the exclusive price in cents.
-     */
     public long calculatePriceWithVat(long priceWithoutVat) {
         return priceWithoutVat + calculateVatAmount(priceWithoutVat);
     }
