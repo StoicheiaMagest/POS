@@ -53,6 +53,10 @@ public class ArticleCatalogLoader {
                     );
 
                     registry.registerItem(articleNumber, item);
+
+                } else {
+                    throw new IllegalArgumentException(
+                            "Unknown pricing type: " + pricingType);
                 }
             }
 
