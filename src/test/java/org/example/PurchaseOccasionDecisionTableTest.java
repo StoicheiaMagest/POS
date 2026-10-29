@@ -378,4 +378,32 @@ public class PurchaseOccasionDecisionTableTest {
 
     }
 
+    @Test
+    void getSeniorStatus_returnsTrueWhenCustomerIsSenior() {
+        Basket basket = mock(Basket.class);
+        Customer customer = mock(Customer.class);
+        Store store = mock(Store.class);
+
+        when(basket.getTotalPrice()).thenReturn(1000L);
+        when(customer.getSeniorStatus()).thenReturn(true);
+
+        PurchaseOccasion occasion = new PurchaseOccasion(basket, customer, store);
+
+        assertTrue(occasion.getSeniorStatus());
+    }
+
+    @Test
+    void getSeniorStatus_returnsFalseWhenCustomerIsNotSenior() {
+        Basket basket = mock(Basket.class);
+        Customer customer = mock(Customer.class);
+        Store store = mock(Store.class);
+
+        when(basket.getTotalPrice()).thenReturn(1000L);
+        when(customer.getSeniorStatus()).thenReturn(false);
+
+        PurchaseOccasion occasion = new PurchaseOccasion(basket, customer, store);
+
+        assertFalse(occasion.getSeniorStatus());
+    }
+
 }
