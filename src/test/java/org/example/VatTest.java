@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class VatTest {
 
@@ -72,6 +73,42 @@ class VatTest {
     })
     void calculateVatAmount_rounding_flips_at_boundary_price(long priceInCents, Vat vat, long expected, String description) {
         assertEquals(expected, vat.calculateVatAmount(priceInCents));
+    }
+
+    @ParameterizedTest(name = "{2} [{1}: {0} cents]")
+    @CsvSource({
+            "-1,                    STANDARD, smallest negative price",
+            "-1,                    FOOD,     smallest negative price (food rate)",
+            "-1,                    BOOK,     smallest negative price (book rate)",
+            "-100,                  STANDARD, ordinary negative price",
+            "-9223372036854775808,  STANDARD, Long.MIN_VALUE"
+    })
+    void calculateVatAmount_rejects_negative_price(long priceInCents, Vat vat, String description) {
+        assertThrows(IllegalArgumentException.class, () -> vat.calculateVatAmount(priceInCents));
+    }
+
+    @ParameterizedTest(name = "{2} [{1}: {0} cents]")
+    @CsvSource({
+            "-1,                    STANDARD, smallest negative price",
+            "-1,                    FOOD,     smallest negative price (food rate)",
+            "-1,                    BOOK,     smallest negative price (book rate)",
+            "-100,                  STANDARD, ordinary negative price",
+            "-9223372036854775808,  STANDARD, Long.MIN_VALUE"
+    })
+    void calculateInclusivePrice_rejects_negative_price(long priceInCents, Vat vat, String description) {
+        assertThrows(IllegalArgumentException.class, () -> vat.calculateInclusivePrice(priceInCents));
+    }
+
+    @ParameterizedTest(name = "{2} [{1}: {0} cents]")
+    @CsvSource({
+            "-1,                    STANDARD, smallest negative price",
+            "-1,                    FOOD,     smallest negative price (food rate)",
+            "-1,                    BOOK,     smallest negative price (book rate)",
+            "-100,                  STANDARD, ordinary negative price",
+            "-9223372036854775808,  STANDARD, Long.MIN_VALUE"
+    })
+    void calculateExclusivePrice_rejects_negative_price(long priceWithVat, Vat vat, String description) {
+        assertThrows(IllegalArgumentException.class, () -> vat.calculateExclusivePrice(priceWithVat));
     }
 
 }
