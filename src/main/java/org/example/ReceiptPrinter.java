@@ -23,7 +23,7 @@ public class ReceiptPrinter {
 
     /** Sends the receipt to the printer as one print job. */
     public void print(Receipt receipt) throws PrintException {
-        Doc document = new SimpleDoc("", TEXT, null);
+        Doc document = new SimpleDoc(receipt.getReceiptText(), TEXT, null);
         printer.createPrintJob().print(document, null);
     }
 }

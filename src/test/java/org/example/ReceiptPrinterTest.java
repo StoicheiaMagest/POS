@@ -34,4 +34,15 @@ public class ReceiptPrinterTest {
 
         assertEquals(1, printer.printedJobs().size());
     }
+
+    @Test
+    void the_printed_job_contains_the_receipt_text() throws Exception {
+        FakePrinter printer = new FakePrinter();
+        ReceiptPrinter receiptPrinter = new ReceiptPrinter(printer);
+        Receipt receipt = simpleReceipt();
+
+        receiptPrinter.print(receipt);
+
+        assertEquals(receipt.getReceiptText(), printer.printedJobs().get(0));
+    }
 }
