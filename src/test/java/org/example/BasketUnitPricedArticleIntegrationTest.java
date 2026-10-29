@@ -69,4 +69,41 @@ class BasketUnitPricedArticleIntegrationTest {
         assertTrue(basket.getItems().contains(notebook));
         assertEquals(2500, basket.getTotalPrice());
     }
+
+
+    @Test
+    void addRemoveAndAddUnitPricedArticleAgainShouldUpdateBasketCorrectly() {
+        // Arrange
+        Basket basket = new Basket();
+
+        UnitPricedArticle tofu =
+                new UnitPricedArticle("Tofu", 1600, Vat.STANDARD, 1);
+
+        // Add Tofu.
+        basket.addItem(tofu);
+
+        assertEquals(2000L, basket.getTotalPrice());
+        assertEquals(1, basket.getItems().size());
+        assertTrue(basket.getItems().contains(tofu));
+
+        // Remove Tofu.
+        basket.removeItem(tofu);
+
+        assertEquals(0L, basket.getTotalPrice());
+        assertTrue(basket.getItems().isEmpty());
+
+        // Add Tofu again.
+        basket.addItem(tofu);
+
+        assertEquals(2000L, basket.getTotalPrice());
+        assertEquals(1, basket.getItems().size());
+        assertTrue(basket.getItems().contains(tofu));
+
+        // Add Tofu once more.
+        basket.addItem(tofu);
+
+        assertEquals(4000L, basket.getTotalPrice());
+        assertEquals(2, basket.getItems().size());
+    }
+
 }
