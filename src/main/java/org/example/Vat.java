@@ -20,26 +20,25 @@ public enum Vat {
             throw new IllegalArgumentException("priceWithoutVat cannot be negative"
             );
         }
-        // Adding 5000 before dividing by 10000 ensures standard rounding (round half-up)
-        long numerator = Math.addExact(Math.multiplyExact(priceWithoutVat, this.basisPoints), 5000);
-        return numerator / 10000;
+        return divideRoundingHalfUp(Math.multiplyExact(priceWithoutVat, basisPoints), 10000);
+
     }
 
     public long calculatePriceWithVat(long priceWithoutVat) {
         return priceWithoutVat + calculateVatAmount(priceWithoutVat);
     }
 
-    /**
-     * Extracts the exclusive price from an inclusive price in cents.
-     */
     public long calculatePriceWithoutVat(long priceWithVat) {
         if (priceWithVat < 0) {
             throw new IllegalArgumentException("priceWithVat cannot be negative"
             );
         }
-        long denominator = 10000 + basisPoints;
-        long numerator = priceWithVat * 10000;
-        // Round half-up for division
-        return (numerator + (denominator / 2)) / denominator;
+        return divideRoundingHalfUp(Math.multiplyExact(priceWithVat, 10000), 10000 + basisPoints);
+
     }
+
+    static long divideRoundingHalfUp(long numerator, long denominator) {
+        return Math.addExact(numerator, denominator / 2) / denominator;
+    }
+
 }
