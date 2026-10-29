@@ -42,8 +42,8 @@ class VatTest {
             "0,    FOOD, 0, zero price stays zero (food rate)",
             "0,    BOOK, 0, zero price stays zero (book rate)"
     })
-    void calculateInclusivePrice_adds_vat_to_price(long priceInCents, Vat vat, long expected, String description) {
-        assertEquals(expected, vat.calculateInclusivePrice(priceInCents));
+    void calculatePriceWithVat_adds_vat_to_price(long priceInCents, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculatePriceWithVat(priceInCents));
     }
 
     @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
@@ -58,8 +58,8 @@ class VatTest {
             "0,    FOOD,     0,    zero price stays zero (food rate)",
             "0,    BOOK,     0,    zero price stays zero (book rate)"
     })
-    void calculateExclusivePrice_removes_vat_from_price(long priceWithVat, Vat vat, long expected, String description) {
-        assertEquals(expected, vat.calculateExclusivePrice(priceWithVat));
+    void calculatePriceWithoutVat_removes_vat_from_price(long priceWithVat, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculatePriceWithoutVat(priceWithVat));
     }
 
     @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
@@ -95,8 +95,8 @@ class VatTest {
             "-100,                  STANDARD, ordinary negative price",
             "-9223372036854775808,  STANDARD, Long.MIN_VALUE"
     })
-    void calculateInclusivePrice_rejects_negative_price(long priceInCents, Vat vat, String description) {
-        assertThrows(IllegalArgumentException.class, () -> vat.calculateInclusivePrice(priceInCents));
+    void calculatePriceWithVat_rejects_negative_price(long priceInCents, Vat vat, String description) {
+        assertThrows(IllegalArgumentException.class, () -> vat.calculatePriceWithVat(priceInCents));
     }
 
     @ParameterizedTest(name = "{2} [{1}: {0} cents]")
@@ -107,8 +107,8 @@ class VatTest {
             "-100,                  STANDARD, ordinary negative price",
             "-9223372036854775808,  STANDARD, Long.MIN_VALUE"
     })
-    void calculateExclusivePrice_rejects_negative_price(long priceWithVat, Vat vat, String description) {
-        assertThrows(IllegalArgumentException.class, () -> vat.calculateExclusivePrice(priceWithVat));
+    void calculatePriceWithoutVat_rejects_negative_price(long priceWithVat, Vat vat, String description) {
+        assertThrows(IllegalArgumentException.class, () -> vat.calculatePriceWithoutVat(priceWithVat));
     }
 
     @ParameterizedTest(name = "{2} [{1}: {0} cents]")
@@ -127,8 +127,8 @@ class VatTest {
             "9223372036854775807, BOOK,     Long.MAX_VALUE (book rate)",
             "1000000000000000000, FOOD,     10^18 cents"
     })
-    void calculateInclusivePrice_rejects_price_that_overflows(long priceInCents, Vat vat, String description) {
-        assertThrows(ArithmeticException.class, () -> vat.calculateInclusivePrice(priceInCents));
+    void calculatePriceWithVat_rejects_price_that_overflows(long priceInCents, Vat vat, String description) {
+        assertThrows(ArithmeticException.class, () -> vat.calculatePriceWithVat(priceInCents));
     }
 
     @ParameterizedTest(name = "{2} [{1}: {0} cents]")
@@ -137,8 +137,8 @@ class VatTest {
             "9223372036854775807, BOOK,     Long.MAX_VALUE (book rate)",
             "1000000000000000000, FOOD,     10^18 cents"
     })
-    void calculateExclusivePrice_rejects_price_that_overflows(long priceWithVat, Vat vat, String description) {
-        assertThrows(ArithmeticException.class, () -> vat.calculateExclusivePrice(priceWithVat));
+    void calculatePriceWithoutVat_rejects_price_that_overflows(long priceWithVat, Vat vat, String description) {
+        assertThrows(ArithmeticException.class, () -> vat.calculatePriceWithoutVat(priceWithVat));
     }
 
     @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
@@ -157,8 +157,8 @@ class VatTest {
             "1000000000000000, FOOD,     1120000000000000, 10^15 cents is still valid (food rate)",
             "1000000000000000, BOOK,     1060000000000000, 10^15 cents is still valid (book rate)"
     })
-    void calculateInclusivePrice_handles_large_price_without_overflow(long priceInCents, Vat vat, long expected, String description) {
-        assertEquals(expected, vat.calculateInclusivePrice(priceInCents));
+    void calculatePriceWithVat_handles_large_price_without_overflow(long priceInCents, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculatePriceWithVat(priceInCents));
     }
 
     @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
@@ -167,8 +167,8 @@ class VatTest {
             "100000000000000, FOOD,     89285714285714, 10^14 cents is still valid (food rate)",
             "100000000000000, BOOK,     94339622641509, 10^14 cents is still valid (book rate)"
     })
-    void calculateExclusivePrice_handles_large_price_without_overflow(long priceWithVat, Vat vat, long expected, String description) {
-        assertEquals(expected, vat.calculateExclusivePrice(priceWithVat));
+    void calculatePriceWithoutVat_handles_large_price_without_overflow(long priceWithVat, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculatePriceWithoutVat(priceWithVat));
     }
 
 }
