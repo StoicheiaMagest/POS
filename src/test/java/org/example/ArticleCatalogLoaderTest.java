@@ -49,4 +49,46 @@ class ArticleCatalogLoaderTest {
         assertEquals(1200, soyMilk.getPrice());
         assertEquals(Vat.FOOD, soyMilk.getVatRate());
     }
+
+    @Test
+    void skips_comment_lines_in_csv() {
+        String csv = """
+            articleNumber;name;pricingType;price;vatType
+            # This is a comment
+              # This is also a comment
+            101;Soy-milk;UNIT;1200;FOOD
+            """;
+
+        InputStream input = new java.io.ByteArrayInputStream(
+                csv.getBytes(java.nio.charset.StandardCharsets.UTF_8)
+        );
+
+        ArticleCatalogLoader loader = new ArticleCatalogLoader(input);
+
+        assertEquals("Soy-milk",
+                loader.findByArticleNumber(101).getName());
+    }
+
+    @Test
+    void throws_exception_when_csv_cannot_be_read() {
+        InputStream input = new InputStream() {
+            @Override
+            public int read() throws java.io.IOException {
+                throw new java.io.IOException("Simulated read failure");
+            }
+        };
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new ArticleCatalogLoader(input)
+        );
+
+        assertEquals("Could not read article catalog",
+                exception.getMessage());
+
+        assertInstanceOf(java.io.IOException.class,
+                exception.getCause());
+    }
+
+
 }
