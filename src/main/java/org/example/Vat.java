@@ -21,7 +21,7 @@ public enum Vat {
      */
     public long calculateVatAmount(long priceWithoutVat) {
         if (priceWithoutVat < 0) {
-            throw new IllegalArgumentException("Reject negative prices in Vat.calculateVatAmount: " + priceWithoutVat
+            throw new IllegalArgumentException("priceWithoutVat cannot be negative"
             );
         }
         long numerator = priceWithoutVat * basisPoints;
@@ -40,6 +40,10 @@ public enum Vat {
      * Extracts the exclusive price from an inclusive price in cents.
      */
     public long calculatePriceWithoutVat(long priceWithVat) {
+        if (priceWithVat < 0) {
+            throw new IllegalArgumentException("priceWithVat cannot be negative"
+            );
+        }
         long denominator = 10000 + basisPoints;
         long numerator = priceWithVat * 10000;
         // Round half-up for division
