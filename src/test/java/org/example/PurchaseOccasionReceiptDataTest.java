@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,13 @@ public class PurchaseOccasionReceiptDataTest {
         ArticleRegistry registry = new ArticleRegistry();
         BarcodeScanner scanner = new BarcodeScanner(registry);
         return new Store(registry, new Account(), new DiscountHandler(), scanner);
+    }
+
+    private Item itemWithPrice(long priceInOre) {
+        Item item = mock(Item.class);
+        when(item.getPrice()).thenReturn(priceInOre);
+        when(item.getInclusivePrice()).thenReturn(priceInOre);
+        return item;
     }
 
     // getItems
@@ -84,5 +92,92 @@ public class PurchaseOccasionReceiptDataTest {
 
         assertThrows(UnsupportedOperationException.class,
                 () -> occasion.getDiscounts().put("fake", 1L));
+    }
+
+    // getCouponDiscountTotal
+
+    @Test
+    void couponDiscountTotalIsZeroBeforeDiscountsAreApplied() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        member.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, createStore());
+
+        assertEquals(0L, purchase.getCouponDiscountTotal());
+    }
+
+    @Test
+    void couponDiscountTotalIsTheValueOfAUsedCoupon() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        member.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(20L, purchase.getCouponDiscountTotal());
+    }
+
+    @Test
+    void couponDiscountTotalIsTheSumOfSeveralUsedCoupons() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        member.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+        member.addCoupon(new Coupon("30krOff", 30L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(50L, purchase.getCouponDiscountTotal());
+        assertEquals(100L, purchase.getTotalPriceForPurchase());
+    }
+
+    @Test
+    void couponDiscountTotalIgnoresExpiredCoupons() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        Coupon expiredCoupon = mock(Coupon.class);
+        when(expiredCoupon.isExpired()).thenReturn(true);
+        member.addCoupon(expiredCoupon);
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(0L, purchase.getCouponDiscountTotal());
+    }
+
+    @Test
+    void couponDiscountTotalIsZeroForNonMemberWithCoupon() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer nonMember = new Customer("Stig", "19900101-1234", false, false);
+        nonMember.addCoupon(new Coupon("20krOff", 20L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, nonMember, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(0L, purchase.getCouponDiscountTotal());
+        assertEquals(150L, purchase.getTotalPriceForPurchase());
+    }
+
+    // a coupon bigger than what is left only counts for what it really took off,
+    // otherwise the receipt lines would not add up to the total
+    @Test
+    void couponDiscountTotalIsCappedAtTheRemainingTotal() {
+        Basket basket = new Basket();
+        basket.addItem(itemWithPrice(150L));
+        Customer member = new Customer("Astrid", "19900101-1234", true, false);
+        member.addCoupon(new Coupon("200krOff", 200L, LocalDateTime.now().plusDays(1)));
+
+        PurchaseOccasion purchase = new PurchaseOccasion(basket, member, createStore());
+        purchase.applyDiscounts();
+
+        assertEquals(150L, purchase.getCouponDiscountTotal());
+        assertEquals(0L, purchase.getTotalPriceForPurchase());
     }
 }
