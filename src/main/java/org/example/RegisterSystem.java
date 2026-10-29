@@ -1,18 +1,30 @@
+
 package org.example;
 
 import java.util.Scanner;
 
 public class RegisterSystem {
-    Scanner input = new Scanner(System.in);
+
+    private final Scanner input;
+
     private static final String NEW_ORDER_COMMAND = "SCAN ITEM";
     private static final String EXIT_COMMAND = "EXIT";
+
     private String command;
+
+    public RegisterSystem() {
+        this(new Scanner(System.in));
+    }
+
+    RegisterSystem(Scanner input) {
+        this.input = input;
+    }
 
     public static void main(String[] args) {
         new RegisterSystem().start();
     }
 
-    private void start() {
+    void start() {
         setUp();
         runCommandLoop();
         shutDown();
@@ -29,7 +41,7 @@ public class RegisterSystem {
     }
 
     private void runCommandLoop() {
-        do { 
+        do {
             command = input.nextLine().toUpperCase();
             executeCommand(command);
             System.out.println();
@@ -44,20 +56,17 @@ public class RegisterSystem {
 
             case EXIT_COMMAND:
                 break;
+
             default:
                 System.out.println("Error, try again!");
         }
     }
 
-    private void commandNewOrder() {//byt void till order när den klassen är skapad
-        //loop
-            //scanna vara eller väg vara
-            //det läggs till i basket
-            
+    private void commandNewOrder() {
+        // TODO: Replace void with Order when that class is created.
+        // Scan an item or weigh an item.
+        // Add the item to the basket.
     }
-
-
-
 
     private void shutDown() {
         System.out.println("Register shutting down");
