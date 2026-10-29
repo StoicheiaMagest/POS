@@ -45,6 +45,6 @@ public class WeighedItem extends Item {
      */
     @Override
     public long getInclusivePrice() {
-        return vat.calculateInclusivePrice(getPrice());
+        return vat.calculatePriceWithVat(getPrice());
     }
 }

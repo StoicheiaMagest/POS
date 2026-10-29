@@ -33,7 +33,7 @@ public class WeighedItemTest {
         );
 
         // Validates that inclusive price calculation works correctly using integer math
-        long expectedInclusivePrice = Vat.FOOD.calculateInclusivePrice(50);
+        long expectedInclusivePrice = Vat.FOOD.calculatePriceWithVat(50);
         assertEquals(expectedInclusivePrice, weighedItem.getInclusivePrice(), "Inclusive price with VAT was calculated incorrectly");
     }
 }
