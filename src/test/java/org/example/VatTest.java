@@ -171,4 +171,28 @@ class VatTest {
         assertEquals(expected, vat.calculatePriceWithoutVat(priceWithVat));
     }
 
+    @ParameterizedTest(name = "{3} [{0} / {1} -> {2}]")
+    @CsvSource({
+            "2500000,             10000, 250,             exact division needs no rounding",
+            "374999,              10000, 37,              just below half rounds down",
+            "375000,              10000, 38,              exactly half rounds up",
+            "379999,              10000, 38,              just above half rounds up",
+            "0,                   10000, 0,               zero numerator gives zero",
+            "4,                   10,    0,               below half with a small divisor",
+            "5,                   10,    1,               half with a small divisor",
+            "1,                   3,     0,               one third rounds down",
+            "2,                   3,     1,               two thirds rounds up",
+            "1880000,             12500, 150,             150.40 rounds down (odd half-divisor)",
+            "1890000,             12500, 151,             151.20 rounds down",
+            "9223372036854770807, 10000, 922337203685477, largest numerator that does not overflow"
+    })
+    void divideRoundingHalfUp_rounds_to_nearest_whole_number(long numerator, long denominator, long expected, String description) {
+        assertEquals(expected, Vat.divideRoundingHalfUp(numerator, denominator));
+    }
+
+    @Test
+    void divideRoundingHalfUp_throws_when_adding_half_the_denominator_overflows() {
+        assertThrows(ArithmeticException.class, () -> Vat.divideRoundingHalfUp(Long.MAX_VALUE - 4999, 10000));
+    }
+
 }
