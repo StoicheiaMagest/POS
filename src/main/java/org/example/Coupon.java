@@ -1,5 +1,7 @@
 package org.example;
 
+import java.time.LocalDateTime;
+
 public class Coupon {
 
 //OBS LÅG PRIORITET 
@@ -18,12 +20,28 @@ public class Coupon {
 
     private final String name;
     private final long reduction;
-    //dateTime experationDate;
+    private final LocalDateTime expiryDate;
 
-    public Coupon(String name, long reduciton){
+    public Coupon(String name, long reduction, LocalDateTime expiryDate){
+        //throw exeption if null or negetive value
         this.name = name;
-        this.reduction = reduciton;
+        this.reduction = reduction;
+        this.expiryDate = expiryDate;
     }
 
+    /**
+     * A coupon is expired when its expiry date is before now.
+     */
+    public boolean isExpired(){
+        return expiryDate.isBefore(LocalDateTime.now());
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public long getReduction(){
+        return reduction;
+    }
 
 }

@@ -33,4 +33,18 @@ class UnitPricedArticleTest {
         // 10000 cents + 6% VAT (600 cents) = 10600 cents total
         assertEquals(10600, article.getInclusivePrice(), "Inclusive price with VAT was calculated incorrectly");
     }
+
+    @Test
+    void should_calculate_vat_amount_correctly() {
+        UnitPricedArticle article = new UnitPricedArticle(
+                "The Bible",
+                10000,
+                Vat.BOOK,
+                1001
+        );
+
+        assertEquals(600, article.getVatAmount(),
+                "VAT amount was calculated incorrectly");
+    }
+
 }
