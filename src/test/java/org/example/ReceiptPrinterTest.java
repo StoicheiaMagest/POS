@@ -1,6 +1,7 @@
 package org.example;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,5 +80,24 @@ public class ReceiptPrinterTest {
         assertTrue(printed.contains("Kuponger"), "coupon discount row missing");
         assertTrue(printed.contains("Seniorrabatt"), "senior discount row missing");
         assertTrue(printed.contains("BETALT"), "paid marker missing");
+    }
+
+    @Test
+    void several_receipts_come_out_of_the_printer_in_print_order() throws Exception {
+        FakePrinter printer = new FakePrinter();
+        ReceiptPrinter receiptPrinter = new ReceiptPrinter(printer);
+
+        for (int number = 1; number <= 3; number++) {
+            Receipt receipt = new Receipt(number, LocalDateTime.of(2026, 10, 29, 10, 15),
+                    "Test Store", simplePurchase());
+            receiptPrinter.print(receipt);
+        }
+
+        List<String> jobs = printer.printedJobs();
+        assertEquals(3, jobs.size());
+        for (int i = 0; i < jobs.size(); i++) {
+            assertTrue(jobs.get(i).contains("Kvittonr:    " + (i + 1)),
+                    "job " + i + " is not receipt " + (i + 1));
+        }
     }
 }
