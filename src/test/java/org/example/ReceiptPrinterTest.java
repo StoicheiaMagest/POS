@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /*
  * Tests for printing a receipt through the Java Print Service API (javax.print).
@@ -44,5 +45,10 @@ public class ReceiptPrinterTest {
         receiptPrinter.print(receipt);
 
         assertEquals(receipt.getReceiptText(), printer.printedJobs().get(0));
+    }
+
+    @Test
+    void constructing_a_receipt_printer_without_a_printer_fails_fast() {
+        assertThrows(NullPointerException.class, () -> new ReceiptPrinter(null));
     }
 }

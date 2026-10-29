@@ -18,7 +18,7 @@ public class ReceiptPrinter {
     private final PrintService printer;
 
     public ReceiptPrinter(PrintService printer) {
-        this.printer = printer;
+        this.printer = java.util.Objects.requireNonNull(printer, "A printer must be given to print on");
     }
 
     /** Sends the receipt to the printer as one print job. */
