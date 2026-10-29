@@ -1,6 +1,7 @@
 package org.example;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class PurchaseOccasion {
@@ -9,7 +10,10 @@ public class PurchaseOccasion {
     private DiscountHandler discountHandler;
     private Basket customerBasket;
     private Customer customer;
+    private long subtotal; // cents, the basket total before any discount
     private long totalPrice; // cents
+    private long couponDiscountTotal; // cents actually taken off by coupons
+    private long seniorDiscountAmount; // cents taken off by the senior discount
     private boolean discountsApplied;
     private boolean paid;
     private Map<String, Long> discounts = new HashMap<>();
@@ -28,7 +32,8 @@ public class PurchaseOccasion {
         this.customer = customer;
         this.storeBankAccount = store.getStoreBankAccount();
         this.discountHandler = store.getDiscountHandler();
-        this.totalPrice = basket.getTotalPrice();
+        this.subtotal = basket.getTotalPrice();
+        this.totalPrice = subtotal;
     }
 
     /*
@@ -72,10 +77,14 @@ public class PurchaseOccasion {
         if (coupon.isExpired()) {
             return;
         }
+        long totalBeforeCoupon = totalPrice;
         totalPrice -= customer.useCouponMethod(coupon);
         if (totalPrice < 0) {
             totalPrice = 0;
         }
+        // recorded after the clamp, so a coupon bigger than the remaining total
+        // only counts for what it actually took off
+        couponDiscountTotal += totalBeforeCoupon - totalPrice;
     }
 
     // Step 4: senior discount last, on whatever is left of the total,
@@ -86,6 +95,7 @@ public class PurchaseOccasion {
         }
         long seniorOff = Math.round(totalPrice * DiscountHandler.getSeniorDiscount() / 100.0);
         totalPrice -= seniorOff;
+        seniorDiscountAmount = seniorOff;
     }
 
     /*
@@ -121,5 +131,28 @@ public class PurchaseOccasion {
         return customer.getSeniorStatus();
     }
 
+    public List<Item> getItems() {
+        return customerBasket.getItems();
+    }
+
+    public Map<String, Long> getDiscounts() {
+        return Map.copyOf(discounts);
+    }
+
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public long getCouponDiscountTotal(){
+        return couponDiscountTotal;
+    }
+
+    public long getSeniorDiscountAmount(){
+        return seniorDiscountAmount;
+    }
+
+    public long getSubtotal() {
+        return subtotal;
+    }
 }
 
