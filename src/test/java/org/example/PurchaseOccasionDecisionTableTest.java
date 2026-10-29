@@ -361,9 +361,10 @@ public class PurchaseOccasionDecisionTableTest {
         Basket basket = new Basket();
         basket.addItem(bread);
 
-        Customer customer_member = new Customer("Greta", "19500101-1234", true, true);
+        Customer customer_member = new Customer("Greta", "19500101-1234", true, false);
 
         Coupon expiredCoupon = mock(Coupon.class);
+
         when(expiredCoupon.isExpired()).thenReturn(true);
 
         customer_member.addCoupon(expiredCoupon);
@@ -374,6 +375,7 @@ public class PurchaseOccasionDecisionTableTest {
 
         assertTrue(expiredCoupon.isExpired());
         assertEquals(150L, purchase.getTotalPriceForPurchase(), "Total price for purchase shouldn't change");
+
     }
 
 }
