@@ -2,6 +2,7 @@ package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
@@ -26,15 +27,27 @@ public class CouponTest {
     }
 
     @Test
-    @Disabled("TODO: constructor does not validate the name yet - needs a RED test when implemented")
     public void createCouponWithoutNameIsInvalid(){
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new Coupon("", 10, LocalDateTime.now().plusDays(1))
+        );
 
+        assertEquals("Invalid coupon name",
+                exception.getMessage());
     }
 
     @Test
-    @Disabled("TODO: constructor does not validate the reduction yet - needs a RED test when implemented")
     public void createCouponWithNegativeReducitonIsInvalid(){
-        //Coupon coupon = new Coupon("20krOff", -20);
+        //Coupon coupon = new Coupon("20krOff", -9, LocalDateTime.now().plusDays(1));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new Coupon("20krOff", -9, LocalDateTime.now().plusDays(1))
+        );
+
+        assertEquals("Invalid reduction values",
+                exception.getMessage());
     }
 
     //test for use coupon
