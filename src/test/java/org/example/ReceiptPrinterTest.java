@@ -5,6 +5,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -99,5 +100,17 @@ public class ReceiptPrinterTest {
             assertTrue(jobs.get(i).contains("Kvittonr:    " + (i + 1)),
                     "job " + i + " is not receipt " + (i + 1));
         }
+    }
+
+    @Test
+    void an_unpaid_receipt_prints_without_the_paid_marker() throws Exception {
+        // simplePurchase is never paid, so the receipt must not claim BETALT.
+        FakePrinter printer = new FakePrinter();
+
+        new ReceiptPrinter(printer).print(simpleReceipt());
+
+        String printed = printer.printedJobs().get(0);
+        assertTrue(printed.contains("SUMMA"), "total row missing");
+        assertFalse(printed.contains("BETALT"), "unpaid receipt claims to be paid");
     }
 }
