@@ -28,14 +28,14 @@ public enum Vat {
     /**
      * Calculates the total price including VAT, given the exclusive price in cents.
      */
-    public long calculateInclusivePrice(long priceExclCents) {
-        return priceExclCents + calculateVatAmount(priceExclCents);
+    public long calculatePriceWithVat(long priceWithoutVat) {
+        return priceWithoutVat + calculateVatAmount(priceWithoutVat);
     }
 
     /**
      * Extracts the exclusive price from an inclusive price in cents.
      */
-    public long calculateExclusivePrice(long priceWithVat) {
+    public long calculatePriceWithoutVat(long priceWithVat) {
         long denominator = 10000 + basisPoints;
         long numerator = priceWithVat * 10000;
         // Round half-up for division
