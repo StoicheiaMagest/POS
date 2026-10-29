@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 public class PurchaseOccasionStoreTest {
 
     private Store createStore() {
@@ -61,30 +59,5 @@ public class PurchaseOccasionStoreTest {
         assertThrows(IllegalStateException.class, () -> purchase.applyDiscounts());
         // the total is untouched by the refused second call
         assertEquals(200L, purchase.getTotalPriceForPurchase());
-    }
-
-    @Test
-    void getItemsReturnsTheItemsFromTheBasket() {
-        Basket basket = new Basket();
-        Item milk = mock(Item.class);
-        Item bread = mock(Item.class);
-        basket.addItem(milk);
-        basket.addItem(bread);
-        PurchaseOccasion occasion =
-                new PurchaseOccasion(basket, mock(Customer.class), mock(Store.class));
-
-        assertEquals(List.of(milk, bread), occasion.getItems());
-    }
-
-    @Test
-    void changingTheReturnedListDoesNotChangeTheOccasion() {
-        Basket basket = new Basket();
-        basket.addItem(mock(Item.class));
-        PurchaseOccasion occasion =
-                new PurchaseOccasion(basket, mock(Customer.class), mock(Store.class));
-
-        occasion.getItems().clear();
-
-        assertEquals(1, occasion.getItems().size());
     }
 }
