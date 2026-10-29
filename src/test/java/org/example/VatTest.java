@@ -44,4 +44,21 @@ class VatTest {
     void calculateInclusivePrice_adds_vat_to_price(long priceInCents, Vat vat, long expected, String description) {
         assertEquals(expected, vat.calculateInclusivePrice(priceInCents));
     }
+
+    @ParameterizedTest(name = "{3} [{1}: {0} cents -> {2}]")
+    @CsvSource({
+            "1250, STANDARD, 1000, exact amount needs no rounding",
+            "188,  STANDARD, 150,  150.40 rounds down",
+            "189,  STANDARD, 151,  151.20 rounds down",
+            "1000, FOOD,     893,  892.86 rounds up",
+            "106,  BOOK,     100,  exact amount for book rate",
+            "14,   FOOD,     13,   12.50 rounds up at exactly half",
+            "0,    STANDARD, 0,    zero price stays zero (standard rate)",
+            "0,    FOOD,     0,    zero price stays zero (food rate)",
+            "0,    BOOK,     0,    zero price stays zero (book rate)"
+    })
+    void calculateExclusivePrice_removes_vat_from_price(long priceWithVat, Vat vat, long expected, String description) {
+        assertEquals(expected, vat.calculateExclusivePrice(priceWithVat));
+    }
+
 }
