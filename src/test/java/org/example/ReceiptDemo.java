@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 /*
  * Prints example receipts for two real purchases, to see what a Receipt looks like.
  * It goes through the real flow: basket, discounts, payment, and only then the receipt.
- * Run it with: java -cp target/classes org.example.ReceiptDemo
+ * The receipt is sent to a mock printer (a hand-written javax.print.PrintService)
+ * and afterwards whatever came out of that printer is shown in the terminal.
+ * Run it with: java -cp target/classes plus target/test-classes org.example.ReceiptDemo
  */
 public class ReceiptDemo {
 
@@ -17,14 +19,21 @@ public class ReceiptDemo {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Store store = createStore();
+        FakePrinter printer = new FakePrinter();
+        ReceiptPrinter receiptPrinter = new ReceiptPrinter(printer);
 
-        printReceipt(1, fullReceiptPurchase(store));
-        System.out.println();
-        printReceipt(2, plainPurchase(store));
-        System.out.println();
-        printReceipt(3, expensivePurchase(store));
+        printReceipt(receiptPrinter, 1, fullReceiptPurchase(store));
+        printReceipt(receiptPrinter, 2, plainPurchase(store));
+        printReceipt(receiptPrinter, 3, expensivePurchase(store));
+
+        // The mock printer caught everything instead of putting it on paper.
+        System.out.println(printer.printedJobs().size() + " receipts came out of the printer:");
+        for (String printedReceipt : printer.printedJobs()) {
+            System.out.println();
+            System.out.println(printedReceipt);
+        }
     }
 
     private static Store createStore() {
@@ -77,13 +86,14 @@ public class ReceiptDemo {
     }
 
     // The receipt is only made when the payment went through.
-    private static void printReceipt(int receiptNumber, PurchaseOccasion purchase) {
+    private static void printReceipt(ReceiptPrinter receiptPrinter, int receiptNumber, PurchaseOccasion purchase)
+            throws Exception {
         purchase.applyDiscounts();
         if (!purchase.payPurchase()) {
             System.out.println("Payment failed, no receipt.");
             return;
         }
         Receipt receipt = new Receipt(receiptNumber, LocalDateTime.now(), "My Store", purchase);
-        System.out.println(receipt.getReceiptText());
+        receiptPrinter.print(receipt);
     }
 }
