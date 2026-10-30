@@ -3,7 +3,7 @@ package org.example;
 // ALl units must be in integers, especially weight and money because
 // according to Become a Java Craftsman in 70 Examples says so
 
-public abstract class Item {
+public class Item {
     protected final int articleNumber;
     protected final String name;
     protected final long price;
@@ -45,5 +45,6 @@ public abstract class Item {
         return articleNumber;
     }
 
-    public abstract long getInclusivePrice();
-}
+    public long getInclusivePrice() {
+        return vat.calculatePriceWithVat(getPrice());
+    }}

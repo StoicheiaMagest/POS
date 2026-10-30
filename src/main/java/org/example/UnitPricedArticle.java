@@ -23,16 +23,14 @@ public class UnitPricedArticle extends Item {
     /**
      * Calculates the VAT amount for this item in cents using integer math.
      */
-    public long getVatAmount() {
-        return vat.calculateVatAmount(price);
-    }
+    public long getVatAmount() { return vat.calculateVatAmount(price); }
 
     /**
      * Calculates the total price including VAT for this item in cents.
      */
     
-    @Override
-    public long getInclusivePrice() {
-        return vat.calculatePriceWithVat(price);
-    }
+//    @Override
+//    public long getInclusivePrice() {
+//        return vat.calculatePriceWithVat(price);
+//    }
 }
