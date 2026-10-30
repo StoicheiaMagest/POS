@@ -14,10 +14,10 @@ public class WeighedItem extends Item {
         this.pricePerKg = pricePerKg;
     }
 
-    @Override
-    public Vat getVatRate() {
-        return vat;
-    }
+//    @Override
+//    public Vat getVatRate() {
+//        return vat;
+//    }
 
     public long getWeight() {
         return weightInGrams;

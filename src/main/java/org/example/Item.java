@@ -27,11 +27,15 @@ public abstract class Item {
 
     public String getName() {
         return name;
-    };
+    }
 
-    public abstract long getPrice();
+    public long getPrice() {
+        return price; // Returns the base price (exclusive of VAT) in cents
+    }
 
-    public abstract Vat getVatRate();
+    public Vat getVatRate() {
+        return vat;
+    }
 
     public String getDiscountType(){
         return discountType;
@@ -39,7 +43,7 @@ public abstract class Item {
 
     public int getArticleNumber() {
         return articleNumber;
-    };
+    }
 
     public abstract long getInclusivePrice();
 }

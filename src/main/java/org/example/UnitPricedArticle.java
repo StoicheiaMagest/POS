@@ -9,16 +9,16 @@ public class UnitPricedArticle extends Item {
                              Vat vat, int articleId) {
         super(name, priceExclCents, vat, articleId);
     }
+//
+//    @Override
+//    public long getPrice() {
+//        return price; // Returns the base price (exclusive of VAT) in cents
+//    }
 
-    @Override
-    public long getPrice() {
-        return price; // Returns the base price (exclusive of VAT) in cents
-    }
-
-    @Override
-    public Vat getVatRate() {
-        return vat;
-    }
+//    @Override
+//    public Vat getVatRate() {
+//        return vat;
+//    }
 
     /**
      * Calculates the VAT amount for this item in cents using integer math.
