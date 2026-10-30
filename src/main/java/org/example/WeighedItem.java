@@ -33,7 +33,8 @@ public class WeighedItem extends Item {
     @Override
     public long getPrice() {
         // Calculate the base price in cents using weight in grams.
-        return (int) ((long) pricePerKg * weightInGrams / 1000);
+        //return (int) ((long) pricePerKg * weightInGrams / 1000);
+        return pricePerKg * weightInGrams / 1000;
     }
 
     public long getPricePerKg() {
