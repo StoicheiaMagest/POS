@@ -38,6 +38,28 @@ public class CouponTest {
     }
 
     @Test
+    public void createCouponWithNullNameIsInvalid(){
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new Coupon(null, 10, LocalDateTime.now().plusDays(1))
+        );
+
+        assertEquals("Invalid coupon name",
+                exception.getMessage());
+    }
+
+    @Test
+    public void createCouponWithBlankNameIsInvalid(){
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new Coupon("   ", 10, LocalDateTime.now().plusDays(1))
+        );
+
+        assertEquals("Invalid coupon name",
+                exception.getMessage());
+    }
+
+    @Test
     public void createCouponWithNegativeReducitonIsInvalid(){
         //Coupon coupon = new Coupon("20krOff", -9, LocalDateTime.now().plusDays(1));
 

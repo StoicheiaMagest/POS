@@ -14,7 +14,7 @@ public class Coupon {
 
     public Coupon(String name, long reduction, LocalDateTime expiryDate){
         //throw exeption if null or negetive value
-        if(name.isBlank() || name.equals(null)){
+        if(name == null || name.isBlank()){
             throw new IllegalArgumentException("Invalid coupon name");
         }        
         //if name contains % or "procent" then it cannot be 100 or higher
